@@ -1,7 +1,7 @@
 <?php
 /**
  * ddMakeHttpRequest.php
- * @version 1.1.2 (2013-10-22)
+ * @version 1.1.3 (2013-12-02)
  * 
  * @desc Осуществляет запрос по заданному URL.
  * 
@@ -17,7 +17,7 @@
  */
 
 if (isset($url)){
-	if (!is_array($post))
+	if (!isset($post) || !is_array($post))
 		$post = isset($post) ? $post : false;
 	$metod = ((isset($metod) && $metod == 'post') || is_array($post)) ? 'post' : 'get';
 	$ssl = (isset($ssl) && ($ssl == '1')) ? true : false;
