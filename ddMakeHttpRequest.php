@@ -1,7 +1,7 @@
 <?php
 /**
  * ddMakeHttpRequest.php
- * @version 1.1.3 (2013-12-02)
+ * @version 1.1.4 (2014-07-17)
  * 
  * @desc Осуществляет запрос по заданному URL.
  * 
@@ -11,8 +11,9 @@
  * @param $ssl - Соединяемся ли с https.
  * @param $headers - Заголовки, которые нужно отправить. Разделитель между строками — '||'.
  * @param $uagent - Значение HTTP заголовка "User-Agent: "
+ * @param $timeout {integer} - Максимальное время выполнения запроса в секундах.
  * 
- * @copyright 2013, DivanDesign
+ * @copyright 2014, DivanDesign
  * http://www.DivanDesign.biz
  */
 
@@ -22,11 +23,15 @@ if (isset($url)){
 	$metod = ((isset($metod) && $metod == 'post') || is_array($post)) ? 'post' : 'get';
 	$ssl = (isset($ssl) && ($ssl == '1')) ? true : false;
 	$headers = isset($headers) ? explode('||', $headers) : false;
+	$timeout = isset($timeout) && is_numeric($timeout) ? $timeout : 60;
 
 	$manualRedirect = false;
 
 	//Инициализируем сеанс CURL
 	$ch = curl_init($url);
+
+	//Выставление таймаута
+	curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
 
 	//Если необходимо соединиться с https
 	if ($ssl){
