@@ -5,23 +5,34 @@
  * 
  * @desc Осуществляет запрос по заданному URL.
  * 
+ * @uses The library modx.ddTools 0.13.
+ * 
  * @param $url {string} - Адрес, к которому обращаться. @required
- * @param $metod {'get'; 'post'} - Тип запроса. Default: 'get'.
+ * @param $method {'get'; 'post'} - Тип запроса. Default: 'get'.
  * @param $post {separated string} - Переменные, которые нужно отправить. Формат: строка, разделённая '::' между парой ключ-значение и '||' между парами. Default: —.
  * @param $ssl {0; 1} - Соединяемся ли с https? Default: 0.
  * @param $headers {separated string} - Заголовки, которые нужно отправить. Разделитель между строками — '||'. Default: —.
- * @param $uagent {string} - Значение HTTP заголовка 'User-Agent: '. Default: —.
+ * @param $userAgent {string} - Значение HTTP заголовка 'User-Agent: '. Default: —.
  * @param $timeout {integer} - Максимальное время выполнения запроса в секундах. Default: 60.
  * 
  * @copyright 2014, DivanDesign
  * http://www.DivanDesign.biz
  */
 
+//Подключаем modx.ddTools
+require_once $modx->getConfig('base_path').'assets/snippets/ddTools/modx.ddtools.class.php';
+
+//Для обратной совместимости
+extract(ddTools::verifyRenamedParams($params, array(
+	'method' => 'metod',
+	'userAgent' => 'uagent'
+)));
+
 if (isset($url)){
 	if (!isset($post) || !is_array($post)){
 		$post = isset($post) ? $post : false;
 	}
-	$metod = ((isset($metod) && $metod == 'post') || is_array($post)) ? 'post' : 'get';
+	$method = ((isset($method) && $method == 'post') || is_array($post)) ? 'post' : 'get';
 	$ssl = (isset($ssl) && ($ssl == '1')) ? true : false;
 	$headers = isset($headers) ? explode('||', $headers) : false;
 	$timeout = isset($timeout) && is_numeric($timeout) ? $timeout : 60;
@@ -56,7 +67,7 @@ if (isset($url)){
 	curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
 	
 	//Если есть переменные для отправки
-	if ($metod == 'post' && isset($post)){
+	if ($method == 'post' && isset($post)){
 		//Запрос будет методом POST типа application/x-www-form-urlencoded (используемый браузерами при отправке форм)
 		curl_setopt($ch, CURLOPT_POST, 1);
 		
@@ -88,8 +99,8 @@ if (isset($url)){
 	}
 	
 	//Если задан UserAgent
-	if (isset($uagent)){
-		curl_setopt($ch, CURLOPT_USERAGENT, $uagent);
+	if (isset($userAgent)){
+		curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
 	}
 	
 	//Выполняем запрос
