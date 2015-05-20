@@ -5,13 +5,13 @@
  * 
  * @desc Осуществляет запрос по заданному URL.
  * 
- * @param $url - Адрес, к которому обращаться.
- * @param $metod - Тип запроса (get или post, get по умолчанию).
- * @param $post - Переменные, которые нужно отправить. Пары ключ-значение разделённые '||', разделитель между ключом и значением — '::'.
- * @param $ssl - Соединяемся ли с https.
- * @param $headers - Заголовки, которые нужно отправить. Разделитель между строками — '||'.
- * @param $uagent - Значение HTTP заголовка "User-Agent: "
- * @param $timeout {integer} - Максимальное время выполнения запроса в секундах.
+ * @param $url {string} - Адрес, к которому обращаться. @required
+ * @param $metod {'get'; 'post'} - Тип запроса. Default: 'get'.
+ * @param $post {separated string} - Переменные, которые нужно отправить. Формат: строка, разделённая '::' между парой ключ-значение и '||' между парами. Default: —.
+ * @param $ssl {0; 1} - Соединяемся ли с https? Default: 0.
+ * @param $headers {separated string} - Заголовки, которые нужно отправить. Разделитель между строками — '||'. Default: —.
+ * @param $uagent {string} - Значение HTTP заголовка 'User-Agent: '. Default: —.
+ * @param $timeout {integer} - Максимальное время выполнения запроса в секундах. Default: 60.
  * 
  * @copyright 2014, DivanDesign
  * http://www.DivanDesign.biz
