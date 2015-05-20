@@ -1,7 +1,7 @@
 <?php
 /**
  * ddMakeHttpRequest.php
- * @version 1.1 (2011-09-28)
+ * @version 1.1.1 (2013-09-13)
  * 
  * @desc Осуществляет запрос по заданному URL.
  * 
@@ -12,7 +12,7 @@
  * @param $headers - Заголовки, которые нужно отправить. Разделитель между строками — '||'.
  * @param $uagent - Значение HTTP заголовка "User-Agent: "
  * 
- * @copyright 2011, DivanDesign
+ * @copyright 2013, DivanDesign
  * http://www.DivanDesign.biz
  */
 
@@ -37,7 +37,8 @@ if (isset($url)){
 	curl_setopt($ch, CURLOPT_HEADER, 0);
 	//При установке этого параметра в ненулевое значение, при получении HTTP заголовка "Location: " будет происходить перенаправление
 	//на указанный этим заголовком URL (это действие выполняется рекурсивно, для каждого полученного заголовка "Location:").
-	//curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+	curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
 
 	//Если есть переменные для отправки
 	if ($metod == 'post' && isset($post)){
