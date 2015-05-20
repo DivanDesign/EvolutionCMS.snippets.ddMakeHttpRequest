@@ -72,16 +72,7 @@ if (isset($url)){
 		curl_setopt($ch, CURLOPT_POST, 1);
 		
 		//Если пост передан строкой, то преобразовываем в массив
-		if (!is_array($post)){
-			$post = explode('||', $post);
-			$temp = $post;
-			$post = array();
-			
-			foreach ($temp as $value){
-				$value = explode('::', $value);
-				$post[$value[0]] = $value[1];
-			}
-		}
+		if (!is_array($post)){$post = ddTools::explodeAssoc($post);}
 		
 		if (is_array($post)){
 			$post_mas = Array();
