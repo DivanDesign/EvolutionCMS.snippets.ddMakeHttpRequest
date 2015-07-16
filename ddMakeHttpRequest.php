@@ -10,7 +10,6 @@
  * @param $url {string} - Адрес, к которому обращаться. @required
  * @param $method {'get'; 'post'} - Тип запроса. Default: 'get'.
  * @param $post {separated string} - Переменные, которые нужно отправить. Формат: строка, разделённая '::' между парой ключ-значение и '||' между парами. Default: —.
- * @param $ssl {0; 1} - Соединяемся ли с https? Default: 0.
  * @param $headers {separated string} - Заголовки, которые нужно отправить. Разделитель между строками — '||'. Default: —.
  * @param $userAgent {string} - Значение HTTP заголовка 'User-Agent: '. Default: —.
  * @param $timeout {integer} - Максимальное время выполнения запроса в секундах. Default: 60.
@@ -33,22 +32,32 @@ if (isset($url)){
 		$post = isset($post) ? $post : false;
 	}
 	$method = ((isset($method) && $method == 'post') || is_array($post)) ? 'post' : 'get';
-	$ssl = (isset($ssl) && ($ssl == '1')) ? true : false;
 	$headers = isset($headers) ? explode('||', $headers) : false;
 	$timeout = isset($timeout) && is_numeric($timeout) ? $timeout : 60;
 	
 	$manualRedirect = false;
 	
+	//Разбиваем адрес на компоненты
+	$urlArray = parse_url($url);
+	$urlArray['scheme'] = isset($urlArray['scheme'])? $urlArray['scheme']: 'http';
+	$urlArray['path'] = isset($urlArray['path'])? $urlArray['path']: '';
+	$urlArray['query'] = isset($urlArray['query'])? '?'.$urlArray['query']: '';
+	
 	//Инициализируем сеанс CURL
-	$ch = curl_init($url);
+	$ch = curl_init($urlArray['scheme'].'://'.$urlArray['host'].$urlArray['path'].$urlArray['query']);
 	
 	//Выставление таймаута
 	curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
 	
 	//Если необходимо соединиться с https
-	if ($ssl){
+	if ($urlArray['scheme'] === 'https'){
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+	}
+	
+	//Устанавливаем порт, если задан
+	if(isset($urlArray['port'])){
+		curl_setopt($ch, CURLOPT_PORT, $urlArray['port']);
 	}
 	
 	//Результат должен быть возвращен, а не выведен
