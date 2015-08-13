@@ -1,7 +1,7 @@
 <?php
 /**
  * ddMakeHttpRequest.php
- * @version 1.1.4 (2014-07-17)
+ * @version 1.2 (2015-08-13)
  * 
  * @desc Осуществляет запрос по заданному URL.
  * 
