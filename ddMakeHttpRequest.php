@@ -28,10 +28,7 @@ extract(ddTools::verifyRenamedParams($params, array(
 )));
 
 if (isset($url)){
-	if (!isset($post) || !is_array($post)){
-		$post = isset($post) ? $post : false;
-	}
-	$method = ((isset($method) && $method == 'post') || is_array($post)) ? 'post' : 'get';
+	$method = ((isset($method) && $method == 'post') || isset($post)) ? 'post' : 'get';
 	
 	if (isset($headers) && !is_array($headers)){
 		//If “=” exists
@@ -92,27 +89,27 @@ if (isset($url)){
 		//Запрос будет методом POST типа application/x-www-form-urlencoded (используемый браузерами при отправке форм)
 		curl_setopt($ch, CURLOPT_POST, 1);
 		
-		//Если пост передан строкой, то преобразовываем в массив
-		if (!is_array($post)){
-			//If “=” exists
-			if (strpos($post, '=') !== false){
-				//Parse a query string
-				parse_str($post, $post);
-			}else{
-				//The old format
-				$post = ddTools::explodeAssoc($post);
-				$modx->logEvent(1, 2, '<p>String separated by “::” && “||” in the “post” parameter is deprecated. Use a <a href="https://en.wikipedia.org/wiki/Query_string)">query string</a>.</p><p>The snippet has been called in the document with id '.$modx->documentIdentifier.'.</p>', $modx->currentSnippet);
-			}
+		//Если пост передан строкой в старом формате
+		if (
+			!is_array($post) &&
+			//Определяем старый формат по наличию «::» (это спорно и неоднозначно, но пока так)
+			strpos($post, '::') !== false
+		){
+			$post = ddTools::explodeAssoc($post);
+			$modx->logEvent(1, 2, '<p>String separated by “::” && “||” in the “post” parameter is deprecated. Use a <a href="https://en.wikipedia.org/wiki/Query_string)">query string</a>.</p><p>The snippet has been called in the document with id '.$modx->documentIdentifier.'.</p>', $modx->currentSnippet);
 		}
 		
+		//Если он массив — делаем query string
 		if (is_array($post)){
 			$post_mas = Array();
 			//Сформируем массив для отправки, предварительно перекодировав
 			foreach ($post as $key => $value){
 				$post_mas[] = $key.'='.urlencode($value);
 			}
-			curl_setopt($ch, CURLOPT_POSTFIELDS, implode('&', $post_mas));
+			$post = implode('&', $post_mas);
 		}
+		
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
 	}
 	
 	//Если заданы какие-то HTTP заголовки
