@@ -10,7 +10,7 @@
  * @param $url {string} - Адрес, к которому обращаться. @required
  * @param $method {'get'; 'post'} - Тип запроса. Default: 'get'.
  * @param $post {separated string} - Переменные, которые нужно отправить. Формат: строка, разделённая '::' между парой ключ-значение и '||' между парами. Default: —.
- * @param $headers {separated string} - Заголовки, которые нужно отправить. Разделитель между строками — '||'. Default: —.
+ * @param $headers {query string} - Заголовки, которые нужно отправить. E. g. “0=Accept: application/vnd.api+json&1=Content-Type: application/vnd.api+json”. Default: —.
  * @param $userAgent {string} - Значение HTTP заголовка 'User-Agent: '. Default: —.
  * @param $timeout {integer} - Максимальное время выполнения запроса в секундах. Default: 60.
  * 
@@ -32,7 +32,19 @@ if (isset($url)){
 		$post = isset($post) ? $post : false;
 	}
 	$method = ((isset($method) && $method == 'post') || is_array($post)) ? 'post' : 'get';
-	$headers = isset($headers) ? explode('||', $headers) : false;
+	
+	if (isset($headers) && !is_array($headers)){
+		//If “=” exists
+		if (strpos($headers, '=') !== false){
+			//Parse a query string
+			parse_str($headers, $headers);
+		}else{
+			//The old format
+			$headers = ddTools::explodeAssoc($headers);
+			$modx->logEvent(1, 2, '<p>String separated by “::” && “||” in the “headers” parameter is deprecated. Use a <a href="https://en.wikipedia.org/wiki/Query_string)">query string</a>.</p><p>The snippet has been called in the document with id '.$modx->documentIdentifier.'.</p>', $modx->currentSnippet);
+		}
+	}
+	
 	$timeout = isset($timeout) && is_numeric($timeout) ? $timeout : 60;
 	
 	$manualRedirect = false;
