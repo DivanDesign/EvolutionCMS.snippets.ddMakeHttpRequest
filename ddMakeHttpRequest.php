@@ -9,7 +9,7 @@
  * 
  * @param $url {string} - Адрес, к которому обращаться. @required
  * @param $method {'get'; 'post'} - Тип запроса. Default: 'get'.
- * @param $post {separated string} - Переменные, которые нужно отправить. Формат: строка, разделённая '::' между парой ключ-значение и '||' между парами. Default: —.
+ * @param $post {query string} - Переменные, которые нужно отправить (https://en.wikipedia.org/wiki/Query_string). E. g. “pladeholder1=value1&pagetitle=My awesome pagetitle!”. Default: -.
  * @param $headers {query string} - Заголовки, которые нужно отправить. E. g. “0=Accept: application/vnd.api+json&1=Content-Type: application/vnd.api+json”. Default: —.
  * @param $userAgent {string} - Значение HTTP заголовка 'User-Agent: '. Default: —.
  * @param $timeout {integer} - Максимальное время выполнения запроса в секундах. Default: 60.
@@ -93,7 +93,17 @@ if (isset($url)){
 		curl_setopt($ch, CURLOPT_POST, 1);
 		
 		//Если пост передан строкой, то преобразовываем в массив
-		if (!is_array($post)){$post = ddTools::explodeAssoc($post);}
+		if (!is_array($post)){
+			//If “=” exists
+			if (strpos($post, '=') !== false){
+				//Parse a query string
+				parse_str($post, $post);
+			}else{
+				//The old format
+				$post = ddTools::explodeAssoc($post);
+				$modx->logEvent(1, 2, '<p>String separated by “::” && “||” in the “post” parameter is deprecated. Use a <a href="https://en.wikipedia.org/wiki/Query_string)">query string</a>.</p><p>The snippet has been called in the document with id '.$modx->documentIdentifier.'.</p>', $modx->currentSnippet);
+			}
+		}
 		
 		if (is_array($post)){
 			$post_mas = Array();
