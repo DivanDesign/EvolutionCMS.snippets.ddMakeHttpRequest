@@ -9,7 +9,7 @@
  * 
  * @param $url {string} - Адрес, к которому обращаться. @required
  * @param $method {'get'; 'post'} - Тип запроса. Default: 'get'.
- * @param $post {query string} - Переменные, которые нужно отправить (https://en.wikipedia.org/wiki/Query_string). E. g. “pladeholder1=value1&pagetitle=My awesome pagetitle!”. Default: -.
+ * @param $postData {query string} - Переменные, которые нужно отправить (https://en.wikipedia.org/wiki/Query_string). E. g. “pladeholder1=value1&pagetitle=My awesome pagetitle!”. Default: -.
  * @param $headers {query string} - Заголовки, которые нужно отправить. E. g. “0=Accept: application/vnd.api+json&1=Content-Type: application/vnd.api+json”. Default: —.
  * @param $userAgent {string} - Значение HTTP заголовка 'User-Agent: '. Default: —.
  * @param $timeout {integer} - Максимальное время выполнения запроса в секундах. Default: 60.
@@ -24,11 +24,12 @@ require_once $modx->getConfig('base_path').'assets/snippets/ddTools/modx.ddtools
 //Для обратной совместимости
 extract(ddTools::verifyRenamedParams($params, array(
 	'method' => 'metod',
-	'userAgent' => 'uagent'
+	'userAgent' => 'uagent',
+	'postData' => 'post'
 )));
 
 if (isset($url)){
-	$method = ((isset($method) && $method == 'post') || isset($post)) ? 'post' : 'get';
+	$method = ((isset($method) && $method == 'post') || isset($postData)) ? 'post' : 'get';
 	
 	if (isset($headers) && !is_array($headers)){
 		//If “=” exists
@@ -85,31 +86,31 @@ if (isset($url)){
 	curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
 	
 	//Если есть переменные для отправки
-	if ($method == 'post' && isset($post)){
+	if ($method == 'post' && isset($postData)){
 		//Запрос будет методом POST типа application/x-www-form-urlencoded (используемый браузерами при отправке форм)
 		curl_setopt($ch, CURLOPT_POST, 1);
 		
 		//Если пост передан строкой в старом формате
 		if (
-			!is_array($post) &&
+			!is_array($postData) &&
 			//Определяем старый формат по наличию «::» (это спорно и неоднозначно, но пока так)
-			strpos($post, '::') !== false
+			strpos($postData, '::') !== false
 		){
-			$post = ddTools::explodeAssoc($post);
+			$postData = ddTools::explodeAssoc($postData);
 			$modx->logEvent(1, 2, '<p>String separated by “::” && “||” in the “post” parameter is deprecated. Use a <a href="https://en.wikipedia.org/wiki/Query_string)">query string</a>.</p><p>The snippet has been called in the document with id '.$modx->documentIdentifier.'.</p>', $modx->currentSnippet);
 		}
 		
 		//Если он массив — делаем query string
-		if (is_array($post)){
-			$post_mas = Array();
+		if (is_array($postData)){
+			$postData_mas = Array();
 			//Сформируем массив для отправки, предварительно перекодировав
-			foreach ($post as $key => $value){
-				$post_mas[] = $key.'='.urlencode($value);
+			foreach ($postData as $key => $value){
+				$postData_mas[] = $key.'='.urlencode($value);
 			}
-			$post = implode('&', $post_mas);
+			$postData = implode('&', $postData_mas);
 		}
 		
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
 	}
 	
 	//Если заданы какие-то HTTP заголовки
