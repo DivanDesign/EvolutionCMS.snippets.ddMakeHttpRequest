@@ -1,21 +1,22 @@
 <?php
 /**
  * ddMakeHttpRequest.php
- * @version 1.2 (2015-08-13)
+ * @version 1.3 (2016-08-05)
  * 
- * @desc Осуществляет запрос по заданному URL.
+ * @desc Makes HTTP request to a given URL.
  * 
  * @uses The library modx.ddTools 0.13.
  * 
- * @param $url {string} - Адрес, к которому обращаться. @required
- * @param $method {'get'; 'post'} - Тип запроса. Default: 'get'.
- * @param $postData {query string} - Переменные, которые нужно отправить (https://en.wikipedia.org/wiki/Query_string). E. g. “pladeholder1=value1&pagetitle=My awesome pagetitle!”. Default: -.
- * @param $headers {query string} - Заголовки, которые нужно отправить. E. g. “0=Accept: application/vnd.api+json&1=Content-Type: application/vnd.api+json”. Default: —.
- * @param $userAgent {string} - Значение HTTP заголовка 'User-Agent: '. Default: —.
- * @param $timeout {integer} - Максимальное время выполнения запроса в секундах. Default: 60.
+ * @param $url {string} — The URL to fetch. @required
+ * @param $method {'get'|'post'} — Request type. Default: 'get'.
+ * @param $postData {query string|associative array|string} — The full data to post in a HTTP "POST" operation (https://en.wikipedia.org/wiki/Query_string). E. g. 'pladeholder1=value1&pagetitle=My awesome pagetitle!'. Default: —.
+ * @param $headers {query string|array} — An array of HTTP header fields to set. E. g. '0=Accept: application/vnd.api+json&1=Content-Type: application/vnd.api+json'. Default: —.
+ * @param $userAgent {string} — The contents of the 'User-Agent: ' header to be used in a HTTP request. Default: —.
+ * @param $timeout {integer} — The maximum number of seconds for execute request. Default: 60.
  * 
- * @copyright 2014, DivanDesign
- * http://www.DivanDesign.biz
+ * @link http://code.divandesign.biz/modx/ddmakehttprequest/1.3
+ * 
+ * @copyright 2011–2016 DivanDesign {@link http://www.DivanDesign.biz }
  */
 
 //Подключаем modx.ddTools
