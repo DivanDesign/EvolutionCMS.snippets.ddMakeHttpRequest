@@ -31,7 +31,10 @@ extract(ddTools::verifyRenamedParams($params, array(
 if (isset($url)){
 	$method = ((isset($method) && $method == 'post') || isset($postData)) ? 'post' : 'get';
 	
-	if (isset($headers) && !is_array($headers)){
+	if (
+		isset($headers) &&
+		!is_array($headers)
+	){
 		//If “=” exists
 		if (strpos($headers, '=') !== false){
 			//Parse a query string
@@ -49,9 +52,9 @@ if (isset($url)){
 	
 	//Разбиваем адрес на компоненты
 	$urlArray = parse_url($url);
-	$urlArray['scheme'] = isset($urlArray['scheme'])? $urlArray['scheme']: 'http';
-	$urlArray['path'] = isset($urlArray['path'])? $urlArray['path']: '';
-	$urlArray['query'] = isset($urlArray['query'])? '?'.$urlArray['query']: '';
+	$urlArray['scheme'] = isset($urlArray['scheme']) ? $urlArray['scheme'] : 'http';
+	$urlArray['path'] = isset($urlArray['path']) ? $urlArray['path'] : '';
+	$urlArray['query'] = isset($urlArray['query']) ? '?'.$urlArray['query'] : '';
 	
 	//Инициализируем сеанс CURL
 	$ch = curl_init($urlArray['scheme'].'://'.$urlArray['host'].$urlArray['path'].$urlArray['query']);
@@ -74,7 +77,10 @@ if (isset($url)){
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 	//Не включаем полученные заголовки в результат
 	
-	if (ini_get('open_basedir') != '' || ini_get('safe_mode')){
+	if (
+		ini_get('open_basedir') != '' ||
+		ini_get('safe_mode')
+	){
 		curl_setopt($ch, CURLOPT_HEADER, 1);
 		$manualRedirect = true;
 	}else{
@@ -86,7 +92,10 @@ if (isset($url)){
 	curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
 	
 	//Если есть переменные для отправки
-	if ($method == 'post' && isset($postData)){
+	if (
+		$method == 'post' &&
+		isset($postData)
+	){
 		//Запрос будет методом POST типа application/x-www-form-urlencoded (используемый браузерами при отправке форм)
 		curl_setopt($ch, CURLOPT_POST, 1);
 		
@@ -127,7 +136,10 @@ if (isset($url)){
 	$result = curl_exec($ch);
 	
 	//Если есть ошибки или ничего не получили
-	if (curl_errno($ch) != 0 && empty($result)){
+	if (
+		curl_errno($ch) != 0 &&
+		empty($result)
+	){
 		$result = false;
 	}else if ($manualRedirect){
 		$redirectCount = 10;
