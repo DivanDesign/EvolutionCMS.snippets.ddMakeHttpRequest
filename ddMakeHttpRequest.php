@@ -1,11 +1,11 @@
 <?php
 /**
- * ddMakeHttpRequest.php
+ * ddMakeHttpRequest
  * @version 1.3 (2016-08-05)
  * 
  * @desc Makes HTTP request to a given URL.
  * 
- * @uses The library modx.ddTools 0.13.
+ * @uses MODXEvo.libraries.ddTools >= 0.13.
  * 
  * @param $url {string} — The URL to fetch. @required
  * @param $method {'get'|'post'} — Request type. Default: 'get'.
@@ -23,11 +23,14 @@
 require_once $modx->getConfig('base_path').'assets/snippets/ddTools/modx.ddtools.class.php';
 
 //Для обратной совместимости
-extract(ddTools::verifyRenamedParams($params, array(
-	'method' => 'metod',
-	'userAgent' => 'uagent',
-	'postData' => 'post'
-)));
+extract(ddTools::verifyRenamedParams(
+	$params,
+	array(
+		'method' => 'metod',
+		'userAgent' => 'uagent',
+		'postData' => 'post'
+	)
+));
 
 if (isset($url)){
 	$method = ((isset($method) && $method == 'post') || isset($postData)) ? 'post' : 'get';
@@ -37,13 +40,24 @@ if (isset($url)){
 		!is_array($headers)
 	){
 		//If “=” exists
-		if (strpos($headers, '=') !== false){
+		if (strpos(
+			$headers,
+			'='
+		) !== false){
 			//Parse a query string
-			parse_str($headers, $headers);
+			parse_str(
+				$headers,
+				$headers
+			);
 		}else{
 			//The old format
 			$headers = ddTools::explodeAssoc($headers);
-			$modx->logEvent(1, 2, '<p>String separated by “::” && “||” in the “headers” parameter is deprecated. Use a <a href="https://en.wikipedia.org/wiki/Query_string)">query string</a>.</p><p>The snippet has been called in the document with id '.$modx->documentIdentifier.'.</p>', $modx->currentSnippet);
+			$modx->logEvent(
+				1,
+				2,
+				'<p>String separated by “::” && “||” in the “headers” parameter is deprecated. Use a <a href="https://en.wikipedia.org/wiki/Query_string)">query string</a>.</p><p>The snippet has been called in the document with id '.$modx->documentIdentifier.'.</p>',
+				$modx->currentSnippet
+			);
 		}
 	}
 	
@@ -61,36 +75,72 @@ if (isset($url)){
 	$ch = curl_init($urlArray['scheme'].'://'.$urlArray['host'].$urlArray['path'].$urlArray['query']);
 	
 	//Выставление таймаута
-	curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+	curl_setopt(
+		$ch,
+		CURLOPT_TIMEOUT,
+		$timeout
+	);
 	
 	//Если необходимо соединиться с https
 	if ($urlArray['scheme'] === 'https'){
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+		curl_setopt(
+			$ch,
+			CURLOPT_SSL_VERIFYPEER,
+			0
+		);
+		curl_setopt(
+			$ch,
+			CURLOPT_SSL_VERIFYHOST,
+			0
+		);
 	}
 	
 	//Устанавливаем порт, если задан
 	if(isset($urlArray['port'])){
-		curl_setopt($ch, CURLOPT_PORT, $urlArray['port']);
+		curl_setopt(
+			$ch,
+			CURLOPT_PORT,
+			$urlArray['port']
+		);
 	}
 	
 	//Результат должен быть возвращен, а не выведен
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt(
+		$ch,
+		CURLOPT_RETURNTRANSFER,
+		1
+	);
 	//Не включаем полученные заголовки в результат
 	
 	if (
 		ini_get('open_basedir') != '' ||
 		ini_get('safe_mode')
 	){
-		curl_setopt($ch, CURLOPT_HEADER, 1);
+		curl_setopt(
+			$ch,
+			CURLOPT_HEADER,
+			1
+		);
 		$manualRedirect = true;
 	}else{
-		curl_setopt($ch, CURLOPT_HEADER, 0);
+		curl_setopt(
+			$ch,
+			CURLOPT_HEADER,
+			0
+		);
 		//При установке этого параметра в ненулевое значение, при получении HTTP заголовка "Location: " будет происходить перенаправление на указанный этим заголовком URL (это действие выполняется рекурсивно, для каждого полученного заголовка "Location:").
-		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt(
+			$ch,
+			CURLOPT_FOLLOWLOCATION,
+			true
+		);
 	}
 	
-	curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
+	curl_setopt(
+		$ch,
+		CURLOPT_MAXREDIRS,
+		10
+	);
 	
 	//Если есть переменные для отправки
 	if (
@@ -98,39 +148,69 @@ if (isset($url)){
 		isset($postData)
 	){
 		//Запрос будет методом POST типа application/x-www-form-urlencoded (используемый браузерами при отправке форм)
-		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt(
+			$ch,
+			CURLOPT_POST,
+			1
+		);
 		
 		//Если пост передан строкой в старом формате
 		if (
 			!is_array($postData) &&
 			//Определяем старый формат по наличию «::» (это спорно и неоднозначно, но пока так)
-			strpos($postData, '::') !== false
+			strpos(
+				$postData,
+				'::'
+			) !== false
 		){
 			$postData = ddTools::explodeAssoc($postData);
-			$modx->logEvent(1, 2, '<p>String separated by “::” && “||” in the “post” parameter is deprecated. Use a <a href="https://en.wikipedia.org/wiki/Query_string)">query string</a>.</p><p>The snippet has been called in the document with id '.$modx->documentIdentifier.'.</p>', $modx->currentSnippet);
+			$modx->logEvent(
+				1,
+				2,
+				'<p>String separated by “::” && “||” in the “post” parameter is deprecated. Use a <a href="https://en.wikipedia.org/wiki/Query_string)">query string</a>.</p><p>The snippet has been called in the document with id '.$modx->documentIdentifier.'.</p>',
+				$modx->currentSnippet
+			);
 		}
 		
 		//Если он массив — делаем query string
 		if (is_array($postData)){
 			$postData_mas = Array();
 			//Сформируем массив для отправки, предварительно перекодировав
-			foreach ($postData as $key => $value){
+			foreach (
+				$postData as
+				$key => $value
+			){
 				$postData_mas[] = $key.'='.urlencode($value);
 			}
-			$postData = implode('&', $postData_mas);
+			$postData = implode(
+				'&',
+				$postData_mas
+			);
 		}
 		
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+		curl_setopt(
+			$ch,
+			CURLOPT_POSTFIELDS,
+			$postData
+		);
 	}
 	
 	//Если заданы какие-то HTTP заголовки
 	if (is_array($headers)){
-		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+		curl_setopt(
+			$ch,
+			CURLOPT_HTTPHEADER,
+			$headers
+		);
 	}
 	
 	//Если задан UserAgent
 	if (isset($userAgent)){
-		curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
+		curl_setopt(
+			$ch,
+			CURLOPT_USERAGENT,
+			$userAgent
+		);
 	}
 	
 	//Выполняем запрос
@@ -146,15 +226,35 @@ if (isset($url)){
 		$redirectCount = 10;
 		while (0 < $redirectCount--){
 			//Получаем заголовки, контент и код ответа
-			$resultHeader = substr($result, 0, curl_getinfo($ch, CURLINFO_HEADER_SIZE));
-			$resultData = substr($result, curl_getinfo($ch, CURLINFO_HEADER_SIZE));
-			$resultResponseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			$resultHeader = substr(
+				$result,
+				0,
+				curl_getinfo(
+					$ch,
+					CURLINFO_HEADER_SIZE
+				)
+			);
+			$resultData = substr(
+				$result,
+				curl_getinfo(
+					$ch,
+					CURLINFO_HEADER_SIZE
+				)
+			);
+			$resultResponseCode = curl_getinfo(
+				$ch,
+				CURLINFO_HTTP_CODE
+			);
 			
 			//Проверяем код на редирект
 			if (intval($resultResponseCode / 100) == 3){
 				//Ищем новый url в заголовках
 				$matches = array();
-				preg_match('/Location:(.*?)\n/', $resultHeader, $matches);
+				preg_match(
+					'/Location:(.*?)\n/',
+					$resultHeader,
+					$matches
+				);
 				$newUrlStr = '';
 				if (count($matches)){
 					$newUrlStr = array_pop($matches);
@@ -167,7 +267,10 @@ if (isset($url)){
 				}
 				
 				//Собираем новый url
-				$lastUrl = parse_url(curl_getinfo($ch, CURLINFO_EFFECTIVE_URL));
+				$lastUrl = parse_url(curl_getinfo(
+					$ch,
+					CURLINFO_EFFECTIVE_URL
+				));
 				if (!$redirectUrl['scheme']){
 					$redirectUrl['scheme'] = $lastUrl['scheme'];
 				}
@@ -180,14 +283,23 @@ if (isset($url)){
 				$newUrl = $redirectUrl['scheme'].'://'.$redirectUrl['host'].$redirectUrl['path'].($redirectUrl['query'] ? '?'.$redirectUrl['query'] : '');
 				
 				//Выполняем запрос с новым адресом
-				curl_setopt($ch, CURLOPT_URL, $newUrl);
+				curl_setopt(
+					$ch,
+					CURLOPT_URL,
+					$newUrl
+				);
 				$result = curl_exec($ch);
-				if (curl_errno($ch) != 0 && empty($result)){
+				if (
+					curl_errno($ch) != 0 &&
+					empty($result)
+				){
 					$result = false;
+					
 					break;
 				}
 			}else{
 				$result = $resultData;
+				
 				break;
 			}
 		}
