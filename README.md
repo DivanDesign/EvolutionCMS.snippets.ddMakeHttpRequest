@@ -1,4 +1,4 @@
-# ddMakeHttpRequest
+# MODXEvo.snippets.ddMakeHttpRequest
 
 Makes HTTP request to a given URL.
 ___

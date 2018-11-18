@@ -5,7 +5,7 @@
  * 
  * @desc Makes HTTP request to a given URL.
  * 
- * @uses MODXEvo.libraries.ddTools >= 0.13.
+ * @uses MODXEvo.libraries.ddTools >= 0.23.
  * 
  * @param $url {string} — The URL to fetch. @required
  * @param $method {'get'|'post'} — Request type. Default: 'get'.
@@ -20,7 +20,7 @@
  */
 
 //Подключаем modx.ddTools
-require_once $modx->getConfig('base_path').'assets/snippets/ddTools/modx.ddtools.class.php';
+require_once $modx->getConfig('base_path').'assets/libs/ddTools/modx.ddtools.class.php';
 
 //Для обратной совместимости
 extract(ddTools::verifyRenamedParams(
