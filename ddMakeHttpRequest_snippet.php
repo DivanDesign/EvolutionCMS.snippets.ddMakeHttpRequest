@@ -5,6 +5,7 @@
  * 
  * @desc Makes HTTP request to a given URL.
  * 
+ * @uses PHP >= 5.4.
  * @uses MODXEvo.libraries.ddTools >= 0.23.
  * 
  * @param $url {string} — The URL to fetch. @required
@@ -25,11 +26,11 @@ require_once $modx->getConfig('base_path').'assets/libs/ddTools/modx.ddtools.cla
 //Для обратной совместимости
 extract(ddTools::verifyRenamedParams(
 	$params,
-	array(
+	[
 		'method' => 'metod',
 		'userAgent' => 'uagent',
 		'postData' => 'post'
-	)
+	]
 ));
 
 if (isset($url)){
@@ -174,7 +175,7 @@ if (isset($url)){
 		
 		//Если он массив — делаем query string
 		if (is_array($postData)){
-			$postData_mas = Array();
+			$postData_mas = [];
 			//Сформируем массив для отправки, предварительно перекодировав
 			foreach (
 				$postData as
@@ -249,7 +250,7 @@ if (isset($url)){
 			//Проверяем код на редирект
 			if (intval($resultResponseCode / 100) == 3){
 				//Ищем новый url в заголовках
-				$matches = array();
+				$matches = [];
 				preg_match(
 					'/Location:(.*?)\n/',
 					$resultHeader,
@@ -263,7 +264,7 @@ if (isset($url)){
 				//Парсим url
 				$redirectUrl = parse_url(trim($newUrlStr));
 				if (!is_array($redirectUrl)){
-					$redirectUrl = array();
+					$redirectUrl = [];
 				}
 				
 				//Собираем новый url
