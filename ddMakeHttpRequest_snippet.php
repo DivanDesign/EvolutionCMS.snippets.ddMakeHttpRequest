@@ -1,7 +1,7 @@
 <?php
 /**
  * ddMakeHttpRequest
- * @version 1.3 (2016-08-05)
+ * @version 1.3.1 (2018-11-18)
  * 
  * @desc Makes HTTP request to a given URL.
  * 
@@ -15,9 +15,9 @@
  * @param $userAgent {string} — The contents of the 'User-Agent: ' header to be used in a HTTP request. Default: —.
  * @param $timeout {integer} — The maximum number of seconds for execute request. Default: 60.
  * 
- * @link http://code.divandesign.biz/modx/ddmakehttprequest/1.3
+ * @link http://code.divandesign.biz/modx/ddmakehttprequest/1.3.1
  * 
- * @copyright 2011–2016 DivanDesign {@link http://www.DivanDesign.biz }
+ * @copyright 2011–2018 DivanDesign {@link http://www.DivanDesign.biz }
  */
 
 //Подключаем modx.ddTools
