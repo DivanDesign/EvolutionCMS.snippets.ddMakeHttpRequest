@@ -10,6 +10,8 @@
  * 
  * @param $url {string} — The URL to fetch. @required
  * @param $method {'get'|'post'} — Request type. Default: 'get'.
+ * @param $proxy {string} — Proxy server in format 'ip:port'. E. g. '11.22.33.44:5555'. Default: —.
+ * @param $proxyAuth {string} — Proxy authentication info in format 'user:password' E. g. 'alex:34!43pd$34*'. Default: —.
  * @param $postData {query string|associative array|string} — The full data to post in a HTTP "POST" operation (https://en.wikipedia.org/wiki/Query_string). E. g. 'pladeholder1=value1&pagetitle=My awesome pagetitle!'. Default: —.
  * @param $headers {query string|array} — An array of HTTP header fields to set. E. g. '0=Accept: application/vnd.api+json&1=Content-Type: application/vnd.api+json'. Default: —.
  * @param $userAgent {string} — The contents of the 'User-Agent: ' header to be used in a HTTP request. Default: —.
@@ -246,6 +248,22 @@ if (isset($url)){
 			CURLOPT_USERAGENT,
 			$userAgent
 		);
+	}
+	
+	//Если задан прокси-сервер
+	if(isset($proxy)){
+		curl_setopt(
+			$ch,
+			CURLOPT_PROXY,
+			$proxy
+		);
+		if(isset($proxyAuth)){
+			curl_setopt(
+				$ch,
+				CURLOPT_PROXYUSERPWD,
+				$proxyAuth
+			);
+		}
 	}
 	
 	//Выполняем запрос
