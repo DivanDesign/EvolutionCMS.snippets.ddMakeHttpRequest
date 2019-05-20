@@ -10,11 +10,11 @@
  * 
  * @param $url {string} — The URL to fetch. @required
  * @param $method {'get'|'post'} — Request type. Default: 'get'.
- * @param $proxy {string} — Proxy server in format 'protocol://user:password@ip:port'. E. g. 'http://asan:gd324ukl@11.22.33.44:5555' or 'socks5://asan:gd324ukl@11.22.33.44:5555'. Default: —.
  * @param $postData {query string|associative array|string} — The full data to post in a HTTP "POST" operation (https://en.wikipedia.org/wiki/Query_string). E. g. 'pladeholder1=value1&pagetitle=My awesome pagetitle!'. Default: —.
  * @param $headers {query string|array} — An array of HTTP header fields to set. E. g. '0=Accept: application/vnd.api+json&1=Content-Type: application/vnd.api+json'. Default: —.
  * @param $userAgent {string} — The contents of the 'User-Agent: ' header to be used in a HTTP request. Default: —.
  * @param $timeout {integer} — The maximum number of seconds for execute request. Default: 60.
+ * @param $proxy {string} — Proxy server in format 'protocol://user:password@ip:port'. E. g. 'http://asan:gd324ukl@11.22.33.44:5555' or 'socks5://asan:gd324ukl@11.22.33.44:5555'. Default: —.
  * 
  * @link http://code.divandesign.biz/modx/ddmakehttprequest
  * 
