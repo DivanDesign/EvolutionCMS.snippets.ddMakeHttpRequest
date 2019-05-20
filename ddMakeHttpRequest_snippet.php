@@ -1,12 +1,12 @@
 <?php
 /**
  * ddMakeHttpRequest
- * @version 1.3.1 (2018-11-18)
+ * @version 1.4 (2019-05-20)
  * 
  * @desc Makes HTTP request to a given URL.
  * 
  * @uses PHP >= 5.4.
- * @uses MODXEvo.libraries.ddTools >= 0.23.
+ * @uses (MODX)EvolutionCMS.libraries.ddTools >= 0.23 {@link http://code.divandesign.biz/modx/ddtools }
  * 
  * @param $url {string} — The URL to fetch. @required
  * @param $method {'get'|'post'} — Request type. Default: 'get'.
@@ -14,14 +14,15 @@
  * @param $headers {query string|array} — An array of HTTP header fields to set. E. g. '0=Accept: application/vnd.api+json&1=Content-Type: application/vnd.api+json'. Default: —.
  * @param $userAgent {string} — The contents of the 'User-Agent: ' header to be used in a HTTP request. Default: —.
  * @param $timeout {integer} — The maximum number of seconds for execute request. Default: 60.
+ * @param $proxy {string} — Proxy server in format 'protocol://user:password@ip:port'. E. g. 'http://asan:gd324ukl@11.22.33.44:5555' or 'socks5://asan:gd324ukl@11.22.33.44:5555'. Default: —.
  * 
- * @link http://code.divandesign.biz/modx/ddmakehttprequest/1.3.1
+ * @link http://code.divandesign.biz/modx/ddmakehttprequest
  * 
- * @copyright 2011–2018 DivanDesign {@link http://www.DivanDesign.biz }
+ * @copyright 2011–2019 DivanDesign {@link http://www.DivanDesign.biz }
  */
 
-//Подключаем modx.ddTools
-require_once $modx->getConfig('base_path').'assets/libs/ddTools/modx.ddtools.class.php';
+//Include (MODX)EvolutionCMS.libraries.ddTools
+require_once $modx->getConfig('base_path') . 'assets/libs/ddTools/modx.ddtools.class.php';
 
 //Для обратной совместимости
 extract(ddTools::verifyRenamedParams(
@@ -34,7 +35,17 @@ extract(ddTools::verifyRenamedParams(
 ));
 
 if (isset($url)){
-	$method = ((isset($method) && $method == 'post') || isset($postData)) ? 'post' : 'get';
+	$method =
+		(
+			(
+				isset($method) &&
+				$method == 'post'
+			) ||
+			isset($postData)
+		) ?
+		'post' :
+		'get'
+	;
 	
 	if (
 		isset($headers) &&
@@ -56,24 +67,48 @@ if (isset($url)){
 			$modx->logEvent(
 				1,
 				2,
-				'<p>String separated by “::” && “||” in the “headers” parameter is deprecated. Use a <a href="https://en.wikipedia.org/wiki/Query_string)">query string</a>.</p><p>The snippet has been called in the document with id '.$modx->documentIdentifier.'.</p>',
+				'<p>String separated by “::” && “||” in the “headers” parameter is deprecated. Use a <a href="https://en.wikipedia.org/wiki/Query_string)">query string</a>.</p><p>The snippet has been called in the document with id ' . $modx->documentIdentifier . '.</p>',
 				$modx->currentSnippet
 			);
 		}
 	}
 	
-	$timeout = isset($timeout) && is_numeric($timeout) ? $timeout : 60;
+	$timeout =
+		(
+			isset($timeout) &&
+			is_numeric($timeout)
+		) ?
+		$timeout :
+		60
+	;
 	
 	$manualRedirect = false;
 	
 	//Разбиваем адрес на компоненты
 	$urlArray = parse_url($url);
-	$urlArray['scheme'] = isset($urlArray['scheme']) ? $urlArray['scheme'] : 'http';
-	$urlArray['path'] = isset($urlArray['path']) ? $urlArray['path'] : '';
-	$urlArray['query'] = isset($urlArray['query']) ? '?'.$urlArray['query'] : '';
+	$urlArray['scheme'] =
+		isset($urlArray['scheme']) ?
+		$urlArray['scheme'] :
+		'http'
+	;
+	$urlArray['path'] =
+		isset($urlArray['path']) ?
+		$urlArray['path'] :
+		''
+	;
+	$urlArray['query'] =
+		isset($urlArray['query']) ?
+		'?' . $urlArray['query'] :
+		''
+	;
 	
 	//Инициализируем сеанс CURL
-	$ch = curl_init($urlArray['scheme'].'://'.$urlArray['host'].$urlArray['path'].$urlArray['query']);
+	$ch = curl_init(
+		$urlArray['scheme'] . '://' .
+		$urlArray['host'] .
+		$urlArray['path'] .
+		$urlArray['query']
+	);
 	
 	//Выставление таймаута
 	curl_setopt(
@@ -168,7 +203,7 @@ if (isset($url)){
 			$modx->logEvent(
 				1,
 				2,
-				'<p>String separated by “::” && “||” in the “post” parameter is deprecated. Use a <a href="https://en.wikipedia.org/wiki/Query_string)">query string</a>.</p><p>The snippet has been called in the document with id '.$modx->documentIdentifier.'.</p>',
+				'<p>String separated by “::” && “||” in the “post” parameter is deprecated. Use a <a href="https://en.wikipedia.org/wiki/Query_string)">query string</a>.</p><p>The snippet has been called in the document with id ' . $modx->documentIdentifier . '.</p>',
 				$modx->currentSnippet
 			);
 		}
@@ -181,7 +216,7 @@ if (isset($url)){
 				$postData as
 				$key => $value
 			){
-				$postData_mas[] = $key.'='.urlencode($value);
+				$postData_mas[] = $key . '=' . urlencode($value);
 			}
 			$postData = implode(
 				'&',
@@ -211,6 +246,15 @@ if (isset($url)){
 			$ch,
 			CURLOPT_USERAGENT,
 			$userAgent
+		);
+	}
+	
+	//Если задан прокси-сервер
+	if(!empty($proxy)){
+		curl_setopt(
+			$ch,
+			CURLOPT_PROXY,
+			$proxy
 		);
 	}
 	
@@ -281,7 +325,16 @@ if (isset($url)){
 				if (!$redirectUrl['path']){
 					$redirectUrl['path'] = $lastUrl['path'];
 				}
-				$newUrl = $redirectUrl['scheme'].'://'.$redirectUrl['host'].$redirectUrl['path'].($redirectUrl['query'] ? '?'.$redirectUrl['query'] : '');
+				$newUrl =
+					$redirectUrl['scheme'] . '://' .
+					$redirectUrl['host'] .
+					$redirectUrl['path'] .
+					(
+						$redirectUrl['query'] ?
+						'?' . $redirectUrl['query'] :
+						''
+					)
+				;
 				
 				//Выполняем запрос с новым адресом
 				curl_setopt(

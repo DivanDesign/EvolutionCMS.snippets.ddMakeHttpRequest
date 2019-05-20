@@ -1,4 +1,4 @@
-# MODXEvo.snippets.ddMakeHttpRequest
+# (MODX)EvolutionCMS.snippets.ddMakeHttpRequest
 
 Makes HTTP request to a given URL.
 ___
