@@ -250,7 +250,7 @@ if (isset($url)){
 	}
 	
 	//Если задан прокси-сервер
-	if(isset($proxy)){
+	if(!empty($proxy)){
 		curl_setopt(
 			$ch,
 			CURLOPT_PROXY,
