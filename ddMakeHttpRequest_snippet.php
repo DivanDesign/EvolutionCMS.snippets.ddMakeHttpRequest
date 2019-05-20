@@ -1,7 +1,7 @@
 <?php
 /**
  * ddMakeHttpRequest
- * @version 1.3.1 (2018-11-18)
+ * @version 1.4 (2019-05-20)
  * 
  * @desc Makes HTTP request to a given URL.
  * 
@@ -18,7 +18,7 @@
  * 
  * @link http://code.divandesign.biz/modx/ddmakehttprequest
  * 
- * @copyright 2011–2018 DivanDesign {@link http://www.DivanDesign.biz }
+ * @copyright 2011–2019 DivanDesign {@link http://www.DivanDesign.biz }
  */
 
 //Include (MODX)EvolutionCMS.libraries.ddTools
