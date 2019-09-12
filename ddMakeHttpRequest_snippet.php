@@ -194,20 +194,9 @@ if (isset($url)){
 		
 		//Если пост передан строкой в старом формате
 		if (
-			!is_array($postData) &&
-			//Определяем старый формат по наличию «::» (это спорно и неоднозначно, но пока так)
-			strpos(
-				$postData,
-				'::'
-			) !== false
+			!is_array($postData)
 		){
-			$postData = ddTools::explodeAssoc($postData);
-			$modx->logEvent(
-				1,
-				2,
-				'<p>String separated by “::” && “||” in the “post” parameter is deprecated. Use a <a href="https://en.wikipedia.org/wiki/Query_string)">query string</a>.</p><p>The snippet has been called in the document with id ' . $modx->documentIdentifier . '.</p>',
-				$modx->currentSnippet
-			);
+			$postData = ddTools::encodedStringToArray($postData);
 		}
 		
 		//Если он массив — делаем query string
