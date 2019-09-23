@@ -10,9 +10,10 @@
  * 
  * @param $url {string} — The URL to fetch. @required
  * @param $method {'get'|'post'} — Request type. Default: 'get'.
- * @param $postData {string_queryFormated|array_associative|string} — The full data to post in a HTTP "POST" operation (https://en.wikipedia.org/wiki/Query_string). Default: —.
- * @example &postData=`variable1=value1&pagetitle=My awesome pagetitle!` — Form data as query string.
- * @example &postData=`{"variable1": "value1", "pagetitle": "My awesome pagetitle!"}` — If you need JSON in request payload, just pass JSON string.
+ * @param $postData {string_json|string_queryFormated|array_associative|string} — The full data to post in a HTTP "POST" operation (https://en.wikipedia.org/wiki/Query_string). Default: —.
+ * @example &postData=`{"variable1": "value1", "pagetitle": "My awesome pagetitle!"}` — Data as JSON.
+ * @example &postData=`variable1=value1&pagetitle=My awesome pagetitle!` — Data as Query String.
+ * @param $sendRawPostData {0|1} — E. g. if you need JSON in request payload. Default: 0.
  * @param $headers {string_query|array} — An array of HTTP header fields to set. E. g. '0=Accept: application/vnd.api+json&1=Content-Type: application/vnd.api+json'. Default: —.
  * @param $userAgent {string} — The contents of the 'User-Agent: ' header to be used in a HTTP request. Default: —.
  * @param $timeout {integer} — The maximum number of seconds for execute request. Default: 60.
@@ -192,9 +193,11 @@ if (isset($url)){
 			1
 		);
 		
-		//Если пост передан строкой в старом формате
 		if (
-			!is_array($postData)
+			//Если пост передан строкой
+			!is_array($postData) &&
+			//И обрабатывать её можно
+			!$sendRawPostData
 		){
 			$postData = ddTools::encodedStringToArray($postData);
 		}
