@@ -14,7 +14,8 @@
  * @example &postData=`{"variable1": "value1", "pagetitle": "My awesome pagetitle!"}` — Data as JSON.
  * @example &postData=`variable1=value1&pagetitle=My awesome pagetitle!` — Data as Query String.
  * @param $sendRawPostData {0|1} — E. g. if you need JSON in request payload. Default: 0.
- * @param $headers {string_query|array} — An array of HTTP header fields to set. E. g. '0=Accept: application/vnd.api+json&1=Content-Type: application/vnd.api+json'. Default: —.
+ * @param $headers {string_query|array} — An array of HTTP header fields to set. Default: —.
+ * @example &headers=`0=Accept: application/vnd.api+json&1=Content-Type: application/vnd.api+json`
  * @param $userAgent {string} — The contents of the 'User-Agent: ' header to be used in a HTTP request. Default: —.
  * @param $timeout {integer} — The maximum number of seconds for execute request. Default: 60.
  * @param $proxy {string} — Proxy server in format 'protocol://user:password@ip:port'. E. g. 'http://asan:gd324ukl@11.22.33.44:5555' or 'socks5://asan:gd324ukl@11.22.33.44:5555'. Default: —.
@@ -25,7 +26,7 @@
  */
 
 //Include (MODX)EvolutionCMS.libraries.ddTools
-require_once $modx->getConfig('base_path') . 'assets/libs/ddTools/modx.ddtools.class.php';
+require_once($modx->getConfig('base_path') . 'assets/libs/ddTools/modx.ddtools.class.php');
 
 //Для обратной совместимости
 extract(ddTools::verifyRenamedParams(
