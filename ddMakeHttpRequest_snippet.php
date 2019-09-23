@@ -29,6 +29,9 @@
 //Include (MODX)EvolutionCMS.libraries.ddTools
 require_once($modx->getConfig('base_path') . 'assets/libs/ddTools/modx.ddtools.class.php');
 
+//The snippet must return an empty string even if result is absent
+$snippetResult = '';
+
 //Для обратной совместимости
 extract(ddTools::verifyRenamedParams(
 	$params,
@@ -236,20 +239,20 @@ if (isset($url)){
 	}
 	
 	//Выполняем запрос
-	$result = curl_exec($ch);
+	$snippetResult = curl_exec($ch);
 	
 	//Если есть ошибки или ничего не получили
 	if (
 		curl_errno($ch) != 0 &&
-		empty($result)
+		empty($snippetResult)
 	){
-		$result = false;
+		$snippetResult = '';
 	}else if ($manualRedirect){
 		$redirectCount = 10;
 		while (0 < $redirectCount--){
 			//Получаем заголовки, контент и код ответа
 			$resultHeader = substr(
-				$result,
+				$snippetResult,
 				0,
 				curl_getinfo(
 					$ch,
@@ -257,7 +260,7 @@ if (isset($url)){
 				)
 			);
 			$resultData = substr(
-				$result,
+				$snippetResult,
 				curl_getinfo(
 					$ch,
 					CURLINFO_HEADER_SIZE
@@ -319,17 +322,17 @@ if (isset($url)){
 					CURLOPT_URL,
 					$newUrl
 				);
-				$result = curl_exec($ch);
+				$snippetResult = curl_exec($ch);
 				if (
 					curl_errno($ch) != 0 &&
-					empty($result)
+					empty($snippetResult)
 				){
-					$result = false;
+					$snippetResult = false;
 					
 					break;
 				}
 			}else{
-				$result = $resultData;
+				$snippetResult = $resultData;
 				
 				break;
 			}
@@ -338,7 +341,7 @@ if (isset($url)){
 	
 	//Закрываем сеанс CURL
 	curl_close($ch);
-	
-	return $result;
 }
+
+return $snippetResult;
 ?>
