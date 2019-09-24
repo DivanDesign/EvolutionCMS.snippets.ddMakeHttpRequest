@@ -1,27 +1,11 @@
 <?php
 /**
  * ddMakeHttpRequest
- * @version 1.4 (2019-05-20)
+ * @version 2.0 (2019-09-23)
  * 
- * @desc Makes HTTP request to a given URL.
+ * @see README.md
  * 
- * @uses PHP >= 5.4.
- * @uses (MODX)EvolutionCMS.libraries.ddTools >= 0.23 {@link http://code.divandesign.biz/modx/ddtools }
- * 
- * @param $url {string} — The URL to fetch. @required
- * @param $method {'get'|'post'} — Request type. Default: 'get'.
- * @param $postData {string_json|string_queryFormated|array_associative|string} — The full data to post in a HTTP "POST" operation (https://en.wikipedia.org/wiki/Query_string). Default: —.
- * @example &postData=`{"variable1": "value1", "pagetitle": "My awesome pagetitle!"}` — Data as JSON.
- * @example &postData=`variable1=value1&pagetitle=My awesome pagetitle!` — Data as Query String.
- * @param $sendRawPostData {0|1} — E. g. if you need JSON in request payload. Default: 0.
- * @param $headers {string_json|string_queryFormated|array} — An array of HTTP header fields to set. Default: —.
- * @example &headers=`["Accept: application/vnd.api+json", "Content-Type: application/vnd.api+json"]`
- * @example &headers=`0=Accept: application/vnd.api+json&1=Content-Type: application/vnd.api+json`
- * @param $userAgent {string} — The contents of the 'User-Agent: ' header to be used in a HTTP request. Default: —.
- * @param $timeout {integer} — The maximum number of seconds for execute request. Default: 60.
- * @param $proxy {string} — Proxy server in format 'protocol://user:password@ip:port'. E. g. 'http://asan:gd324ukl@11.22.33.44:5555' or 'socks5://asan:gd324ukl@11.22.33.44:5555'. Default: —.
- * 
- * @link http://code.divandesign.biz/modx/ddmakehttprequest
+ * @link https://code.divandesign.biz/modx/ddmakehttprequest
  * 
  * @copyright 2011–2019 DivanDesign {@link http://www.DivanDesign.biz }
  */
