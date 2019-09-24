@@ -1,28 +1,20 @@
 <?php
 /**
  * ddMakeHttpRequest
- * @version 1.4 (2019-05-20)
+ * @version 2.0 (2019-09-23)
  * 
- * @desc Makes HTTP request to a given URL.
+ * @see README.md
  * 
- * @uses PHP >= 5.4.
- * @uses (MODX)EvolutionCMS.libraries.ddTools >= 0.23 {@link http://code.divandesign.biz/modx/ddtools }
- * 
- * @param $url {string} — The URL to fetch. @required
- * @param $method {'get'|'post'} — Request type. Default: 'get'.
- * @param $postData {query string|associative array|string} — The full data to post in a HTTP "POST" operation (https://en.wikipedia.org/wiki/Query_string). E. g. 'pladeholder1=value1&pagetitle=My awesome pagetitle!'. Default: —.
- * @param $headers {query string|array} — An array of HTTP header fields to set. E. g. '0=Accept: application/vnd.api+json&1=Content-Type: application/vnd.api+json'. Default: —.
- * @param $userAgent {string} — The contents of the 'User-Agent: ' header to be used in a HTTP request. Default: —.
- * @param $timeout {integer} — The maximum number of seconds for execute request. Default: 60.
- * @param $proxy {string} — Proxy server in format 'protocol://user:password@ip:port'. E. g. 'http://asan:gd324ukl@11.22.33.44:5555' or 'socks5://asan:gd324ukl@11.22.33.44:5555'. Default: —.
- * 
- * @link http://code.divandesign.biz/modx/ddmakehttprequest
+ * @link https://code.divandesign.biz/modx/ddmakehttprequest
  * 
  * @copyright 2011–2019 DivanDesign {@link http://www.DivanDesign.biz }
  */
 
 //Include (MODX)EvolutionCMS.libraries.ddTools
-require_once $modx->getConfig('base_path') . 'assets/libs/ddTools/modx.ddtools.class.php';
+require_once($modx->getConfig('base_path') . 'assets/libs/ddTools/modx.ddtools.class.php');
+
+//The snippet must return an empty string even if result is absent
+$snippetResult = '';
 
 //Для обратной совместимости
 extract(ddTools::verifyRenamedParams(
@@ -51,26 +43,7 @@ if (isset($url)){
 		isset($headers) &&
 		!is_array($headers)
 	){
-		//If “=” exists
-		if (strpos(
-			$headers,
-			'='
-		) !== false){
-			//Parse a query string
-			parse_str(
-				$headers,
-				$headers
-			);
-		}else{
-			//The old format
-			$headers = ddTools::explodeAssoc($headers);
-			$modx->logEvent(
-				1,
-				2,
-				'<p>String separated by “::” && “||” in the “headers” parameter is deprecated. Use a <a href="https://en.wikipedia.org/wiki/Query_string)">query string</a>.</p><p>The snippet has been called in the document with id ' . $modx->documentIdentifier . '.</p>',
-				$modx->currentSnippet
-			);
-		}
+		$headers = ddTools::encodedStringToArray($headers);
 	}
 	
 	$timeout =
@@ -190,22 +163,13 @@ if (isset($url)){
 			1
 		);
 		
-		//Если пост передан строкой в старом формате
 		if (
+			//Если пост передан строкой
 			!is_array($postData) &&
-			//Определяем старый формат по наличию «::» (это спорно и неоднозначно, но пока так)
-			strpos(
-				$postData,
-				'::'
-			) !== false
+			//И обрабатывать её можно
+			!$sendRawPostData
 		){
-			$postData = ddTools::explodeAssoc($postData);
-			$modx->logEvent(
-				1,
-				2,
-				'<p>String separated by “::” && “||” in the “post” parameter is deprecated. Use a <a href="https://en.wikipedia.org/wiki/Query_string)">query string</a>.</p><p>The snippet has been called in the document with id ' . $modx->documentIdentifier . '.</p>',
-				$modx->currentSnippet
-			);
+			$postData = ddTools::encodedStringToArray($postData);
 		}
 		
 		//Если он массив — делаем query string
@@ -259,20 +223,20 @@ if (isset($url)){
 	}
 	
 	//Выполняем запрос
-	$result = curl_exec($ch);
+	$snippetResult = curl_exec($ch);
 	
 	//Если есть ошибки или ничего не получили
 	if (
 		curl_errno($ch) != 0 &&
-		empty($result)
+		empty($snippetResult)
 	){
-		$result = false;
+		$snippetResult = '';
 	}else if ($manualRedirect){
 		$redirectCount = 10;
 		while (0 < $redirectCount--){
 			//Получаем заголовки, контент и код ответа
 			$resultHeader = substr(
-				$result,
+				$snippetResult,
 				0,
 				curl_getinfo(
 					$ch,
@@ -280,7 +244,7 @@ if (isset($url)){
 				)
 			);
 			$resultData = substr(
-				$result,
+				$snippetResult,
 				curl_getinfo(
 					$ch,
 					CURLINFO_HEADER_SIZE
@@ -342,17 +306,17 @@ if (isset($url)){
 					CURLOPT_URL,
 					$newUrl
 				);
-				$result = curl_exec($ch);
+				$snippetResult = curl_exec($ch);
 				if (
 					curl_errno($ch) != 0 &&
-					empty($result)
+					empty($snippetResult)
 				){
-					$result = false;
+					$snippetResult = false;
 					
 					break;
 				}
 			}else{
-				$result = $resultData;
+				$snippetResult = $resultData;
 				
 				break;
 			}
@@ -361,7 +325,7 @@ if (isset($url)){
 	
 	//Закрываем сеанс CURL
 	curl_close($ch);
-	
-	return $result;
 }
+
+return $snippetResult;
 ?>
