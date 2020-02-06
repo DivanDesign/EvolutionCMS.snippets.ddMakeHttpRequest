@@ -11,13 +11,16 @@
  */
 
 //Include (MODX)EvolutionCMS.libraries.ddTools
-require_once($modx->getConfig('base_path') . 'assets/libs/ddTools/modx.ddtools.class.php');
+require_once(
+	$modx->getConfig('base_path') .
+	'assets/libs/ddTools/modx.ddtools.class.php'
+);
 
 //The snippet must return an empty string even if result is absent
 $snippetResult = '';
 
 //Для обратной совместимости
-extract(ddTools::verifyRenamedParams(
+extract(\ddTools::verifyRenamedParams(
 	$params,
 	[
 		'method' => 'metod',
@@ -43,7 +46,7 @@ if (isset($url)){
 		isset($headers) &&
 		!is_array($headers)
 	){
-		$headers = ddTools::encodedStringToArray($headers);
+		$headers = \ddTools::encodedStringToArray($headers);
 	}
 	
 	$timeout =
@@ -169,7 +172,7 @@ if (isset($url)){
 			//И обрабатывать её можно
 			!$sendRawPostData
 		){
-			$postData = ddTools::encodedStringToArray($postData);
+			$postData = \ddTools::encodedStringToArray($postData);
 		}
 		
 		//Если он массив — делаем query string
@@ -178,9 +181,14 @@ if (isset($url)){
 			//Сформируем массив для отправки, предварительно перекодировав
 			foreach (
 				$postData as
-				$key => $value
+				$key =>
+				$value
 			){
-				$postData_mas[] = $key . '=' . urlencode($value);
+				$postData_mas[] =
+					$key .
+					'=' .
+					urlencode($value)
+				;
 			}
 			$postData = implode(
 				'&',
