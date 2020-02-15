@@ -25,7 +25,8 @@ extract(\ddTools::verifyRenamedParams(
 	[
 		'method' => 'metod',
 		'userAgent' => 'uagent',
-		'postData' => 'post'
+		'postData' => 'post',
+		'useCookie' => 'cookie'
 	]
 ));
 
@@ -218,6 +219,29 @@ if (isset($url)){
 			$ch,
 			CURLOPT_USERAGENT,
 			$userAgent
+		);
+	}
+	
+	//Если задано использование печенек
+	if (
+		isset($useCookie) &&
+		$useCookie == '1'
+	){
+		curl_setopt(
+			$ch,
+			CURLOPT_COOKIEFILE,
+			(
+				$modx->getConfig('base_path') .
+				'assets/cache/ddMakeHttpRequest_cookie.txt'
+			)
+		);
+		curl_setopt(
+			$ch,
+			CURLOPT_COOKIEJAR,
+			(
+				$modx->getConfig('base_path') .
+				'assets/cache/ddMakeHttpRequest_cookie.txt'
+			)
 		);
 	}
 	

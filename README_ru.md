@@ -73,6 +73,13 @@
 	* Описание: Прокси сервер в формате `[+protocol+]://[+user+]:[+password+]@[+ip+]:[+port+]`. Пример: `http://asan:gd324ukl@11.22.33.44:5555`, `socks5://asan:gd324ukl@11.22.33.44:5555`.
 	* Допустимые значения: `string`
 	* Значение по умолчанию: —
+	
+* `useCookie`
+	* Desctription: Использовать cookie? Используется файл `assets/cache/ddMakeHttpRequest_cookie.txt`.
+	* Valid values:
+		* `0`
+		* `1`
+	* Default value: `0`
 
 
 ### ## Примеры
