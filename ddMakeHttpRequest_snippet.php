@@ -1,13 +1,13 @@
 <?php
 /**
  * ddMakeHttpRequest
- * @version 2.0 (2019-09-23)
+ * @version 2.1 (2020-02-15)
  * 
  * @see README.md
  * 
  * @link https://code.divandesign.biz/modx/ddmakehttprequest
  * 
- * @copyright 2011–2019 DivanDesign {@link http://www.DivanDesign.biz }
+ * @copyright 2011–2020 DivanDesign {@link http://www.DivanDesign.biz }
  */
 
 //Include (MODX)EvolutionCMS.libraries.ddTools

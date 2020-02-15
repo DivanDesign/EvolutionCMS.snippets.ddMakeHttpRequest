@@ -15,7 +15,7 @@
 Элементы → Сниппеты: Создать новый сниппет со следующими параметрами:
 
 1. Название сниппета: `ddMakeHttpRequest`.
-2. Описание: `<b>2.0</b> Makes HTTP request to a given URL.`.
+2. Описание: `<b>2.1</b> Makes HTTP request to a given URL.`.
 3. Категория: `Core`.
 4. Анализировать DocBlock: `no`.
 5. Код сниппета (php): Вставьте содержимое файла `ddMakeHttpRequest_snippet` из архива.

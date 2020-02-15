@@ -1,7 +1,7 @@
 {
 	"name": "dd/evolutioncms-snippets-ddmakehttprequest",
 	"type": "modxevo-snippet",
-	"version": "2.0.0",
+	"version": "2.1.0",
 	"description": "Makes HTTP request to a given URL.",
 	"keywords": [
 		"modx",
