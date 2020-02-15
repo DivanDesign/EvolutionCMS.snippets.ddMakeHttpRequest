@@ -1,0 +1,23 @@
+{
+	"name": "dd/evolutioncms-snippets-ddmakehttprequest",
+	"type": "modxevo-snippet",
+	"version": "2.1.0",
+	"description": "Makes HTTP request to a given URL.",
+	"keywords": [
+		"modx",
+		"modx evo",
+		"modx evolution",
+		"evo",
+		"evo cms",
+		"evolutioncms",
+		"evolution cms",
+		"ddmakehttprequest",
+		"makehttprequest",
+		"httprequest",
+		"curl"
+	],
+	"require": {
+		"php": ">=5.4.0",
+		"dd/modxevo-library-ddtools": ">=0.23.0"
+	}
+}

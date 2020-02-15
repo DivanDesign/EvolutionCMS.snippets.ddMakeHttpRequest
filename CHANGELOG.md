@@ -1,6 +1,10 @@
 # (MODX)EvolutionCMS.snippets.ddMakeHttpRequest changelog
 
 
+## Version 2.1 (2020-02-15)
+* \+ Cookie can be used (see the `useCookie` parameter).
+
+
 ## Version 2.0 (2019-09-23)
 * \* **Attention!** Backward compatibility is broken. If you want send raw JSON in `postData` you must set `sendRawPostData` equal to `1`.
 * \+ `postData` can be set as a JSON object.

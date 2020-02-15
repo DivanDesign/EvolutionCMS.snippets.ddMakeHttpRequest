@@ -1,28 +1,32 @@
 <?php
 /**
  * ddMakeHttpRequest
- * @version 2.0 (2019-09-23)
+ * @version 2.1 (2020-02-15)
  * 
  * @see README.md
  * 
  * @link https://code.divandesign.biz/modx/ddmakehttprequest
  * 
- * @copyright 2011–2019 DivanDesign {@link http://www.DivanDesign.biz }
+ * @copyright 2011–2020 DivanDesign {@link http://www.DivanDesign.biz }
  */
 
 //Include (MODX)EvolutionCMS.libraries.ddTools
-require_once($modx->getConfig('base_path') . 'assets/libs/ddTools/modx.ddtools.class.php');
+require_once(
+	$modx->getConfig('base_path') .
+	'assets/libs/ddTools/modx.ddtools.class.php'
+);
 
 //The snippet must return an empty string even if result is absent
 $snippetResult = '';
 
 //Для обратной совместимости
-extract(ddTools::verifyRenamedParams(
+extract(\ddTools::verifyRenamedParams(
 	$params,
 	[
 		'method' => 'metod',
 		'userAgent' => 'uagent',
-		'postData' => 'post'
+		'postData' => 'post',
+		'useCookie' => 'cookie'
 	]
 ));
 
@@ -43,7 +47,7 @@ if (isset($url)){
 		isset($headers) &&
 		!is_array($headers)
 	){
-		$headers = ddTools::encodedStringToArray($headers);
+		$headers = \ddTools::encodedStringToArray($headers);
 	}
 	
 	$timeout =
@@ -169,7 +173,7 @@ if (isset($url)){
 			//И обрабатывать её можно
 			!$sendRawPostData
 		){
-			$postData = ddTools::encodedStringToArray($postData);
+			$postData = \ddTools::encodedStringToArray($postData);
 		}
 		
 		//Если он массив — делаем query string
@@ -178,9 +182,14 @@ if (isset($url)){
 			//Сформируем массив для отправки, предварительно перекодировав
 			foreach (
 				$postData as
-				$key => $value
+				$key =>
+				$value
 			){
-				$postData_mas[] = $key . '=' . urlencode($value);
+				$postData_mas[] =
+					$key .
+					'=' .
+					urlencode($value)
+				;
 			}
 			$postData = implode(
 				'&',
@@ -210,6 +219,29 @@ if (isset($url)){
 			$ch,
 			CURLOPT_USERAGENT,
 			$userAgent
+		);
+	}
+	
+	//Если задано использование печенек
+	if (
+		isset($useCookie) &&
+		$useCookie == '1'
+	){
+		curl_setopt(
+			$ch,
+			CURLOPT_COOKIEFILE,
+			(
+				$modx->getConfig('base_path') .
+				'assets/cache/ddMakeHttpRequest_cookie.txt'
+			)
+		);
+		curl_setopt(
+			$ch,
+			CURLOPT_COOKIEJAR,
+			(
+				$modx->getConfig('base_path') .
+				'assets/cache/ddMakeHttpRequest_cookie.txt'
+			)
 		);
 	}
 	

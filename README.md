@@ -15,7 +15,7 @@ Makes HTTP request to a given URL.
 Elements → Snippets: Create a new snippet with the following data:
 
 1. Snippet name: `ddMakeHttpRequest`.
-2. Description: `<b>2.0</b> Makes HTTP request to a given URL.`.
+2. Description: `<b>2.1</b> Makes HTTP request to a given URL.`.
 3. Category: `Core`.
 4. Parse DocBlock: `no`.
 5. Snippet code (php): Insert content of the `ddMakeHttpRequest_snippet` file from the archive.
@@ -73,6 +73,13 @@ Elements → Snippets: Create a new snippet with the following data:
 	* Desctription: Proxy server in format `[+protocol+]://[+user+]:[+password+]@[+ip+]:[+port+]`. E. g. `http://asan:gd324ukl@11.22.33.44:5555` or `socks5://asan:gd324ukl@11.22.33.44:5555`.
 	* Valid values: `string`
 	* Default value: —
+	
+* `useCookie`
+	* Desctription: Enagle cookies. The `assets/cache/ddMakeHttpRequest_cookie.txt` file is used.
+	* Valid values:
+		* `0`
+		* `1`
+	* Default value: `0`
 
 
 ### ## Examples

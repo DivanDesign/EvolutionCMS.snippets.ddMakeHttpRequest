@@ -15,7 +15,7 @@
 Элементы → Сниппеты: Создать новый сниппет со следующими параметрами:
 
 1. Название сниппета: `ddMakeHttpRequest`.
-2. Описание: `<b>2.0</b> Makes HTTP request to a given URL.`.
+2. Описание: `<b>2.1</b> Makes HTTP request to a given URL.`.
 3. Категория: `Core`.
 4. Анализировать DocBlock: `no`.
 5. Код сниппета (php): Вставьте содержимое файла `ddMakeHttpRequest_snippet` из архива.
@@ -73,6 +73,13 @@
 	* Описание: Прокси сервер в формате `[+protocol+]://[+user+]:[+password+]@[+ip+]:[+port+]`. Пример: `http://asan:gd324ukl@11.22.33.44:5555`, `socks5://asan:gd324ukl@11.22.33.44:5555`.
 	* Допустимые значения: `string`
 	* Значение по умолчанию: —
+	
+* `useCookie`
+	* Desctription: Использовать cookie? Используется файл `assets/cache/ddMakeHttpRequest_cookie.txt`.
+	* Valid values:
+		* `0`
+		* `1`
+	* Default value: `0`
 
 
 ### ## Примеры
