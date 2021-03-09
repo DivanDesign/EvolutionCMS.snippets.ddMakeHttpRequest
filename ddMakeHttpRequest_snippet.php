@@ -263,7 +263,7 @@ if (isset($url)){
 		empty($snippetResult)
 	){
 		$snippetResult = '';
-	}else if ($manualRedirect){
+	}elseif ($manualRedirect){
 		$redirectCount = 10;
 		while (0 < $redirectCount--){
 			//Получаем заголовки, контент и код ответа
