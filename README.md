@@ -131,4 +131,8 @@ $requestResult = $modx->runSnippet(
 ```
 
 
-## # [Home page →](https://code.divandesign.biz/modx/ddmakehttprequest)
+## Links
+
+* [Home page](https://code.divandesign.biz/modx/ddmakehttprequest)
+* [Telegram chat](https://t.me/dd_code)
+* [Packagist](https://packagist.org/packages/dd/evolutioncms-snippets-ddmakehttprequest)
