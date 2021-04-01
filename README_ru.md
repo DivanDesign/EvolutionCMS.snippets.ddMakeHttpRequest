@@ -6,7 +6,7 @@
 ## Requires
 
 * PHP >= 5.4
-* [(MODX)EvolutionCMS.libraries.ddTools](http://code.divandesign.biz/modx/ddtools) >= 0.23
+* [(MODX)EvolutionCMS.libraries.ddTools](https://code.divandesign.biz/modx/ddtools) >= 0.48.2
 
 
 ## Документация

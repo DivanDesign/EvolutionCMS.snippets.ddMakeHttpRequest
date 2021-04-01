@@ -16,53 +16,70 @@ require_once(
 	'assets/libs/ddTools/modx.ddtools.class.php'
 );
 
-//The snippet must return an empty string even if result is absent
-$snippetResult = '';
 
-//Для обратной совместимости
-extract(\ddTools::verifyRenamedParams(
-	$params,
-	[
+//Renaming params with backward compatibility
+$params = \ddTools::verifyRenamedParams(
+	'params' => $params,
+	'compliance' => [
 		'method' => 'metod',
 		'userAgent' => 'uagent',
 		'postData' => 'post',
 		'useCookie' => 'cookie'
-	]
-));
+	],
+	'returnCorrectedOnly' => false
+);
 
-if (isset($url)){
-	$method =
-		(
-			(
-				isset($method) &&
-				$method == 'post'
-			) ||
-			isset($postData)
-		) ?
-		'post' :
-		'get'
-	;
+//Defaults
+$params = \DDTools\ObjectTools::extend([
+	'objects' => [
+		(object) [
+			//Required
+			'url' => null,
+			'method' => 'get',
+			'postData' => null,
+			'sendRawPostData' => false,
+			'headers' => [],
+			'userAgent' => null,
+			'timeout' => 60,
+			'proxy' => null,
+			'useCookie' => false
+		],
+		$params
+	]
+]);
+
+$params->method = strtolower($params->method);
+
+if (!empty($params->postData)){
+	$params->method = 'post';
 	
 	if (
-		isset($headers) &&
-		!is_array($headers)
+		//Если отправляемые данные переданы строкой
+		!is_array($params->postData) &&
+		//И обрабатывать её можно
+		!$params->sendRawPostData
 	){
-		$headers = \ddTools::encodedStringToArray($headers);
+		$params->postData = \ddTools::encodedStringToArray($params->postData);
 	}
-	
-	$timeout =
-		(
-			isset($timeout) &&
-			is_numeric($timeout)
-		) ?
-		$timeout :
-		60
-	;
-	
+}
+
+if (!is_array($params->headers)){
+	$params->headers = \ddTools::encodedStringToArray($params->headers);
+}
+
+$params->timeout = intval($params->timeout);
+
+$params->useCookie = boolval($params->useCookie);
+
+
+//The snippet must return an empty string even if result is absent
+$snippetResult = '';
+
+if (!empty($params->url)){
 	$manualRedirect = false;
 	
 	//Разбиваем адрес на компоненты
-	$urlArray = parse_url($url);
+	$urlArray = parse_url($params->url);
 	$urlArray['scheme'] =
 		isset($urlArray['scheme']) ?
 		$urlArray['scheme'] :
@@ -91,7 +108,7 @@ if (isset($url)){
 	curl_setopt(
 		$ch,
 		CURLOPT_TIMEOUT,
-		$timeout
+		$params->timeout
 	);
 	
 	//Если необходимо соединиться с https
@@ -157,8 +174,8 @@ if (isset($url)){
 	
 	//Если есть переменные для отправки
 	if (
-		$method == 'post' &&
-		isset($postData)
+		$params->method == 'post' &&
+		!empty($params->postData)
 	){
 		//Запрос будет методом POST типа application/x-www-form-urlencoded (используемый браузерами при отправке форм)
 		curl_setopt(
@@ -167,21 +184,12 @@ if (isset($url)){
 			1
 		);
 		
-		if (
-			//Если пост передан строкой
-			!is_array($postData) &&
-			//И обрабатывать её можно
-			!$sendRawPostData
-		){
-			$postData = \ddTools::encodedStringToArray($postData);
-		}
-		
 		//Если он массив — делаем query string
-		if (is_array($postData)){
+		if (is_array($params->postData)){
 			$postData_mas = [];
 			//Сформируем массив для отправки, предварительно перекодировав
 			foreach (
-				$postData as
+				$params->postData as
 				$key =>
 				$value
 			){
@@ -191,7 +199,7 @@ if (isset($url)){
 					urlencode($value)
 				;
 			}
-			$postData = implode(
+			$params->postData = implode(
 				'&',
 				$postData_mas
 			);
@@ -200,33 +208,30 @@ if (isset($url)){
 		curl_setopt(
 			$ch,
 			CURLOPT_POSTFIELDS,
-			$postData
+			$params->postData
 		);
 	}
 	
 	//Если заданы какие-то HTTP заголовки
-	if (is_array($headers)){
+	if (is_array($params->headers)){
 		curl_setopt(
 			$ch,
 			CURLOPT_HTTPHEADER,
-			$headers
+			$params->headers
 		);
 	}
 	
 	//Если задан UserAgent
-	if (isset($userAgent)){
+	if (!empty($params->userAgent)){
 		curl_setopt(
 			$ch,
 			CURLOPT_USERAGENT,
-			$userAgent
+			$params->userAgent
 		);
 	}
 	
 	//Если задано использование печенек
-	if (
-		isset($useCookie) &&
-		$useCookie == '1'
-	){
+	if ($params->useCookie){
 		curl_setopt(
 			$ch,
 			CURLOPT_COOKIEFILE,
@@ -246,11 +251,11 @@ if (isset($url)){
 	}
 	
 	//Если задан прокси-сервер
-	if(!empty($proxy)){
+	if(!empty($params->proxy)){
 		curl_setopt(
 			$ch,
 			CURLOPT_PROXY,
-			$proxy
+			$params->proxy
 		);
 	}
 	

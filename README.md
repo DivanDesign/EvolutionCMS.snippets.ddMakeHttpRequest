@@ -5,8 +5,8 @@ Makes HTTP request to a given URL.
 
 ## Requires
 
-* PHP >= 5.4
-* [(MODX)EvolutionCMS.libraries.ddTools](http://code.divandesign.biz/modx/ddtools) >= 0.23
+* PHP >= 5.6
+* [(MODX)EvolutionCMS.libraries.ddTools](https://code.divandesign.biz/modx/ddtools) >= 0.48.2
 
 
 ## Documentation
