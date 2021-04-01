@@ -3,15 +3,17 @@
 Makes HTTP request to a given URL.
 
 
-## # Requires
+## Requires
+
 * PHP >= 5.4
 * [(MODX)EvolutionCMS.libraries.ddTools](http://code.divandesign.biz/modx/ddtools) >= 0.23
 
 
-## # Documentation
+## Documentation
 
 
-### ## Installation
+### Installation
+
 Elements → Snippets: Create a new snippet with the following data:
 
 1. Snippet name: `ddMakeHttpRequest`.
@@ -21,7 +23,7 @@ Elements → Snippets: Create a new snippet with the following data:
 5. Snippet code (php): Insert content of the `ddMakeHttpRequest_snippet` file from the archive.
 
 
-### ## Parameters description
+### Parameters description
 
 * `url`
 	* Desctription: The URL to fetch.
@@ -82,17 +84,22 @@ Elements → Snippets: Create a new snippet with the following data:
 	* Default value: `0`
 
 
-### ## Examples
+### Examples
 
 
-#### ### Simple GET request
+#### Simple GET request
+
 ```
-[[ddMakeHttpRequest? &url=`http://www.example.com?name=John&surname=Doe`]]
+[[ddMakeHttpRequest?
+	&url=`http://www.example.com?name=John&surname=Doe`
+]]
 ```
 
 
-#### ### Simple POST request
-Set data as JSON
+#### Simple POST request
+
+Set data as JSON:
+
 ```
 [[ddMakeHttpRequest?
 	&url=`http://www.example.com/`
@@ -102,7 +109,9 @@ Set data as JSON
 	}`
 ]]
 ```
-Or Query string
+
+Or Query string:
+
 ```
 [[ddMakeHttpRequest?
 	&url=`http://www.example.com/`
@@ -111,7 +120,8 @@ Or Query string
 ```
 
 
-#### ### CMS API
+#### CMS API
+
 ```php
 $requestResult = $modx->runSnippet(
 	'ddMakeHttpRequest',
@@ -136,3 +146,6 @@ $requestResult = $modx->runSnippet(
 * [Home page](https://code.divandesign.biz/modx/ddmakehttprequest)
 * [Telegram chat](https://t.me/dd_code)
 * [Packagist](https://packagist.org/packages/dd/evolutioncms-snippets-ddmakehttprequest)
+
+
+<link rel="stylesheet" type="text/css" href="https://DivanDesign.ru/assets/files/ddMarkdown.css" />
