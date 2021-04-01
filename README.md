@@ -14,13 +14,20 @@ Makes HTTP request to a given URL.
 
 ### Installation
 
-Elements → Snippets: Create a new snippet with the following data:
+
+#### 1. Elements → Snippets: Create a new snippet with the following data
 
 1. Snippet name: `ddMakeHttpRequest`.
 2. Description: `<b>2.1</b> Makes HTTP request to a given URL.`.
 3. Category: `Core`.
 4. Parse DocBlock: `no`.
 5. Snippet code (php): Insert content of the `ddMakeHttpRequest_snippet` file from the archive.
+
+
+#### 2. Elements → Manage Files
+
+1. Create a new folder `assets/snippets/ddMakeHttpRequest/`.
+2. Extract the archive to the folder (except `ddMakeHttpRequest_snippet.php`).
 
 
 ### Parameters description
@@ -57,6 +64,7 @@ Elements → Snippets: Create a new snippet with the following data:
 	* Desctription: An array of HTTP header fields to set.
 	* Valid values:
 		* `string_json` — as [JSON](https://en.wikipedia.org/wiki/JSON) object
+		* `stringHjsonArray` — as [HJSON](https://hjson.github.io/)
 		* `string_queryFormated` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
 		* `array`
 	* Default value: —
@@ -72,7 +80,7 @@ Elements → Snippets: Create a new snippet with the following data:
 	* Default value: `60`
 	
 * `proxy`
-	* Desctription: Proxy server in format `[+protocol+]://[+user+]:[+password+]@[+ip+]:[+port+]`. E. g. `http://asan:gd324ukl@11.22.33.44:5555` or `socks5://asan:gd324ukl@11.22.33.44:5555`.
+	* Desctription: Proxy server in format `[+protocol+]://[+user+]:[+password+]@[+ip+]:[+port+]`. E. g. `http://user:password@11.22.33.44:5555` or `socks5://user:password@11.22.33.44:5555`.
 	* Valid values: `string`
 	* Default value: —
 	
@@ -120,12 +128,12 @@ Or Query string:
 ```
 
 
-#### CMS API
+#### Run the snippet through `\DDTools\Snippet::runSnippet` without DB and eval
 
 ```php
-$requestResult = $modx->runSnippet(
-	'ddMakeHttpRequest',
-	[
+\DDTools\Snippet::runSnippet([
+	'name' => 'ddMakeHttpRequest',
+	'params' => [
 		'url' => 'https://www.example.com/',
 		'postData' => [
 			'name' => 'John',
@@ -135,9 +143,9 @@ $requestResult = $modx->runSnippet(
 			'Accept: application/vnd.api+json',
 			'Content-Type: application/vnd.api+json'
 		],
-		'proxy' => 'socks5://asan:gd324ukl@11.22.33.44:5555'
+		'proxy' => 'socks5://user:password@11.22.33.44:5555'
 	]
-);
+]);
 ```
 
 

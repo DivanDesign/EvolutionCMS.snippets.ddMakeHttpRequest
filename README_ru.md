@@ -14,13 +14,20 @@
 
 ### Установка
 
-Элементы → Сниппеты: Создать новый сниппет со следующими параметрами:
+
+#### 1. Элементы → Сниппеты: Создайте новый сниппет со следующими параметрами
 
 1. Название сниппета: `ddMakeHttpRequest`.
 2. Описание: `<b>2.1</b> Makes HTTP request to a given URL.`.
 3. Категория: `Core`.
 4. Анализировать DocBlock: `no`.
 5. Код сниппета (php): Вставьте содержимое файла `ddMakeHttpRequest_snippet` из архива.
+
+
+#### 2. Элементы → Управление файлами
+
+1. Создайте новую папку `assets/snippets/ddMakeHttpRequest/`.
+2. Извлеките содержимое архива в неё (кроме файла `ddMakeHttpRequest_snippet.php`).
 
 
 ### Описание параметров
@@ -57,6 +64,7 @@
 	* Описание: Заголовки, которые нужно отправить.
 	* Допустимые значения:
 		* `string_json` — в виде [JSON](https://en.wikipedia.org/wiki/JSON) object
+		* `stringHjsonArray` — в виде [HJSON](https://hjson.github.io/)
 		* `string_queryFormated` — в виде [Query string](https://en.wikipedia.org/wiki/Query_string)
 		* `array`
 	* Значение по умолчанию: —
@@ -120,12 +128,12 @@
 ```
 
 
-#### CMS API
+#### Запустить сниппет без DB и eval через `\DDTools\Snippet::runSnippet`
 
 ```php
-$requestResult = $modx->runSnippet(
-	'ddMakeHttpRequest',
-	[
+\DDTools\Snippet::runSnippet([
+	'name' => 'ddMakeHttpRequest',
+	'params' => [
 		'url' => 'https://www.example.com/',
 		'postData' => [
 			'name' => 'John',
@@ -135,9 +143,9 @@ $requestResult = $modx->runSnippet(
 			'Accept: application/vnd.api+json',
 			'Content-Type: application/vnd.api+json'
 		],
-		'proxy' => 'socks5://asan:gd324ukl@11.22.33.44:5555'
+		'proxy' => 'socks5://user:password@11.22.33.44:5555'
 	]
-);
+]);
 ```
 
 
