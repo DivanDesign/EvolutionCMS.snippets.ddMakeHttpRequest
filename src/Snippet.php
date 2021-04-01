@@ -35,7 +35,7 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * prepareParams
-	 * @version 1.0 (2021-04-01)
+	 * @version 1.1 (2021-04-01)
 	 * 
 	 * @param $this->params {stdClass|arrayAssociative|stringJsonObject|stringQueryFormatted}
 	 * 
@@ -47,6 +47,10 @@ class Snippet extends \DDTools\Snippet {
 		
 		$this->params->method = strtolower($this->params->method);
 		
+		if (is_object($this->params->postData)){
+			$this->params->postData = (array) $this->params->postData;
+		}
+		
 		if (!empty($this->params->postData)){
 			$this->params->method = 'post';
 			
@@ -56,7 +60,10 @@ class Snippet extends \DDTools\Snippet {
 				//И обрабатывать её можно
 				!$this->params->sendRawPostData
 			){
-				$this->params->postData = \ddTools::encodedStringToArray($this->params->postData);
+				$this->params->postData = \DDTools\ObjectTools::convertType([
+					'object' => $this->params->postData,
+					'type' => 'objectArray'
+				]);
 			}
 		}
 	}

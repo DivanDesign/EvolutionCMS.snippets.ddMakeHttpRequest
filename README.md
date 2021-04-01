@@ -48,10 +48,12 @@ Makes HTTP request to a given URL.
 	* Desctription: The full data to post in a HTTP “POST” operation.
 	* Valid values:
 		* `stringJsonObject` — as [JSON](https://en.wikipedia.org/wiki/JSON) object
+		* `stringHjsonObject` — as [HJSON](https://hjson.github.io/)
 		* `stringQueryFormated` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
 		* `string`
-		* It can also be set as a native PHP array (e. g. for calls through `\DDTools\Snippet::runSnippet`):
+		* It can also be set as a native PHP object or array (e. g. for calls through `\DDTools\Snippet::runSnippet`):
 			* `arrayAssociative`
+			* `object`
 	* Default value: —
 	
 * `sendRawPostData`

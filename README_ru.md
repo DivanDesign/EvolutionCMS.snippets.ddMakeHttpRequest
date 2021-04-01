@@ -48,10 +48,12 @@
 	* Описание: Данные, которые нужно отправить.
 	* Допустимые значения:
 		* `stringJsonObject` — в виде [JSON](https://en.wikipedia.org/wiki/JSON) object
+		* `stringHjsonObject` — в виде [HJSON](https://hjson.github.io/)
 		* `stringQueryFormated` — в виде [Query string](https://en.wikipedia.org/wiki/Query_string)
 		* `string`
-		* Также может быть задан, как нативный PHP массив (например, для вызовов через `\DDTools\Snippet::runSnippet`).
+		* Также может быть задан, как нативный PHP объект или массив (например, для вызовов через `\DDTools\Snippet::runSnippet`).
 			* `arrayAssociative`
+			* `object`
 	* Значение по умолчанию: —
 	
 * `sendRawPostData`
