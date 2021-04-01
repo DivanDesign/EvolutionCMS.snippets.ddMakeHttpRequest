@@ -1,7 +1,7 @@
 {
 	"name": "dd/evolutioncms-snippets-ddmakehttprequest",
 	"type": "modxevo-snippet",
-	"version": "2.1.0",
+	"version": "2.2.0",
 	"description": "Makes HTTP request to a given URL.",
 	"keywords": [
 		"modx",
@@ -16,8 +16,41 @@
 		"httprequest",
 		"curl"
 	],
+	"homepage": "https://code.divandesign.biz/modx/ddmakehttprequest",
+	"support": {
+		"chat": "https://t.me/dd_code"
+	},
+	"authors": [
+		{
+			"name": "DD Group",
+			"email": "code@DivanDesign.biz",
+			"homepage": "https://code.divandesign.biz",
+			"role": "Owner"
+		},
+		{
+			"name": "Ilyas Ronef",
+			"email": "ilyas@DivanDesign.ru",
+			"homepage": "https://ronef.ru",
+			"role": "Developer"
+		},
+		{
+			"name": "Alexey Davydov",
+			"homepage": "https://github.com/davalemic",
+			"role": "Developer"
+		},
+		{
+			"name": "Andrey Demchenko",
+			"homepage": "https://github.com/deversjkee",
+			"role": "Developer"
+		},
+		{
+			"name": "Pavel Unzhakov",
+			"homepage": "https://github.com/psthmn",
+			"role": "Developer"
+		}
+	],
 	"require": {
-		"php": ">=5.4.0",
-		"dd/modxevo-library-ddtools": ">=0.23.0"
+		"php": ">=5.6.0",
+		"dd/modxevo-library-ddtools": ">=0.48.2"
 	}
 }

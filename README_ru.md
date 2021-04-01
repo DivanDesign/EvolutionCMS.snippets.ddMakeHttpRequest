@@ -3,25 +3,34 @@
 Отправляет HTTP запрос к заданному URL.
 
 
-## # Requires
+## Requires
+
 * PHP >= 5.4
-* [(MODX)EvolutionCMS.libraries.ddTools](http://code.divandesign.biz/modx/ddtools) >= 0.23
+* [(MODX)EvolutionCMS.libraries.ddTools](https://code.divandesign.biz/modx/ddtools) >= 0.48.2
 
 
-## # Документация
+## Документация
 
 
-### ## Установка
-Элементы → Сниппеты: Создать новый сниппет со следующими параметрами:
+### Установка
+
+
+#### 1. Элементы → Сниппеты: Создайте новый сниппет со следующими параметрами
 
 1. Название сниппета: `ddMakeHttpRequest`.
-2. Описание: `<b>2.1</b> Makes HTTP request to a given URL.`.
+2. Описание: `<b>2.2</b> Makes HTTP request to a given URL.`.
 3. Категория: `Core`.
 4. Анализировать DocBlock: `no`.
 5. Код сниппета (php): Вставьте содержимое файла `ddMakeHttpRequest_snippet` из архива.
 
 
-### ## Описание параметров
+#### 2. Элементы → Управление файлами
+
+1. Создайте новую папку `assets/snippets/ddMakeHttpRequest/`.
+2. Извлеките содержимое архива в неё (кроме файла `ddMakeHttpRequest_snippet.php`).
+
+
+### Описание параметров
 
 * `url`
 	* Описание: Адрес, к которому обращаться.
@@ -38,10 +47,13 @@
 * `postData`
 	* Описание: Данные, которые нужно отправить.
 	* Допустимые значения:
-		* `string_json` — в виде [JSON](https://en.wikipedia.org/wiki/JSON) object
-		* `string_queryFormated` — в виде [Query string](https://en.wikipedia.org/wiki/Query_string)
-		* `array_associative`
+		* `stringJsonObject` — в виде [JSON](https://en.wikipedia.org/wiki/JSON) object
+		* `stringHjsonObject` — в виде [HJSON](https://hjson.github.io/)
+		* `stringQueryFormated` — в виде [Query string](https://en.wikipedia.org/wiki/Query_string)
 		* `string`
+		* Также может быть задан, как нативный PHP объект или массив (например, для вызовов через `\DDTools\Snippet::runSnippet`).
+			* `arrayAssociative`
+			* `object`
 	* Значение по умолчанию: —
 	
 * `sendRawPostData`
@@ -54,9 +66,11 @@
 * `headers`
 	* Описание: Заголовки, которые нужно отправить.
 	* Допустимые значения:
-		* `string_json` — в виде [JSON](https://en.wikipedia.org/wiki/JSON) object
-		* `string_queryFormated` — в виде [Query string](https://en.wikipedia.org/wiki/Query_string)
-		* `array`
+		* `stringJsonArray` — в виде [JSON](https://en.wikipedia.org/wiki/JSON)
+		* `stringHjsonArray` — в виде [HJSON](https://hjson.github.io/)
+		* `stringQueryFormated` — в виде [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* Также может быть задан, как нативный PHP массив (например, для вызовов через `\DDTools\Snippet::runSnippet`).
+			* `array`
 	* Значение по умолчанию: —
 	
 * `userAgent`
@@ -82,17 +96,22 @@
 	* Default value: `0`
 
 
-### ## Примеры
+### Примеры
 
 
-#### ### Простой GET-запрос
+#### Простой GET-запрос
+
 ```
-[[ddMakeHttpRequest? &url=`http://www.example.com?name=John&surname=Doe`]]
+[[ddMakeHttpRequest?
+	&url=`http://www.example.com?name=John&surname=Doe`
+]]
 ```
 
 
-#### ### Простой POST-запрос
-Передаваемые данные мождно задать в виде JSON
+#### Простой POST-запрос
+
+Передаваемые данные мождно задать в виде JSON:
+
 ```
 [[ddMakeHttpRequest?
 	&url=`http://www.example.com/`
@@ -102,7 +121,9 @@
 	}`
 ]]
 ```
-Или в виде Query string
+
+Или в виде Query string:
+
 ```
 [[ddMakeHttpRequest?
 	&url=`http://www.example.com/`
@@ -111,11 +132,12 @@
 ```
 
 
-#### ### CMS API
+#### Запустить сниппет без DB и eval через `\DDTools\Snippet::runSnippet`
+
 ```php
-$requestResult = $modx->runSnippet(
-	'ddMakeHttpRequest',
-	[
+\DDTools\Snippet::runSnippet([
+	'name' => 'ddMakeHttpRequest',
+	'params' => [
 		'url' => 'https://www.example.com/',
 		'postData' => [
 			'name' => 'John',
@@ -125,10 +147,17 @@ $requestResult = $modx->runSnippet(
 			'Accept: application/vnd.api+json',
 			'Content-Type: application/vnd.api+json'
 		],
-		'proxy' => 'socks5://asan:gd324ukl@11.22.33.44:5555'
+		'proxy' => 'socks5://user:password@11.22.33.44:5555'
 	]
-);
+]);
 ```
 
 
-## # [Home page →](https://code.divandesign.ru/modx/ddmakehttprequest)
+## Ссылки
+
+* [Home page](https://code.divandesign.ru/modx/ddmakehttprequest)
+* [Telegram chat](https://t.me/dd_code)
+* [Packagist](https://packagist.org/packages/dd/evolutioncms-snippets-ddmakehttprequest)
+
+
+<link rel="stylesheet" type="text/css" href="https://DivanDesign.ru/assets/files/ddMarkdown.css" />

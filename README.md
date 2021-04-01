@@ -3,25 +3,34 @@
 Makes HTTP request to a given URL.
 
 
-## # Requires
-* PHP >= 5.4
-* [(MODX)EvolutionCMS.libraries.ddTools](http://code.divandesign.biz/modx/ddtools) >= 0.23
+## Requires
+
+* PHP >= 5.6
+* [(MODX)EvolutionCMS.libraries.ddTools](https://code.divandesign.biz/modx/ddtools) >= 0.48.2
 
 
-## # Documentation
+## Documentation
 
 
-### ## Installation
-Elements → Snippets: Create a new snippet with the following data:
+### Installation
+
+
+#### 1. Elements → Snippets: Create a new snippet with the following data
 
 1. Snippet name: `ddMakeHttpRequest`.
-2. Description: `<b>2.1</b> Makes HTTP request to a given URL.`.
+2. Description: `<b>2.2</b> Makes HTTP request to a given URL.`.
 3. Category: `Core`.
 4. Parse DocBlock: `no`.
 5. Snippet code (php): Insert content of the `ddMakeHttpRequest_snippet` file from the archive.
 
 
-### ## Parameters description
+#### 2. Elements → Manage Files
+
+1. Create a new folder `assets/snippets/ddMakeHttpRequest/`.
+2. Extract the archive to the folder (except `ddMakeHttpRequest_snippet.php`).
+
+
+### Parameters description
 
 * `url`
 	* Desctription: The URL to fetch.
@@ -38,10 +47,13 @@ Elements → Snippets: Create a new snippet with the following data:
 * `postData`
 	* Desctription: The full data to post in a HTTP “POST” operation.
 	* Valid values:
-		* `string_json` — as [JSON](https://en.wikipedia.org/wiki/JSON) object
-		* `string_queryFormated` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
-		* `array_associative`
+		* `stringJsonObject` — as [JSON](https://en.wikipedia.org/wiki/JSON) object
+		* `stringHjsonObject` — as [HJSON](https://hjson.github.io/)
+		* `stringQueryFormated` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
 		* `string`
+		* It can also be set as a native PHP object or array (e. g. for calls through `\DDTools\Snippet::runSnippet`):
+			* `arrayAssociative`
+			* `object`
 	* Default value: —
 	
 * `sendRawPostData`
@@ -54,9 +66,11 @@ Elements → Snippets: Create a new snippet with the following data:
 * `headers`
 	* Desctription: An array of HTTP header fields to set.
 	* Valid values:
-		* `string_json` — as [JSON](https://en.wikipedia.org/wiki/JSON) object
-		* `string_queryFormated` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
-		* `array`
+		* `stringJsonArray` — as [JSON](https://en.wikipedia.org/wiki/JSON)
+		* `stringHjsonArray` — as [HJSON](https://hjson.github.io/)
+		* `stringQueryFormated` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* It can also be set as a native PHP array (e. g. for calls through `\DDTools\Snippet::runSnippet`):
+			* `array`
 	* Default value: —
 	
 * `userAgent`
@@ -70,7 +84,7 @@ Elements → Snippets: Create a new snippet with the following data:
 	* Default value: `60`
 	
 * `proxy`
-	* Desctription: Proxy server in format `[+protocol+]://[+user+]:[+password+]@[+ip+]:[+port+]`. E. g. `http://asan:gd324ukl@11.22.33.44:5555` or `socks5://asan:gd324ukl@11.22.33.44:5555`.
+	* Desctription: Proxy server in format `[+protocol+]://[+user+]:[+password+]@[+ip+]:[+port+]`. E. g. `http://user:password@11.22.33.44:5555` or `socks5://user:password@11.22.33.44:5555`.
 	* Valid values: `string`
 	* Default value: —
 	
@@ -82,17 +96,22 @@ Elements → Snippets: Create a new snippet with the following data:
 	* Default value: `0`
 
 
-### ## Examples
+### Examples
 
 
-#### ### Simple GET request
+#### Simple GET request
+
 ```
-[[ddMakeHttpRequest? &url=`http://www.example.com?name=John&surname=Doe`]]
+[[ddMakeHttpRequest?
+	&url=`http://www.example.com?name=John&surname=Doe`
+]]
 ```
 
 
-#### ### Simple POST request
-Set data as JSON
+#### Simple POST request
+
+Set data as JSON:
+
 ```
 [[ddMakeHttpRequest?
 	&url=`http://www.example.com/`
@@ -102,7 +121,9 @@ Set data as JSON
 	}`
 ]]
 ```
-Or Query string
+
+Or Query string:
+
 ```
 [[ddMakeHttpRequest?
 	&url=`http://www.example.com/`
@@ -111,11 +132,12 @@ Or Query string
 ```
 
 
-#### ### CMS API
+#### Run the snippet through `\DDTools\Snippet::runSnippet` without DB and eval
+
 ```php
-$requestResult = $modx->runSnippet(
-	'ddMakeHttpRequest',
-	[
+\DDTools\Snippet::runSnippet([
+	'name' => 'ddMakeHttpRequest',
+	'params' => [
 		'url' => 'https://www.example.com/',
 		'postData' => [
 			'name' => 'John',
@@ -125,10 +147,17 @@ $requestResult = $modx->runSnippet(
 			'Accept: application/vnd.api+json',
 			'Content-Type: application/vnd.api+json'
 		],
-		'proxy' => 'socks5://asan:gd324ukl@11.22.33.44:5555'
+		'proxy' => 'socks5://user:password@11.22.33.44:5555'
 	]
-);
+]);
 ```
 
 
-## # [Home page →](https://code.divandesign.biz/modx/ddmakehttprequest)
+## Links
+
+* [Home page](https://code.divandesign.biz/modx/ddmakehttprequest)
+* [Telegram chat](https://t.me/dd_code)
+* [Packagist](https://packagist.org/packages/dd/evolutioncms-snippets-ddmakehttprequest)
+
+
+<link rel="stylesheet" type="text/css" href="https://DivanDesign.ru/assets/files/ddMarkdown.css" />
