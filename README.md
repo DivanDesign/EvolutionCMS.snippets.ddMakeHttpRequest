@@ -47,10 +47,11 @@ Makes HTTP request to a given URL.
 * `postData`
 	* Desctription: The full data to post in a HTTP “POST” operation.
 	* Valid values:
-		* `string_json` — as [JSON](https://en.wikipedia.org/wiki/JSON) object
-		* `string_queryFormated` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
-		* `array_associative`
+		* `stringJsonObject` — as [JSON](https://en.wikipedia.org/wiki/JSON) object
+		* `stringQueryFormated` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
 		* `string`
+		* It can also be set as a native PHP array (e. g. for calls through `\DDTools\Snippet::runSnippet`):
+			* `arrayAssociative`
 	* Default value: —
 	
 * `sendRawPostData`
@@ -63,10 +64,11 @@ Makes HTTP request to a given URL.
 * `headers`
 	* Desctription: An array of HTTP header fields to set.
 	* Valid values:
-		* `string_json` — as [JSON](https://en.wikipedia.org/wiki/JSON) object
+		* `stringJsonArray` — as [JSON](https://en.wikipedia.org/wiki/JSON)
 		* `stringHjsonArray` — as [HJSON](https://hjson.github.io/)
-		* `string_queryFormated` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
-		* `array`
+		* `stringQueryFormated` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* It can also be set as a native PHP array (e. g. for calls through `\DDTools\Snippet::runSnippet`):
+			* `array`
 	* Default value: —
 	
 * `userAgent`

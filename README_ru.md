@@ -47,10 +47,11 @@
 * `postData`
 	* Описание: Данные, которые нужно отправить.
 	* Допустимые значения:
-		* `string_json` — в виде [JSON](https://en.wikipedia.org/wiki/JSON) object
-		* `string_queryFormated` — в виде [Query string](https://en.wikipedia.org/wiki/Query_string)
-		* `array_associative`
+		* `stringJsonObject` — в виде [JSON](https://en.wikipedia.org/wiki/JSON) object
+		* `stringQueryFormated` — в виде [Query string](https://en.wikipedia.org/wiki/Query_string)
 		* `string`
+		* Также может быть задан, как нативный PHP массив (например, для вызовов через `\DDTools\Snippet::runSnippet`).
+			* `arrayAssociative`
 	* Значение по умолчанию: —
 	
 * `sendRawPostData`
@@ -63,10 +64,11 @@
 * `headers`
 	* Описание: Заголовки, которые нужно отправить.
 	* Допустимые значения:
-		* `string_json` — в виде [JSON](https://en.wikipedia.org/wiki/JSON) object
+		* `stringJsonArray` — в виде [JSON](https://en.wikipedia.org/wiki/JSON)
 		* `stringHjsonArray` — в виде [HJSON](https://hjson.github.io/)
-		* `string_queryFormated` — в виде [Query string](https://en.wikipedia.org/wiki/Query_string)
-		* `array`
+		* `stringQueryFormated` — в виде [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* Также может быть задан, как нативный PHP массив (например, для вызовов через `\DDTools\Snippet::runSnippet`).
+			* `array`
 	* Значение по умолчанию: —
 	
 * `userAgent`
