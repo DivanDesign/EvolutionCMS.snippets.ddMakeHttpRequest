@@ -1,7 +1,7 @@
 <?php
 /**
  * ddMakeHttpRequest
- * @version 2.2 (2021-04-02)
+ * @version 2.3 (2021-04-13)
  * 
  * @see README.md
  * 

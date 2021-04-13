@@ -1,6 +1,10 @@
 # (MODX)EvolutionCMS.snippets.ddMakeHttpRequest changelog
 
 
+## Version 2.3 (2021-04-13)
+* \+ `\ddMakeHttpRequest\Snippet::run`: Improved “manual” redirection.
+
+
 ## Version 2.2 (2021-04-02)
 * \* Attention! PHP >= 5.6 is required.
 * \* Attention! (MODX)EvolutionCMS.libraries.ddTools >= 0.48.2 is required.
