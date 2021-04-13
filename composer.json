@@ -1,7 +1,7 @@
 {
 	"name": "dd/evolutioncms-snippets-ddmakehttprequest",
 	"type": "modxevo-snippet",
-	"version": "2.2.0",
+	"version": "2.3.0",
 	"description": "Makes HTTP request to a given URL.",
 	"keywords": [
 		"modx",
@@ -13,7 +13,9 @@
 		"evolution cms",
 		"ddmakehttprequest",
 		"makehttprequest",
+		"make http request",
 		"httprequest",
+		"http request",
 		"curl"
 	],
 	"homepage": "https://code.divandesign.biz/modx/ddmakehttprequest",

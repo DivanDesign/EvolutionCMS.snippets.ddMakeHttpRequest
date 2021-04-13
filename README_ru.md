@@ -2,10 +2,12 @@
 
 Отправляет HTTP запрос к заданному URL.
 
+Поддерживает редиректы даже если нативные редиректы CURL недоступны.
+
 
 ## Requires
 
-* PHP >= 5.4
+* PHP >= 5.6
 * [(MODX)EvolutionCMS.libraries.ddTools](https://code.divandesign.biz/modx/ddtools) >= 0.48.2
 
 
@@ -18,7 +20,7 @@
 #### 1. Элементы → Сниппеты: Создайте новый сниппет со следующими параметрами
 
 1. Название сниппета: `ddMakeHttpRequest`.
-2. Описание: `<b>2.2</b> Makes HTTP request to a given URL.`.
+2. Описание: `<b>2.3</b> Makes HTTP request to a given URL.`.
 3. Категория: `Core`.
 4. Анализировать DocBlock: `no`.
 5. Код сниппета (php): Вставьте содержимое файла `ddMakeHttpRequest_snippet` из архива.

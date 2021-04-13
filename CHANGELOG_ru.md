@@ -1,6 +1,10 @@
 # (MODX)EvolutionCMS.snippets.ddMakeHttpRequest changelog
 
 
+## Версия 2.3 (2021-04-13)
+* \+ `\ddMakeHttpRequest\Snippet::run`: Улучшен «ручной» редирект.
+
+
 ## Версия 2.2 (2021-04-02)
 * \* Внимание! Требуется PHP >= 5.6.
 * \* Внимание! Требуется (MODX)EvolutionCMS.libraries.ddTools >= 0.48.2.
