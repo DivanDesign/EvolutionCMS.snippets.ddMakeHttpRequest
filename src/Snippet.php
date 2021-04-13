@@ -70,7 +70,7 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * run
-	 * @version 1.0 (2021-04-01)
+	 * @version 1.1 (2021-04-13)
 	 * 
 	 * @return {string}
 	 */
@@ -306,7 +306,7 @@ class Snippet extends \DDTools\Snippet {
 						$matches = [];
 						
 						preg_match(
-							'/Location:(.*?)\n/',
+							'/location:(.*?)\n/i',
 							$resultHeader,
 							$matches
 						);
