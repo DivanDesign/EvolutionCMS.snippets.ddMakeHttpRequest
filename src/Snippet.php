@@ -3,7 +3,7 @@ namespace ddMakeHttpRequest;
 
 class Snippet extends \DDTools\Snippet {
 	protected
-		$version = '2.3.0',
+		$version = '2.3.1',
 		
 		$params = [
 			//Defaults
@@ -70,7 +70,7 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * run
-	 * @version 1.1 (2021-04-13)
+	 * @version 1.1.1 (2021-04-17)
 	 * 
 	 * @return {string}
 	 */
@@ -346,7 +346,7 @@ class Snippet extends \DDTools\Snippet {
 							$redirectUrl['host'] .
 							$redirectUrl['path'] .
 							(
-								$redirectUrl['query'] ?
+								!empty($redirectUrl['query']) ?
 								'?' . $redirectUrl['query'] :
 								''
 							)

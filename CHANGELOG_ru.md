@@ -1,6 +1,10 @@
 # (MODX)EvolutionCMS.snippets.ddMakeHttpRequest changelog
 
 
+## Версия 2.3.1 (2021-04-17)
+* \* `\ddMakeHttpRequest\Snippet::run`: Исправлена проверка несуществующего элемента массива.
+
+
 ## Версия 2.3 (2021-04-13)
 * \+ `\ddMakeHttpRequest\Snippet::run`: Улучшен «ручной» редирект.
 
