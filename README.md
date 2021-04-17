@@ -20,7 +20,7 @@ Supports redirects even if native CURL redirects is unavailable.
 #### 1. Elements → Snippets: Create a new snippet with the following data
 
 1. Snippet name: `ddMakeHttpRequest`.
-2. Description: `<b>2.3</b> Makes HTTP request to a given URL.`.
+2. Description: `<b>2.3.1</b> Makes HTTP request to a given URL.`.
 3. Category: `Core`.
 4. Parse DocBlock: `no`.
 5. Snippet code (php): Insert content of the `ddMakeHttpRequest_snippet` file from the archive.

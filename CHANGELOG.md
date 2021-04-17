@@ -1,6 +1,10 @@
 # (MODX)EvolutionCMS.snippets.ddMakeHttpRequest changelog
 
 
+## Version 2.3.1 (2021-04-17)
+* \* `\ddMakeHttpRequest\Snippet::run`: Fixed checking of a non-existent array element.
+
+
 ## Version 2.3 (2021-04-13)
 * \+ `\ddMakeHttpRequest\Snippet::run`: Improved “manual” redirection.
 
