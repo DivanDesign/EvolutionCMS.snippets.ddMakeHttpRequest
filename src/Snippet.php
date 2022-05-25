@@ -70,7 +70,7 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * run
-	 * @version 1.1.1 (2021-04-17)
+	 * @version 1.1.2 (2022-05-25)
 	 * 
 	 * @return {string}
 	 */
@@ -191,25 +191,7 @@ class Snippet extends \DDTools\Snippet {
 				
 				//Если он массив — делаем query string
 				if (is_array($this->params->postData)){
-					$postData_mas = [];
-					
-					//Сформируем массив для отправки, предварительно перекодировав
-					foreach (
-						$this->params->postData as
-						$key =>
-						$value
-					){
-						$postData_mas[] =
-							$key .
-							'=' .
-							urlencode($value)
-						;
-					}
-					
-					$this->params->postData = implode(
-						'&',
-						$postData_mas
-					);
+					$this->params->postData = http_build_query($this->params->postData);
 				}
 				
 				curl_setopt(
