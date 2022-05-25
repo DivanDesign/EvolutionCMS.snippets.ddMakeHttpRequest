@@ -1,6 +1,10 @@
 # (MODX)EvolutionCMS.snippets.ddMakeHttpRequest changelog
 
 
+## Version 2.3.2 (2022-05-25)
+* \* Parameters → `postData`: Multidimensional PHP arrays and objects are also supported.
+
+
 ## Version 2.3.1 (2021-04-17)
 * \* `\ddMakeHttpRequest\Snippet::run`: Fixed checking of a non-existent array element.
 
