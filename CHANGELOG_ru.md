@@ -1,6 +1,10 @@
 # (MODX)EvolutionCMS.snippets.ddMakeHttpRequest changelog
 
 
+## Версия 2.3.2 (2022-05-25)
+* \* Параметры → `postData`: Многомерные массивы и объекты PHP также поддерживаются.
+
+
 ## Версия 2.3.1 (2021-04-17)
 * \* `\ddMakeHttpRequest\Snippet::run`: Исправлена проверка несуществующего элемента массива.
 
