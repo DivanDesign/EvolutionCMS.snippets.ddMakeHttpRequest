@@ -6,7 +6,7 @@ class Snippet extends \DDTools\Snippet {
 		$version = '2.3.2',
 		
 		$params = [
-			//Defaults
+			// Defaults
 			'url' => null,
 			'method' => 'get',
 			'postData' => null,
@@ -35,14 +35,14 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * prepareParams
-	 * @version 1.1 (2021-04-01)
+	 * @version 1.1.1 (2024-08-06)
 	 * 
 	 * @param $this->params {stdClass|arrayAssociative|stringJsonObject|stringQueryFormatted}
 	 * 
 	 * @return {void}
 	 */
 	protected function prepareParams($params = []){
-		//Call base method
+		// Call base method
 		parent::prepareParams($params);
 		
 		$this->params->method = strtolower($this->params->method);
@@ -55,9 +55,9 @@ class Snippet extends \DDTools\Snippet {
 			$this->params->method = 'post';
 			
 			if (
-				//Если отправляемые данные переданы строкой
+				// Если отправляемые данные переданы строкой
 				!is_array($this->params->postData) &&
-				//И обрабатывать её можно
+				// И обрабатывать её можно
 				!$this->params->sendRawPostData
 			){
 				$this->params->postData = \DDTools\ObjectTools::convertType([
@@ -70,18 +70,18 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * run
-	 * @version 1.1.2 (2022-05-25)
+	 * @version 1.1.3 (2024-08-06)
 	 * 
 	 * @return {string}
 	 */
 	public function run(){
-		//The snippet must return an empty string even if result is absent
+		// The snippet must return an empty string even if result is absent
 		$result = '';
 		
 		if (!empty($this->params->url)){
 			$manualRedirect = false;
 			
-			//Разбиваем адрес на компоненты
+			// Разбиваем адрес на компоненты
 			$urlArray = parse_url($this->params->url);
 			$urlArray['scheme'] =
 				isset($urlArray['scheme']) ?
@@ -99,7 +99,7 @@ class Snippet extends \DDTools\Snippet {
 				''
 			;
 			
-			//Инициализируем сеанс CURL
+			// Инициализируем сеанс CURL
 			$ch = curl_init(
 				$urlArray['scheme'] . '://' .
 				$urlArray['host'] .
@@ -107,14 +107,14 @@ class Snippet extends \DDTools\Snippet {
 				$urlArray['query']
 			);
 			
-			//Выставление таймаута
+			// Выставление таймаута
 			curl_setopt(
 				$ch,
 				CURLOPT_TIMEOUT,
 				$this->params->timeout
 			);
 			
-			//Если необходимо соединиться с https
+			// Если необходимо соединиться с https
 			if ($urlArray['scheme'] === 'https'){
 				curl_setopt(
 					$ch,
@@ -128,7 +128,7 @@ class Snippet extends \DDTools\Snippet {
 				);
 			}
 			
-			//Устанавливаем порт, если задан
+			// Устанавливаем порт, если задан
 			if(isset($urlArray['port'])){
 				curl_setopt(
 					$ch,
@@ -137,14 +137,14 @@ class Snippet extends \DDTools\Snippet {
 				);
 			}
 			
-			//Результат должен быть возвращен, а не выведен
+			// Результат должен быть возвращен, а не выведен
 			curl_setopt(
 				$ch,
 				CURLOPT_RETURNTRANSFER,
 				1
 			);
 			
-			//Не включаем полученные заголовки в результат
+			// Не включаем полученные заголовки в результат
 			
 			if (
 				ini_get('open_basedir') != '' ||
@@ -163,7 +163,7 @@ class Snippet extends \DDTools\Snippet {
 					CURLOPT_HEADER,
 					0
 				);
-				//При установке этого параметра в ненулевое значение, при получении HTTP заголовка "Location: " будет происходить перенаправление на указанный этим заголовком URL (это действие выполняется рекурсивно, для каждого полученного заголовка "Location:").
+				// При установке этого параметра в ненулевое значение, при получении HTTP заголовка "Location: " будет происходить перенаправление на указанный этим заголовком URL (это действие выполняется рекурсивно, для каждого полученного заголовка "Location:").
 				curl_setopt(
 					$ch,
 					CURLOPT_FOLLOWLOCATION,
@@ -177,19 +177,19 @@ class Snippet extends \DDTools\Snippet {
 				10
 			);
 			
-			//Если есть переменные для отправки
+			// Если есть переменные для отправки
 			if (
 				$this->params->method == 'post' &&
 				!empty($this->params->postData)
 			){
-				//Запрос будет методом POST типа application/x-www-form-urlencoded (используемый браузерами при отправке форм)
+				// Запрос будет методом POST типа application/x-www-form-urlencoded (используемый браузерами при отправке форм)
 				curl_setopt(
 					$ch,
 					CURLOPT_POST,
 					1
 				);
 				
-				//Если он массив — делаем query string
+				// Если он массив — делаем query string
 				if (is_array($this->params->postData)){
 					$this->params->postData = http_build_query($this->params->postData);
 				}
@@ -201,7 +201,7 @@ class Snippet extends \DDTools\Snippet {
 				);
 			}
 			
-			//Если заданы какие-то HTTP заголовки
+			// Если заданы какие-то HTTP заголовки
 			if (is_array($this->params->headers)){
 				curl_setopt(
 					$ch,
@@ -210,7 +210,7 @@ class Snippet extends \DDTools\Snippet {
 				);
 			}
 			
-			//Если задан UserAgent
+			// Если задан UserAgent
 			if (!empty($this->params->userAgent)){
 				curl_setopt(
 					$ch,
@@ -219,7 +219,7 @@ class Snippet extends \DDTools\Snippet {
 				);
 			}
 			
-			//Если задано использование печенек
+			// Если задано использование печенек
 			if ($this->params->useCookie){
 				curl_setopt(
 					$ch,
@@ -239,7 +239,7 @@ class Snippet extends \DDTools\Snippet {
 				);
 			}
 			
-			//Если задан прокси-сервер
+			// Если задан прокси-сервер
 			if(!empty($this->params->proxy)){
 				curl_setopt(
 					$ch,
@@ -248,10 +248,10 @@ class Snippet extends \DDTools\Snippet {
 				);
 			}
 			
-			//Выполняем запрос
+			// Выполняем запрос
 			$result = curl_exec($ch);
 			
-			//Если есть ошибки или ничего не получили
+			// Если есть ошибки или ничего не получили
 			if (
 				curl_errno($ch) != 0 &&
 				empty($result)
@@ -261,7 +261,7 @@ class Snippet extends \DDTools\Snippet {
 				$redirectCount = 10;
 				
 				while (0 < $redirectCount--){
-					//Получаем заголовки, контент и код ответа
+					// Получаем заголовки, контент и код ответа
 					$resultHeader = substr(
 						$result,
 						0,
@@ -282,9 +282,9 @@ class Snippet extends \DDTools\Snippet {
 						CURLINFO_HTTP_CODE
 					);
 					
-					//Проверяем код на редирект
+					// Проверяем код на редирект
 					if (intval($resultResponseCode / 100) == 3){
-						//Ищем новый url в заголовках
+						// Ищем новый url в заголовках
 						$matches = [];
 						
 						preg_match(
@@ -300,14 +300,14 @@ class Snippet extends \DDTools\Snippet {
 						}
 						
 						
-						//Парсим url
+						// Парсим url
 						$redirectUrl = parse_url(trim($newUrlStr));
 						if (!is_array($redirectUrl)){
 							$redirectUrl = [];
 						}
 						
 						
-						//Собираем новый url
+						// Собираем новый url
 						$lastUrl = parse_url(curl_getinfo(
 							$ch,
 							CURLINFO_EFFECTIVE_URL
@@ -335,7 +335,7 @@ class Snippet extends \DDTools\Snippet {
 						;
 						
 						
-						//Выполняем запрос с новым адресом
+						// Выполняем запрос с новым адресом
 						curl_setopt(
 							$ch,
 							CURLOPT_URL,
@@ -360,7 +360,7 @@ class Snippet extends \DDTools\Snippet {
 				}
 			}
 			
-			//Закрываем сеанс CURL
+			// Закрываем сеанс CURL
 			curl_close($ch);
 		}
 		
