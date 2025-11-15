@@ -35,7 +35,7 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * prepareParams
-	 * @version 1.1.1 (2024-08-06)
+	 * @version 1.1.2 (2025-11-15)
 	 * 
 	 * @param $this->params {stdClass|arrayAssociative|stringJsonObject|stringQueryFormatted}
 	 * 
@@ -52,7 +52,9 @@ class Snippet extends \DDTools\Snippet {
 		}
 		
 		if (!empty($this->params->postData)){
-			$this->params->method = 'post';
+			if (empty($this->params->method)){
+				$this->params->method = 'post';
+			}
 			
 			if (
 				// Если отправляемые данные переданы строкой
@@ -70,7 +72,7 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * run
-	 * @version 1.1.3 (2024-08-06)
+	 * @version 1.2 (2025-11-15)
 	 * 
 	 * @return {string}
 	 */
@@ -179,25 +181,50 @@ class Snippet extends \DDTools\Snippet {
 			
 			// Если есть переменные для отправки
 			if (
-				$this->params->method == 'post' &&
-				!empty($this->params->postData)
+				in_array(
+					$this->params->method,
+					[
+						'post',
+						'put',
+						'patch',
+						'delete'
+					]
+				)
+				&& !empty($this->params->postData)
 			){
-				// Запрос будет методом POST типа application/x-www-form-urlencoded (используемый браузерами при отправке форм)
-				curl_setopt(
-					$ch,
-					CURLOPT_POST,
-					1
-				);
-				
 				// Если он массив — делаем query string
 				if (is_array($this->params->postData)){
 					$this->params->postData = http_build_query($this->params->postData);
+				}
+				
+				// Для POST используем стандартный метод
+				if ($this->params->method == 'post'){
+					// Запрос будет методом POST типа application/x-www-form-urlencoded (используемый браузерами при отправке форм)
+					curl_setopt(
+						$ch,
+						CURLOPT_POST,
+						1
+					);
+				// Для остальных методов используем кастомный метод
+				}else{
+					curl_setopt(
+						$ch,
+						CURLOPT_CUSTOMREQUEST,
+						strtoupper($this->params->method)
+					);
 				}
 				
 				curl_setopt(
 					$ch,
 					CURLOPT_POSTFIELDS,
 					$this->params->postData
+				);
+			}elseif ($this->params->method != 'get'){
+				// Для других методов (кроме GET и POST/PUT/PATCH/DELETE с данными) используем кастомный метод
+				curl_setopt(
+					$ch,
+					CURLOPT_CUSTOMREQUEST,
+					strtoupper($this->params->method)
 				);
 			}
 			
@@ -435,7 +462,7 @@ class Snippet extends \DDTools\Snippet {
 								'source' => 'ddMakeHttpRequest',
 							]);
 						}
-
+						
 						if ($isCurlError){
 							$result = false;
 							

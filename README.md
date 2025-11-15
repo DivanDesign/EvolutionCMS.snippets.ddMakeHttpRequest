@@ -44,10 +44,13 @@ Supports redirects even if native CURL redirects is unavailable.
 	* Valid values:
 		* `'get'`
 		* `'post'`
+		* `'put'`
+		* `'patch'`
+		* `'delete'`
 	* Default value: `'get'`
 	
 * `postData`
-	* Desctription: The full data to post in a HTTP “POST” operation.
+	* Desctription: The full data to send in request body. Can be used with POST, PUT, PATCH, DELETE methods.
 	* Valid values:
 		* `stringJsonObject` — as [JSON](https://en.wikipedia.org/wiki/JSON) object
 		* `stringHjsonObject` — as [HJSON](https://hjson.github.io/)

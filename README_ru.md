@@ -44,10 +44,13 @@
 	* Допустимые значения:
 		* `'get'`
 		* `'post'`
+		* `'put'`
+		* `'patch'`
+		* `'delete'`
 	* Значение по умолчанию: `'get'`
 	
 * `postData`
-	* Описание: Данные, которые нужно отправить.
+	* Описание: Данные, которые нужно отправить. Можно использовать с методами POST, PUT, PATCH, DELETE.
 	* Допустимые значения:
 		* `stringJsonObject` — в виде [JSON](https://en.wikipedia.org/wiki/JSON) object
 		* `stringHjsonObject` — в виде [HJSON](https://hjson.github.io/)
