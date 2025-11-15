@@ -251,11 +251,55 @@ class Snippet extends \DDTools\Snippet {
 			// Выполняем запрос
 			$result = curl_exec($ch);
 			
-			// Если есть ошибки или ничего не получили
+			// Get information about the request
+			$curlErrorNo = curl_errno($ch);
+			$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			
+			// If there are errors or nothing was received
+			$isCurlError =
+				$curlErrorNo != 0
+				&& empty($result)
+			;
+			$isHttpCodeError =
+				$httpCode >= 400
+				&& $httpCode < 600
+			;
+			
+			// Log errors
 			if (
-				curl_errno($ch) != 0 &&
-				empty($result)
+				$isCurlError
+				|| $isHttpCodeError
 			){
+				$curlError = curl_error($ch);
+				$effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+				
+				\ddTools::logEvent([
+					'message' =>
+						'<p>'
+							. (
+								$isHttpCodeError
+								? 'HTTP error response received'
+								: 'CURL request failed'
+							)
+						. '.</p>'
+						. '<ul>'
+							. '<li>URL: <code>' . htmlspecialchars($effectiveUrl) . '</code>;</li>'
+							. '<li>HTTP code: <code>' . $httpCode . '</code>;</li>'
+							. (
+								$curlErrorNo != 0
+								? '<li>CURL error code: <code>' . $curlErrorNo . '</code>;</li>'
+								. '<li>CURL error message: <code>' . htmlspecialchars($curlError) . '</code>;</li>'
+								: ''
+							)
+							. '<li>Parameters: <pre>' . htmlspecialchars(var_export($this->params, true)) . '</pre>;</li>'
+						. '</ul>'
+					,
+					'eventType' => 'error',
+					'source' => 'ddMakeHttpRequest',
+				]);
+			}
+			
+			if ($isCurlError){
 				$result = '';
 			}elseif ($manualRedirect){
 				$redirectCount = 10;
@@ -344,10 +388,55 @@ class Snippet extends \DDTools\Snippet {
 						
 						$result = curl_exec($ch);
 						
+						// Get information about the request
+						$curlErrorNo = curl_errno($ch);
+						$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+						
+						// If there are errors or nothing was received
+						$isCurlError =
+							$curlErrorNo != 0
+							&& empty($result)
+						;
+						$isHttpCodeError =
+							$httpCode >= 400
+							&& $httpCode < 600
+						;
+						
+						// Log errors
 						if (
-							curl_errno($ch) != 0 &&
-							empty($result)
+							$isCurlError
+							|| $isHttpCodeError
 						){
+							$curlError = curl_error($ch);
+							$effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+							
+							\ddTools::logEvent([
+								'message' =>
+									'<p>'
+										. (
+											$isHttpCodeError
+											? 'HTTP error response received'
+											: 'CURL request failed'
+										)
+									. ' during manual redirect.</p>'
+									. '<ul>'
+										. '<li>URL: <code>' . htmlspecialchars($effectiveUrl) . '</code>;</li>'
+										. '<li>HTTP code: <code>' . $httpCode . '</code>;</li>'
+										. (
+											$curlErrorNo != 0
+											? '<li>CURL error code: <code>' . $curlErrorNo . '</code>;</li>'
+											. '<li>CURL error message: <code>' . htmlspecialchars($curlError) . '</code>;</li>'
+											: ''
+										)
+										. '<li>Parameters: <pre>' . htmlspecialchars(var_export($this->params, true)) . '</pre>;</li>'
+									. '</ul>'
+								,
+								'eventType' => 'error',
+								'source' => 'ddMakeHttpRequest',
+							]);
+						}
+
+						if ($isCurlError){
 							$result = false;
 							
 							break;
