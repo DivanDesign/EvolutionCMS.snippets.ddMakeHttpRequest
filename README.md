@@ -49,7 +49,7 @@ Supports redirects even if native CURL redirects is unavailable.
 		* `'delete'`
 	* Default value: `'get'`
 	
-* `postData`
+* `data`
 	* Desctription: The full data to send in request body. Can be used with POST, PUT, PATCH, DELETE methods.
 	* Valid values:
 		* `stringJsonObject` — as [JSON](https://en.wikipedia.org/wiki/JSON) object
@@ -61,8 +61,8 @@ Supports redirects even if native CURL redirects is unavailable.
 			* `object`
 	* Default value: —
 	
-* `sendRawPostData`
-	* Desctription: Send raw `postData`. E. g. if you need JSON in request payload.
+* `isRawDataEnabled`
+	* Desctription: Send raw `data`. E. g. if you need JSON in request payload.
 	* Valid values:
 		* `0`
 		* `1`
@@ -120,7 +120,7 @@ Set data as JSON:
 ```
 [[ddMakeHttpRequest?
 	&url=`http://www.example.com/`
-	&postData=`{
+	&data=`{
 		"name": "John",
 		"surname": "Doe"
 	}`
@@ -132,7 +132,7 @@ Or Query string:
 ```
 [[ddMakeHttpRequest?
 	&url=`http://www.example.com/`
-	&postData=`name=John&surname=Doe`
+	&data=`name=John&surname=Doe`
 ]]
 ```
 
@@ -144,7 +144,7 @@ Or Query string:
 	'name' => 'ddMakeHttpRequest',
 	'params' => [
 		'url' => 'https://www.example.com/',
-		'postData' => [
+		'data' => [
 			'name' => 'John',
 			'surname' => 'Doe'
 		],

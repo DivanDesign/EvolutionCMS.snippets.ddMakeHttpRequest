@@ -9,8 +9,8 @@ class Snippet extends \DDTools\Snippet {
 			// Defaults
 			'url' => null,
 			'method' => 'get',
-			'postData' => null,
-			'sendRawPostData' => false,
+			'data' => null,
+			'isRawDataEnabled' => false,
 			'headers' => [],
 			'userAgent' => null,
 			'timeout' => 60,
@@ -19,7 +19,7 @@ class Snippet extends \DDTools\Snippet {
 		],
 		
 		$paramsTypes = [
-			'sendRawPostData' => 'boolean',
+			'isRawDataEnabled' => 'boolean',
 			'headers' => 'objectArray',
 			'timeout' => 'integer',
 			'useCookie' => 'boolean'
@@ -28,14 +28,15 @@ class Snippet extends \DDTools\Snippet {
 		$renamedParamsCompliance = [
 			'method' => 'metod',
 			'userAgent' => 'uagent',
-			'postData' => 'post',
+			'data' => ['post', 'postData'],
+			'isRawDataEnabled' => 'sendRawPostData',
 			'useCookie' => 'cookie'
 		]
 	;
 	
 	/**
 	 * prepareParams
-	 * @version 1.1.2 (2025-11-15)
+	 * @version 1.1.3 (2025-11-15)
 	 * 
 	 * @param $this->params {stdClass|arrayAssociative|stringJsonObject|stringQueryFormatted}
 	 * 
@@ -47,23 +48,23 @@ class Snippet extends \DDTools\Snippet {
 		
 		$this->params->method = strtolower($this->params->method);
 		
-		if (is_object($this->params->postData)){
-			$this->params->postData = (array) $this->params->postData;
+		if (is_object($this->params->data)){
+			$this->params->data = (array) $this->params->data;
 		}
 		
-		if (!empty($this->params->postData)){
+		if (!empty($this->params->data)){
 			if (empty($this->params->method)){
 				$this->params->method = 'post';
 			}
 			
 			if (
 				// Если отправляемые данные переданы строкой
-				!is_array($this->params->postData) &&
+				!is_array($this->params->data) &&
 				// И обрабатывать её можно
-				!$this->params->sendRawPostData
+				!$this->params->isRawDataEnabled
 			){
-				$this->params->postData = \DDTools\ObjectTools::convertType([
-					'object' => $this->params->postData,
+				$this->params->data = \DDTools\ObjectTools::convertType([
+					'object' => $this->params->data,
 					'type' => 'objectArray'
 				]);
 			}
@@ -72,7 +73,7 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * run
-	 * @version 1.2 (2025-11-15)
+	 * @version 1.2.1 (2025-11-15)
 	 * 
 	 * @return {string}
 	 */
@@ -190,11 +191,11 @@ class Snippet extends \DDTools\Snippet {
 						'delete'
 					]
 				)
-				&& !empty($this->params->postData)
+				&& !empty($this->params->data)
 			){
 				// Если он массив — делаем query string
-				if (is_array($this->params->postData)){
-					$this->params->postData = http_build_query($this->params->postData);
+				if (is_array($this->params->data)){
+					$this->params->data = http_build_query($this->params->data);
 				}
 				
 				// Для POST используем стандартный метод
@@ -217,7 +218,7 @@ class Snippet extends \DDTools\Snippet {
 				curl_setopt(
 					$ch,
 					CURLOPT_POSTFIELDS,
-					$this->params->postData
+					$this->params->data
 				);
 			}elseif ($this->params->method != 'get'){
 				// Для других методов (кроме GET и POST/PUT/PATCH/DELETE с данными) используем кастомный метод

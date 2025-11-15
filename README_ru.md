@@ -49,7 +49,7 @@
 		* `'delete'`
 	* Значение по умолчанию: `'get'`
 	
-* `postData`
+* `data`
 	* Описание: Данные, которые нужно отправить. Можно использовать с методами POST, PUT, PATCH, DELETE.
 	* Допустимые значения:
 		* `stringJsonObject` — в виде [JSON](https://en.wikipedia.org/wiki/JSON) object
@@ -61,8 +61,8 @@
 			* `object`
 	* Значение по умолчанию: —
 	
-* `sendRawPostData`
-	* Описание: Отправить `postData` в сыром виде. Например, если нужен JSON in request payload.
+* `isRawDataEnabled`
+	* Описание: Отправить `data` в сыром виде. Например, если нужен JSON in request payload.
 	* Допустимые значения:
 		* `0`
 		* `1`
@@ -120,7 +120,7 @@
 ```
 [[ddMakeHttpRequest?
 	&url=`http://www.example.com/`
-	&postData=`{
+	&data=`{
 		"name": "John",
 		"surname": "Doe"
 	}`
@@ -132,7 +132,7 @@
 ```
 [[ddMakeHttpRequest?
 	&url=`http://www.example.com/`
-	&postData=`name=John&surname=Doe`
+	&data=`name=John&surname=Doe`
 ]]
 ```
 
@@ -144,7 +144,7 @@
 	'name' => 'ddMakeHttpRequest',
 	'params' => [
 		'url' => 'https://www.example.com/',
-		'postData' => [
+		'data' => [
 			'name' => 'John',
 			'surname' => 'Doe'
 		],
