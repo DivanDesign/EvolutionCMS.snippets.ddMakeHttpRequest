@@ -71,7 +71,7 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * run
-	 * @version 1.2.2 (2025-11-17)
+	 * @version 1.2.3 (2025-11-17)
 	 * 
 	 * @return {string}
 	 */
@@ -296,32 +296,11 @@ class Snippet extends \DDTools\Snippet {
 				$isCurlError
 				|| $isHttpCodeError
 			){
-				$curlError = curl_error($ch);
-				$effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-				
-				\ddTools::logEvent([
-					'message' =>
-						'<p>'
-							. (
-								$isHttpCodeError
-								? 'HTTP error response received'
-								: 'CURL request failed'
-							)
-						. '.</p>'
-						. '<ul>'
-							. '<li>URL: <code>' . htmlspecialchars($effectiveUrl) . '</code>;</li>'
-							. '<li>HTTP code: <code>' . $httpCode . '</code>;</li>'
-							. (
-								$curlErrorNo != 0
-								? '<li>CURL error code: <code>' . $curlErrorNo . '</code>;</li>'
-								. '<li>CURL error message: <code>' . htmlspecialchars($curlError) . '</code>;</li>'
-								: ''
-							)
-							. '<li>Parameters: <pre>' . htmlspecialchars(var_export($this->params, true)) . '</pre>;</li>'
-						. '</ul>'
-					,
-					'eventType' => 'error',
-					'source' => 'ddMakeHttpRequest',
+				$this->log([
+					'effectiveUrl' => curl_getinfo($ch, CURLINFO_EFFECTIVE_URL),
+					'httpCode' => $httpCode,
+					'curlErrorCode' => $curlErrorNo,
+					'curlErrorMessage' => curl_error($ch),
 				]);
 			}
 			
@@ -433,33 +412,12 @@ class Snippet extends \DDTools\Snippet {
 							$isCurlError
 							|| $isHttpCodeError
 						){
-							$curlError = curl_error($ch);
-							$effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-							
-							\ddTools::logEvent([
-								'message' =>
-									'<p>'
-										. (
-											$isHttpCodeError
-											? 'HTTP error response received'
-											: 'CURL request failed'
-										)
-									. ' during manual redirect.</p>'
-									. '<ul>'
-										. '<li>URL: <code>' . htmlspecialchars($effectiveUrl) . '</code>;</li>'
-										. '<li>HTTP code: <code>' . $httpCode . '</code>;</li>'
-										. (
-											$curlErrorNo != 0
-											? '<li>CURL error code: <code>' . $curlErrorNo . '</code>;</li>'
-											. '<li>CURL error message: <code>' . htmlspecialchars($curlError) . '</code>;</li>'
-											: ''
-										)
-										. '<li>Parameters: <pre>' . htmlspecialchars(var_export($this->params, true)) . '</pre>;</li>'
-									. '</ul>'
-								,
-								'eventType' => 'error',
-								'source' => 'ddMakeHttpRequest',
-							]);
+							$this->log([
+								'effectiveUrl' => curl_getinfo($ch, CURLINFO_EFFECTIVE_URL),
+								'httpCode' => $httpCode,
+								'curlErrorCode' => $curlErrorNo,
+								'curlErrorMessage' => curl_error($ch),
+							]);	
 						}
 						
 						if ($isCurlError){
@@ -480,5 +438,64 @@ class Snippet extends \DDTools\Snippet {
 		}
 		
 		return $result;
+	}
+	
+	/**
+	 * log
+	 * @version 1.0.0 (2025-11-17)
+	 * 
+	 * @param $params {stdClass|arrayAssociative}
+	 * @param $params->effectiveUrl {string}
+	 * @param $params->httpCode {integer}
+	 * @param [$params->curlErrorCode=0] {integer}
+	 * @param [$params->curlErrorMessage=''] {string}
+	 * 
+	 * @return {void}
+	 */
+	private function log($params = []): void {
+		$params = $params = \DDTools\Tools\Objects::extend([
+			'objects' => [
+				// Defaults
+				(object) [
+					'effectiveUrl' => '',
+					'httpCode' => 0,
+					'curlErrorCode' => 0,
+					'curlErrorMessage' => '',
+				],
+				$params,
+			],
+		]);
+		
+		$isHttpCodeError =
+			$params->httpCode >= 400
+			&& $params->httpCode < 600
+		;
+		
+		\ddTools::logEvent([
+			'message' =>
+				'<p>'
+					. (
+						$isHttpCodeError
+						? 'HTTP error response received'
+						: 'CURL request failed'
+					)
+				. ' during manual redirect.</p>'
+				. '<ul>'
+					. '<li>URL: <code>' . htmlspecialchars($params->effectiveUrl) . '</code>;</li>'
+					. '<li>HTTP code: <code>' . $params->httpCode . '</code>;</li>'
+					. (
+						$params->curlErrorCode != 0
+						? (
+							'<li>CURL error code: <code>' . $params->curlErrorCode . '</code>;</li>'
+							. '<li>CURL error message: <code>' . htmlspecialchars($params->curlErrorMessage) . '</code>;</li>'
+						)
+						: ''
+					)
+					. '<li>Snippet parameters: <pre>' . htmlspecialchars(var_export($this->params, true)) . '</pre>;</li>'
+				. '</ul>'
+			,
+			'eventType' => 'error',
+			'source' => 'ddMakeHttpRequest',
+		]);
 	}
 }
