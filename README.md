@@ -120,6 +120,13 @@ require_once(
 		* `0`
 		* `1`
 	* Default value: `0`
+	
+* `isDebug`
+	* Description: Log all requests to event log (including successful ones), not only errors. Useful for debugging.
+	* Valid values:
+		* `0`
+		* `1`
+	* Default value: `0`
 
 
 ## Examples

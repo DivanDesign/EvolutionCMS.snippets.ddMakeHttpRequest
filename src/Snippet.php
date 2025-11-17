@@ -15,6 +15,7 @@ class Snippet extends \DDTools\Snippet {
 		'timeout' => 60,
 		'proxy' => null,
 		'useCookie' => false,
+		'isDebug' => false,
 	];
 	
 	protected $paramsTypes = [
@@ -22,6 +23,7 @@ class Snippet extends \DDTools\Snippet {
 		'headers' => 'objectArray',
 		'timeout' => 'integer',
 		'useCookie' => 'boolean',
+		'isDebug' => 'boolean',
 	];
 	
 	protected $renamedParamsCompliance = [
@@ -71,7 +73,7 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * run
-	 * @version 1.2.5 (2025-11-17)
+	 * @version 1.3 (2025-11-17)
 	 * 
 	 * @return {string}
 	 */
@@ -291,16 +293,18 @@ class Snippet extends \DDTools\Snippet {
 				&& $httpCode < 600
 			;
 			
-			// Log errors
+			// Log errors or debug info
 			if (
 				$isCurlError
 				|| $isHttpCodeError
+				|| $this->params->isDebug
 			){
 				$this->log([
 					'effectiveUrl' => curl_getinfo($ch, CURLINFO_EFFECTIVE_URL),
 					'httpCode' => $httpCode,
 					'curlErrorCode' => $curlErrorNo,
 					'curlErrorMessage' => curl_error($ch),
+					'isCurlError' => $isCurlError,
 				]);
 			}
 			
@@ -409,16 +413,19 @@ class Snippet extends \DDTools\Snippet {
 							&& $httpCode < 600
 						;
 						
-						// Log errors
+						// Log errors or debug info
 						if (
 							$isCurlError
 							|| $isHttpCodeError
+							|| $this->params->isDebug
 						){
 							$this->log([
 								'effectiveUrl' => curl_getinfo($ch, CURLINFO_EFFECTIVE_URL),
 								'httpCode' => $httpCode,
 								'curlErrorCode' => $curlErrorNo,
 								'curlErrorMessage' => curl_error($ch),
+								'isCurlError' => $isCurlError,
+								'context' => 'during manual redirect',
 							]);	
 						}
 						
@@ -444,18 +451,20 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * log
-	 * @version 1.0.0 (2025-11-17)
+	 * @version 1.1 (2025-11-17)
 	 * 
 	 * @param $params {stdClass|arrayAssociative}
 	 * @param $params->effectiveUrl {string}
 	 * @param $params->httpCode {integer}
 	 * @param [$params->curlErrorCode=0] {integer}
 	 * @param [$params->curlErrorMessage=''] {string}
+	 * @param [$params->isCurlError=true] {boolean}
+	 * @param [$params->context=''] {string}
 	 * 
 	 * @return {void}
 	 */
 	private function log($params = []): void {
-		$params = $params = \DDTools\Tools\Objects::extend([
+		$params = \DDTools\Tools\Objects::extend([
 			'objects' => [
 				// Defaults
 				(object) [
@@ -463,6 +472,8 @@ class Snippet extends \DDTools\Snippet {
 					'httpCode' => 0,
 					'curlErrorCode' => 0,
 					'curlErrorMessage' => '',
+					'isCurlError' => true,
+					'context' => '',
 				],
 				$params,
 			],
@@ -473,15 +484,29 @@ class Snippet extends \DDTools\Snippet {
 			&& $params->httpCode < 600
 		;
 		
+		$isError =
+			$params->isCurlError
+			|| $isHttpCodeError
+		;
+		
+		// Compose message title
+		$messageTitle = 'Request debug info';
+		
+		if ($isError){
+			$messageTitle =
+				$isHttpCodeError
+				? 'HTTP error response received'
+				: 'CURL request failed'
+			;
+		}
+		
+		if (!empty($params->context)){
+			$messageTitle .= ' (' . $params->context . ')';
+		}
+		
 		\ddTools::logEvent([
 			'message' =>
-				'<p>'
-					. (
-						$isHttpCodeError
-						? 'HTTP error response received'
-						: 'CURL request failed'
-					)
-				. ' during manual redirect.</p>'
+				'<p>' . $messageTitle . '.</p>'
 				. '<ul>'
 					. '<li>URL: <code>' . htmlspecialchars($params->effectiveUrl) . '</code>;</li>'
 					. '<li>HTTP code: <code>' . $params->httpCode . '</code>;</li>'
@@ -496,7 +521,11 @@ class Snippet extends \DDTools\Snippet {
 					. '<li>Snippet parameters: <pre>' . htmlspecialchars(var_export($this->params, true)) . '</pre>;</li>'
 				. '</ul>'
 			,
-			'eventType' => 'error',
+			'eventType' =>
+				$isError
+				? 'error'
+				: 'information'
+			,
 			'source' => 'ddMakeHttpRequest',
 		]);
 	}
