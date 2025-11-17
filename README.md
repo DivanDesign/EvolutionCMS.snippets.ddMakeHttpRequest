@@ -8,7 +8,7 @@ Supports redirects even if native CURL redirects is unavailable.
 ## Requires
 
 * PHP >= 5.6
-* [(MODX)EvolutionCMS.libraries.ddTools](https://code.divandesign.biz/modx/ddtools) >= 0.48.2
+* [(MODX)EvolutionCMS.libraries.ddTools](https://code.divandesign.ru/modx/ddtools) >= 0.48.2
 
 
 ## Installation
@@ -157,7 +157,7 @@ Or Query string:
 
 ## Links
 
-* [Home page](https://code.divandesign.biz/modx/ddmakehttprequest)
+* [Home page](https://code.divandesign.ru/modx/ddmakehttprequest)
 * [Telegram chat](https://t.me/dd_code)
 * [Packagist](https://packagist.org/packages/dd/evolutioncms-snippets-ddmakehttprequest)
 * [GitHub](https://github.com/DivanDesign/EvolutionCMS.snippets.ddMakeHttpRequest)
