@@ -14,7 +14,7 @@ class Snippet extends \DDTools\Snippet {
 		'userAgent' => null,
 		'timeout' => 60,
 		'proxy' => null,
-		'useCookie' => false,
+		'isCookieUsed' => false,
 		'isDebug' => false,
 	];
 	
@@ -22,7 +22,7 @@ class Snippet extends \DDTools\Snippet {
 		'isRawDataEnabled' => 'boolean',
 		'headers' => 'objectArray',
 		'timeout' => 'integer',
-		'useCookie' => 'boolean',
+		'isCookieUsed' => 'boolean',
 		'isDebug' => 'boolean',
 	];
 	
@@ -31,7 +31,7 @@ class Snippet extends \DDTools\Snippet {
 		'userAgent' => 'uagent',
 		'data' => ['post', 'postData'],
 		'isRawDataEnabled' => 'sendRawPostData',
-		'useCookie' => 'cookie',
+		'isCookieUsed' => ['useCookie', 'cookie'],
 	];
 	
 	/**
@@ -73,7 +73,7 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * run
-	 * @version 1.3.1 (2025-11-17)
+	 * @version 1.3.2 (2025-11-17)
 	 * 
 	 * @return {string}
 	 */
@@ -248,7 +248,7 @@ class Snippet extends \DDTools\Snippet {
 			}
 			
 			// Если задано использование печенек
-			if ($this->params->useCookie){
+			if ($this->params->isCookieUsed){
 				curl_setopt(
 					$ch,
 					CURLOPT_COOKIEFILE,

@@ -114,7 +114,7 @@ require_once(
 	* Допустимые значения: `string`
 	* Значение по умолчанию: —
 	
-* `useCookie`
+* `isCookieUsed`
 	* Описание: Использовать cookie? Используется файл `assets/cache/ddMakeHttpRequest_cookie.txt`.
 	* Допустимые значения:
 		* `0`

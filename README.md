@@ -114,8 +114,8 @@ require_once(
 	* Valid values: `string`
 	* Default value: —
 	
-* `useCookie`
-	* Description: Enagle cookies. The `assets/cache/ddMakeHttpRequest_cookie.txt` file is used.
+* `isCookieUsed`
+	* Description: Enable cookies. The `assets/cache/ddMakeHttpRequest_cookie.txt` file is used.
 	* Valid values:
 		* `0`
 		* `1`
