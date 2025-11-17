@@ -160,6 +160,7 @@
 * [Home page](https://code.divandesign.ru/modx/ddmakehttprequest)
 * [Telegram chat](https://t.me/dd_code)
 * [Packagist](https://packagist.org/packages/dd/evolutioncms-snippets-ddmakehttprequest)
+* [GitHub](https://github.com/DivanDesign/EvolutionCMS.snippets.ddMakeHttpRequest)
 
 
 <link rel="stylesheet" type="text/css" href="https://raw.githack.com/DivanDesign/CSS.ddMarkdown/master/style.min.css" />
