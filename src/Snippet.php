@@ -2,41 +2,39 @@
 namespace ddMakeHttpRequest;
 
 class Snippet extends \DDTools\Snippet {
-	protected
-		$version = '2.3.2',
-		
-		$params = [
-			// Defaults
-			'url' => null,
-			'method' => 'get',
-			'data' => null,
-			'isRawDataEnabled' => false,
-			'headers' => [],
-			'userAgent' => null,
-			'timeout' => 60,
-			'proxy' => null,
-			'useCookie' => false
-		],
-		
-		$paramsTypes = [
-			'isRawDataEnabled' => 'boolean',
-			'headers' => 'objectArray',
-			'timeout' => 'integer',
-			'useCookie' => 'boolean'
-		],
-		
-		$renamedParamsCompliance = [
-			'method' => 'metod',
-			'userAgent' => 'uagent',
-			'data' => ['post', 'postData'],
-			'isRawDataEnabled' => 'sendRawPostData',
-			'useCookie' => 'cookie'
-		]
-	;
+	protected $version = '2.3.2';
+	
+	protected $params = [
+		// Defaults
+		'url' => null,
+		'method' => 'get',
+		'data' => null,
+		'isRawDataEnabled' => false,
+		'headers' => [],
+		'userAgent' => null,
+		'timeout' => 60,
+		'proxy' => null,
+		'useCookie' => false,
+	];
+	
+	protected $paramsTypes = [
+		'isRawDataEnabled' => 'boolean',
+		'headers' => 'objectArray',
+		'timeout' => 'integer',
+		'useCookie' => 'boolean',
+	];
+	
+	protected $renamedParamsCompliance = [
+		'method' => 'metod',
+		'userAgent' => 'uagent',
+		'data' => ['post', 'postData'],
+		'isRawDataEnabled' => 'sendRawPostData',
+		'useCookie' => 'cookie',
+	];
 	
 	/**
 	 * prepareParams
-	 * @version 1.1.3 (2025-11-15)
+	 * @version 1.1.4 (2025-11-17)
 	 * 
 	 * @param $this->params {stdClass|arrayAssociative|stringJsonObject|stringQueryFormatted}
 	 * 
@@ -59,13 +57,13 @@ class Snippet extends \DDTools\Snippet {
 			
 			if (
 				// Если отправляемые данные переданы строкой
-				!is_array($this->params->data) &&
+				!is_array($this->params->data)
 				// И обрабатывать её можно
-				!$this->params->isRawDataEnabled
+				&& !$this->params->isRawDataEnabled
 			){
 				$this->params->data = \DDTools\ObjectTools::convertType([
 					'object' => $this->params->data,
-					'type' => 'objectArray'
+					'type' => 'objectArray',
 				]);
 			}
 		}
@@ -73,7 +71,7 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * run
-	 * @version 1.2.1 (2025-11-15)
+	 * @version 1.2.2 (2025-11-17)
 	 * 
 	 * @return {string}
 	 */
@@ -87,27 +85,27 @@ class Snippet extends \DDTools\Snippet {
 			// Разбиваем адрес на компоненты
 			$urlArray = parse_url($this->params->url);
 			$urlArray['scheme'] =
-				isset($urlArray['scheme']) ?
-				$urlArray['scheme'] :
-				'http'
+				isset($urlArray['scheme'])
+				? $urlArray['scheme']
+				: 'http'
 			;
 			$urlArray['path'] =
-				isset($urlArray['path']) ?
-				$urlArray['path'] :
-				''
+				isset($urlArray['path'])
+				? $urlArray['path']
+				: ''
 			;
 			$urlArray['query'] =
-				isset($urlArray['query']) ?
-				'?' . $urlArray['query'] :
-				''
+				isset($urlArray['query'])
+				? '?' . $urlArray['query']
+				: ''
 			;
 			
 			// Инициализируем сеанс CURL
 			$ch = curl_init(
-				$urlArray['scheme'] . '://' .
-				$urlArray['host'] .
-				$urlArray['path'] .
-				$urlArray['query']
+				$urlArray['scheme'] . '://'
+				. $urlArray['host']
+				. $urlArray['path']
+				. $urlArray['query']
 			);
 			
 			// Выставление таймаута
@@ -150,8 +148,8 @@ class Snippet extends \DDTools\Snippet {
 			// Не включаем полученные заголовки в результат
 			
 			if (
-				ini_get('open_basedir') != '' ||
-				ini_get('safe_mode')
+				ini_get('open_basedir') != ''
+				|| ini_get('safe_mode')
 			){
 				curl_setopt(
 					$ch,
@@ -188,7 +186,7 @@ class Snippet extends \DDTools\Snippet {
 						'post',
 						'put',
 						'patch',
-						'delete'
+						'delete',
 					]
 				)
 				&& !empty($this->params->data)
@@ -253,16 +251,16 @@ class Snippet extends \DDTools\Snippet {
 					$ch,
 					CURLOPT_COOKIEFILE,
 					(
-						\ddTools::$modx->getConfig('base_path') .
-						'assets/cache/ddMakeHttpRequest_cookie.txt'
+						\ddTools::$modx->getConfig('base_path')
+						. 'assets/cache/ddMakeHttpRequest_cookie.txt'
 					)
 				);
 				curl_setopt(
 					$ch,
 					CURLOPT_COOKIEJAR,
 					(
-						\ddTools::$modx->getConfig('base_path') .
-						'assets/cache/ddMakeHttpRequest_cookie.txt'
+						\ddTools::$modx->getConfig('base_path')
+						. 'assets/cache/ddMakeHttpRequest_cookie.txt'
 					)
 				);
 			}
@@ -396,13 +394,13 @@ class Snippet extends \DDTools\Snippet {
 						}
 						
 						$newUrl =
-							$redirectUrl['scheme'] . '://' .
-							$redirectUrl['host'] .
-							$redirectUrl['path'] .
-							(
-								!empty($redirectUrl['query']) ?
-								'?' . $redirectUrl['query'] :
-								''
+							$redirectUrl['scheme'] . '://'
+							. $redirectUrl['host']
+							. $redirectUrl['path']
+							. (
+								!empty($redirectUrl['query'])
+								? '?' . $redirectUrl['query']
+								: ''
 							)
 						;
 						

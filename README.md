@@ -146,14 +146,14 @@ Or Query string:
 		'url' => 'https://www.example.com/',
 		'data' => [
 			'name' => 'John',
-			'surname' => 'Doe'
+			'surname' => 'Doe',
 		],
 		'headers' => [
 			'Accept: application/vnd.api+json',
-			'Content-Type: application/vnd.api+json'
+			'Content-Type: application/vnd.api+json',
 		],
-		'proxy' => 'socks5://user:password@11.22.33.44:5555'
-	]
+		'proxy' => 'socks5://user:password@11.22.33.44:5555',
+	],
 ]);
 ```
 

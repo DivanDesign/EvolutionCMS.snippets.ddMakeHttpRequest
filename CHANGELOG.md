@@ -2,18 +2,22 @@
 
 
 ## Version 2.3.2 (2022-05-25)
+
 * \* Parameters → `postData`: Multidimensional PHP arrays and objects are also supported.
 
 
 ## Version 2.3.1 (2021-04-17)
+
 * \* `\ddMakeHttpRequest\Snippet::run`: Fixed checking of a non-existent array element.
 
 
 ## Version 2.3 (2021-04-13)
+
 * \+ `\ddMakeHttpRequest\Snippet::run`: Improved “manual” redirection.
 
 
 ## Version 2.2 (2021-04-02)
+
 * \* Attention! PHP >= 5.6 is required.
 * \* Attention! (MODX)EvolutionCMS.libraries.ddTools >= 0.48.2 is required.
 * \+ Parameters → `postData`: Can also be set as HJSON or a native PHP object.
@@ -31,10 +35,12 @@
 
 
 ## Version 2.1 (2020-02-15)
+
 * \+ Cookie can be used (see the `useCookie` parameter).
 
 
 ## Version 2.0 (2019-09-23)
+
 * \* **Attention!** Backward compatibility is broken. If you want send raw JSON in `postData` you must set `sendRawPostData` equal to `1`.
 * \+ `postData` can be set as a JSON object.
 * \+ `headers` can be set as a JSON array.
@@ -42,6 +48,7 @@
 
 
 ## Version 1.0 (2011-06-16)
+
 * \+ The first release.
 
 
