@@ -14,7 +14,31 @@
 ## Установка
 
 
-### 1. Элементы → Сниппеты: Создайте новый сниппет со следующими параметрами
+### Используя [(MODX)EvolutionCMS.libraries.ddInstaller](https://github.com/DivanDesign/EvolutionCMS.libraries.ddInstaller)
+
+Просто вызовите следующий код в своих исходинках или модуле [Console](https://github.com/vanchelo/MODX-Evolution-Ajax-Console):
+
+```php
+// Подключение (MODX)EvolutionCMS.libraries.ddInstaller
+require_once(
+	$modx->getConfig('base_path')
+	. 'assets/libs/ddInstaller/require.php'
+);
+
+// Установка (MODX)EvolutionCMS.snippets.ddMakeHttpRequest
+\DDInstaller::install([
+	'url' => 'https://github.com/DivanDesign/EvolutionCMS.snippets.ddMakeHttpRequest',
+]);
+```
+
+* Если `ddMakeHttpRequest` отсутствует на вашем сайте, `ddInstaller` просто установит его.
+* Если `ddMakeHttpRequest` уже есть на вашем сайте, `ddInstaller` проверит его версию и обновит, если нужно. 
+
+
+### Вручную
+
+
+#### 1. Элементы → Сниппеты: Создайте новый сниппет со следующими параметрами
 
 1. Название сниппета: `ddMakeHttpRequest`.
 2. Описание: `<b>2.3.2</b> Отправляет HTTP запрос к заданному URL.`.
@@ -23,7 +47,7 @@
 5. Код сниппета (php): Вставьте содержимое файла `ddMakeHttpRequest_snippet` из архива.
 
 
-### 2. Элементы → Управление файлами
+#### 2. Элементы → Управление файлами
 
 1. Создайте новую папку `assets/snippets/ddMakeHttpRequest/`.
 2. Извлеките содержимое архива в неё (кроме файла `ddMakeHttpRequest_snippet.php`).

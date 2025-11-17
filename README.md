@@ -14,7 +14,31 @@ Supports redirects even if native CURL redirects is unavailable.
 ## Installation
 
 
-### 1. Elements → Snippets: Create a new snippet with the following data
+### Using [(MODX)EvolutionCMS.libraries.ddInstaller](https://github.com/DivanDesign/EvolutionCMS.libraries.ddInstaller)
+
+Just run the following PHP code in your sources or [Console](https://github.com/vanchelo/MODX-Evolution-Ajax-Console):
+
+```php
+// Include (MODX)EvolutionCMS.libraries.ddInstaller
+require_once(
+	$modx->getConfig('base_path')
+	. 'assets/libs/ddInstaller/require.php'
+);
+
+// Install (MODX)EvolutionCMS.snippets.ddMakeHttpRequest
+\DDInstaller::install([
+	'url' => 'https://github.com/DivanDesign/EvolutionCMS.snippets.ddMakeHttpRequest',
+]);
+```
+
+* If `ddMakeHttpRequest` is not exist on your site, `ddInstaller` will just install it.
+* If `ddMakeHttpRequest` is already exist on your site, `ddInstaller` will check it version and update it if needed.
+
+
+### Manually
+
+
+#### 1. Elements → Snippets: Create a new snippet with the following data
 
 1. Snippet name: `ddMakeHttpRequest`.
 2. Description: `<b>2.3.2</b> Makes HTTP request to a given URL.`.
@@ -23,7 +47,7 @@ Supports redirects even if native CURL redirects is unavailable.
 5. Snippet code (php): Insert content of the `ddMakeHttpRequest_snippet` file from the archive.
 
 
-### 2. Elements → Manage Files
+#### 2. Elements → Manage Files
 
 1. Create a new folder `assets/snippets/ddMakeHttpRequest/`.
 2. Extract the archive to the folder (except `ddMakeHttpRequest_snippet.php`).
