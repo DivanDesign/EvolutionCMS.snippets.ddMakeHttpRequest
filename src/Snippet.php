@@ -71,7 +71,7 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * run
-	 * @version 1.2.3 (2025-11-17)
+	 * @version 1.2.4 (2025-11-17)
 	 * 
 	 * @return {string}
 	 */
@@ -83,29 +83,29 @@ class Snippet extends \DDTools\Snippet {
 			$manualRedirect = false;
 			
 			// Разбиваем адрес на компоненты
-			$urlArray = parse_url($this->params->url);
-			$urlArray['scheme'] =
-				isset($urlArray['scheme'])
-				? $urlArray['scheme']
+			$urlObject = (object) parse_url($this->params->url);
+			$urlObject->scheme =
+				isset($urlObject->scheme)
+				? $urlObject->scheme
 				: 'http'
 			;
-			$urlArray['path'] =
-				isset($urlArray['path'])
-				? $urlArray['path']
+			$urlObject->path =
+				isset($urlObject->path)
+				? $urlObject->path
 				: ''
 			;
-			$urlArray['query'] =
-				isset($urlArray['query'])
-				? '?' . $urlArray['query']
+			$urlObject->query =
+				isset($urlObject->query)
+				? '?' . $urlObject->query
 				: ''
 			;
 			
 			// Инициализируем сеанс CURL
 			$ch = curl_init(
-				$urlArray['scheme'] . '://'
-				. $urlArray['host']
-				. $urlArray['path']
-				. $urlArray['query']
+				$urlObject->scheme . '://'
+				. $urlObject->host
+				. $urlObject->path
+				. $urlObject->query
 			);
 			
 			// Выставление таймаута
@@ -116,7 +116,7 @@ class Snippet extends \DDTools\Snippet {
 			);
 			
 			// Если необходимо соединиться с https
-			if ($urlArray['scheme'] === 'https'){
+			if ($urlObject->scheme === 'https'){
 				curl_setopt(
 					$ch,
 					CURLOPT_SSL_VERIFYPEER,
@@ -130,11 +130,11 @@ class Snippet extends \DDTools\Snippet {
 			}
 			
 			// Устанавливаем порт, если задан
-			if(isset($urlArray['port'])){
+			if(isset($urlObject->port)){
 				curl_setopt(
 					$ch,
 					CURLOPT_PORT,
-					$urlArray['port']
+					$urlObject->port
 				);
 			}
 			
