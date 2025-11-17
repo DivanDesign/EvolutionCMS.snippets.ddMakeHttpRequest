@@ -11,13 +11,10 @@ Supports redirects even if native CURL redirects is unavailable.
 * [(MODX)EvolutionCMS.libraries.ddTools](https://code.divandesign.biz/modx/ddtools) >= 0.48.2
 
 
-## Documentation
+## Installation
 
 
-### Installation
-
-
-#### 1. Elements → Snippets: Create a new snippet with the following data
+### 1. Elements → Snippets: Create a new snippet with the following data
 
 1. Snippet name: `ddMakeHttpRequest`.
 2. Description: `<b>2.3.2</b> Makes HTTP request to a given URL.`.
@@ -26,13 +23,13 @@ Supports redirects even if native CURL redirects is unavailable.
 5. Snippet code (php): Insert content of the `ddMakeHttpRequest_snippet` file from the archive.
 
 
-#### 2. Elements → Manage Files
+### 2. Elements → Manage Files
 
 1. Create a new folder `assets/snippets/ddMakeHttpRequest/`.
 2. Extract the archive to the folder (except `ddMakeHttpRequest_snippet.php`).
 
 
-### Parameters description
+## Parameters description
 
 * `url`
 	* Description: The URL to fetch.
@@ -101,10 +98,10 @@ Supports redirects even if native CURL redirects is unavailable.
 	* Default value: `0`
 
 
-### Examples
+## Examples
 
 
-#### Simple GET request
+### Simple GET request
 
 ```
 [[ddMakeHttpRequest?
@@ -113,7 +110,7 @@ Supports redirects even if native CURL redirects is unavailable.
 ```
 
 
-#### Simple POST request
+### Simple POST request
 
 Set data as JSON:
 
@@ -137,7 +134,7 @@ Or Query string:
 ```
 
 
-#### Run the snippet through `\DDTools\Snippet::runSnippet` without DB and eval
+### Run the snippet through `\DDTools\Snippet::runSnippet` without DB and eval
 
 ```php
 \DDTools\Snippet::runSnippet([
