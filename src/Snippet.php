@@ -71,7 +71,7 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * run
-	 * @version 1.2.4 (2025-11-17)
+	 * @version 1.2.5 (2025-11-17)
 	 * 
 	 * @return {string}
 	 */
@@ -350,35 +350,37 @@ class Snippet extends \DDTools\Snippet {
 						
 						
 						// Парсим url
-						$redirectUrl = parse_url(trim($newUrlStr));
-						if (!is_array($redirectUrl)){
-							$redirectUrl = [];
-						}
+						$redirectUrlObject = parse_url(trim($newUrlStr));
+						$redirectUrlObject =
+							is_array($redirectUrlObject)
+							? (object) $redirectUrlObject
+							: new \stdClass()
+						;
 						
 						
 						// Собираем новый url
-						$lastUrl = parse_url(curl_getinfo(
+						$lastUrlObject = (object) parse_url(curl_getinfo(
 							$ch,
 							CURLINFO_EFFECTIVE_URL
 						));
 						
-						if (!$redirectUrl['scheme']){
-							$redirectUrl['scheme'] = $lastUrl['scheme'];
+						if (!$redirectUrlObject->scheme){
+							$redirectUrlObject->scheme = $lastUrlObject->scheme;
 						}
-						if (!$redirectUrl['host']){
-							$redirectUrl['host'] = $lastUrl['host'];
+						if (!$redirectUrlObject->host){
+							$redirectUrlObject->host = $lastUrlObject->host;
 						}
-						if (!$redirectUrl['path']){
-							$redirectUrl['path'] = $lastUrl['path'];
+						if (!$redirectUrlObject->path){
+							$redirectUrlObject->path = $lastUrlObject->path;
 						}
 						
 						$newUrl =
-							$redirectUrl['scheme'] . '://'
-							. $redirectUrl['host']
-							. $redirectUrl['path']
+							$redirectUrlObject->scheme . '://'
+							. $redirectUrlObject->host
+							. $redirectUrlObject->path
 							. (
-								!empty($redirectUrl['query'])
-								? '?' . $redirectUrl['query']
+								!empty($redirectUrlObject->query)
+								? '?' . $redirectUrlObject->query
 								: ''
 							)
 						;
