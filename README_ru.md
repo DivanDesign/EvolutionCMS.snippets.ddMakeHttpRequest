@@ -136,14 +136,14 @@ require_once(
 
 ### Простой POST-запрос
 
-Передаваемые данные мождно задать в виде JSON:
+Передаваемые данные мождно задать в виде HJSON:
 
 ```
 [[ddMakeHttpRequest?
 	&url=`http://www.example.com/`
 	&data=`{
-		"name": "John",
-		"surname": "Doe"
+		name: John
+		surname: Doe
 	}`
 ]]
 ```

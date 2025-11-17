@@ -136,14 +136,14 @@ require_once(
 
 ### Simple POST request
 
-Set data as JSON:
+Set data as HJSON:
 
 ```
 [[ddMakeHttpRequest?
 	&url=`http://www.example.com/`
 	&data=`{
-		"name": "John",
-		"surname": "Doe"
+		name: John
+		surname: Doe
 	}`
 ]]
 ```
