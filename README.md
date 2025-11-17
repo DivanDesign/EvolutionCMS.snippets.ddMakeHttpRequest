@@ -35,12 +35,12 @@ Supports redirects even if native CURL redirects is unavailable.
 ### Parameters description
 
 * `url`
-	* Desctription: The URL to fetch.
+	* Description: The URL to fetch.
 	* Valid values: `string`
 	* **Required**
 	
 * `method`
-	* Desctription: Request type.
+	* Description: Request type.
 	* Valid values:
 		* `'get'`
 		* `'post'`
@@ -50,11 +50,11 @@ Supports redirects even if native CURL redirects is unavailable.
 	* Default value: `'get'`
 	
 * `data`
-	* Desctription: The full data to send in request body. Can be used with POST, PUT, PATCH, DELETE methods.
+	* Description: The full data to send in request body. Can be used with POST, PUT, PATCH, DELETE methods.
 	* Valid values:
 		* `stringJsonObject` — as [JSON](https://en.wikipedia.org/wiki/JSON) object
 		* `stringHjsonObject` — as [HJSON](https://hjson.github.io/)
-		* `stringQueryFormated` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* `stringQueryFormatted` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
 		* `string`
 		* It can also be set as a native PHP object or array (e. g. for calls through `\DDTools\Snippet::runSnippet`):
 			* `arrayAssociative`
@@ -62,39 +62,39 @@ Supports redirects even if native CURL redirects is unavailable.
 	* Default value: —
 	
 * `isRawDataEnabled`
-	* Desctription: Send raw `data`. E. g. if you need JSON in request payload.
+	* Description: Send raw `data`. E. g. if you need JSON in request payload.
 	* Valid values:
 		* `0`
 		* `1`
 	* Default value: `0`
 	
 * `headers`
-	* Desctription: An array of HTTP header fields to set.
+	* Description: An array of HTTP header fields to set.
 	* Valid values:
 		* `stringJsonArray` — as [JSON](https://en.wikipedia.org/wiki/JSON)
 		* `stringHjsonArray` — as [HJSON](https://hjson.github.io/)
-		* `stringQueryFormated` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* `stringQueryFormatted` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
 		* It can also be set as a native PHP array (e. g. for calls through `\DDTools\Snippet::runSnippet`):
 			* `array`
 	* Default value: —
 	
 * `userAgent`
-	* Desctription: The contents of the `User-Agent: ` header to be used in a HTTP request.
+	* Description: The contents of the `User-Agent: ` header to be used in a HTTP request.
 	* Valid values: `string`
 	* Default value: —
 	
 * `timeout`
-	* Desctription: The maximum number of seconds for execute request.
+	* Description: The maximum number of seconds for execute request.
 	* Valid values: `integer`
 	* Default value: `60`
 	
 * `proxy`
-	* Desctription: Proxy server in format `[+protocol+]://[+user+]:[+password+]@[+ip+]:[+port+]`. E. g. `http://user:password@11.22.33.44:5555` or `socks5://user:password@11.22.33.44:5555`.
+	* Description: Proxy server in format `[+protocol+]://[+user+]:[+password+]@[+ip+]:[+port+]`. E. g. `http://user:password@11.22.33.44:5555` or `socks5://user:password@11.22.33.44:5555`.
 	* Valid values: `string`
 	* Default value: —
 	
 * `useCookie`
-	* Desctription: Enagle cookies. The `assets/cache/ddMakeHttpRequest_cookie.txt` file is used.
+	* Description: Enagle cookies. The `assets/cache/ddMakeHttpRequest_cookie.txt` file is used.
 	* Valid values:
 		* `0`
 		* `1`

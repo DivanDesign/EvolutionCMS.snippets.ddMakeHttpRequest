@@ -54,7 +54,7 @@
 	* Допустимые значения:
 		* `stringJsonObject` — в виде [JSON](https://en.wikipedia.org/wiki/JSON) object
 		* `stringHjsonObject` — в виде [HJSON](https://hjson.github.io/)
-		* `stringQueryFormated` — в виде [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* `stringQueryFormatted` — в виде [Query string](https://en.wikipedia.org/wiki/Query_string)
 		* `string`
 		* Также может быть задан, как нативный PHP объект или массив (например, для вызовов через `\DDTools\Snippet::runSnippet`).
 			* `arrayAssociative`
@@ -73,7 +73,7 @@
 	* Допустимые значения:
 		* `stringJsonArray` — в виде [JSON](https://en.wikipedia.org/wiki/JSON)
 		* `stringHjsonArray` — в виде [HJSON](https://hjson.github.io/)
-		* `stringQueryFormated` — в виде [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* `stringQueryFormatted` — в виде [Query string](https://en.wikipedia.org/wiki/Query_string)
 		* Также может быть задан, как нативный PHP массив (например, для вызовов через `\DDTools\Snippet::runSnippet`).
 			* `array`
 	* Значение по умолчанию: —
@@ -94,11 +94,11 @@
 	* Значение по умолчанию: —
 	
 * `useCookie`
-	* Desctription: Использовать cookie? Используется файл `assets/cache/ddMakeHttpRequest_cookie.txt`.
-	* Valid values:
+	* Описание: Использовать cookie? Используется файл `assets/cache/ddMakeHttpRequest_cookie.txt`.
+	* Допустимые значения:
 		* `0`
 		* `1`
-	* Default value: `0`
+	* Значение по умолчанию: `0`
 
 
 ### Примеры
