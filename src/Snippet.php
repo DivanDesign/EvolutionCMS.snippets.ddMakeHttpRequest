@@ -41,7 +41,7 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * prepareParams
-	 * @version 1.2 (2025-11-19)
+	 * @version 1.2.1 (2025-11-19)
 	 * 
 	 * @param $this->params {stdClass|arrayAssociative|stringJsonObject|stringQueryFormatted}
 	 * 
@@ -69,7 +69,7 @@ class Snippet extends \DDTools\Snippet {
 				// И обрабатывать её можно
 				&& !$this->params->isRawDataEnabled
 			){
-				$this->params->data = \DDTools\ObjectTools::convertType([
+				$this->params->data = \DDTools\Tools\Objects::convertType([
 					'object' => $this->params->data,
 					'type' => 'objectArray',
 				]);

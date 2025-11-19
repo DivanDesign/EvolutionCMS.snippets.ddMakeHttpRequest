@@ -8,7 +8,7 @@ Supports redirects even if native CURL redirects is unavailable.
 ## Requires
 
 * PHP >= 7.4
-* [(MODX)EvolutionCMS.libraries.ddTools](https://code.divandesign.ru/modx/ddtools) >= 0.48.2
+* [(MODX)EvolutionCMS.libraries.ddTools](https://code.divandesign.ru/modx/ddtools) >= 0.63
 
 
 ## Installation
