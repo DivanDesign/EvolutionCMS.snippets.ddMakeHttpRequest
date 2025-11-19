@@ -16,6 +16,10 @@ class Snippet extends \DDTools\Snippet {
 		'proxy' => null,
 		'isCookieUsed' => false,
 		'isDebug' => false,
+		'outputter' => [
+			'type' => 'data',
+			'convertTo' => '',
+		],
 	];
 	
 	protected $paramsTypes = [
@@ -24,6 +28,7 @@ class Snippet extends \DDTools\Snippet {
 		'timeout' => 'integer',
 		'isCookieUsed' => 'boolean',
 		'isDebug' => 'boolean',
+		'outputter' => 'objectStdClass',
 	];
 	
 	protected $renamedParamsCompliance = [
@@ -36,7 +41,7 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * prepareParams
-	 * @version 1.1.4 (2025-11-17)
+	 * @version 1.2 (2025-11-19)
 	 * 
 	 * @param $this->params {stdClass|arrayAssociative|stringJsonObject|stringQueryFormatted}
 	 * 
@@ -47,6 +52,7 @@ class Snippet extends \DDTools\Snippet {
 		parent::prepareParams($params);
 		
 		$this->params->method = strtolower($this->params->method);
+		$this->params->outputter->type = strtolower($this->params->outputter->type);
 		
 		if (is_object($this->params->data)){
 			$this->params->data = (array) $this->params->data;
@@ -73,13 +79,22 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * run
-	 * @version 1.3.2 (2025-11-17)
+	 * @version 1.4 (2025-11-19)
 	 * 
-	 * @return {string}
+	 * @return {mixed} — Response data, metadata, or both depending on outputter.
 	 */
 	public function run(){
-		// The snippet must return an empty string even if result is absent
-		$result = '';
+		// Initialize result with all fields
+		$resultObject = (object) [
+			'meta' => (object) [
+				'isSuccess' => false,
+				'effectiveUrl' => '',
+				'curlErrorCode' => 0,
+				'curlErrorMessage' => '',
+				'code' => 0,
+			],
+			'data' => '',
+		];
 		
 		if (!empty($this->params->url)){
 			$manualRedirect = false;
@@ -277,35 +292,47 @@ class Snippet extends \DDTools\Snippet {
 			}
 			
 			// Выполняем запрос
-			$result = curl_exec($ch);
+			$resultObject->data = curl_exec($ch);
 			
 			// Get information about the request
-			$curlErrorNo = curl_errno($ch);
-			
-			// If there are errors or nothing was received
-			$isCurlError =
-				$curlErrorNo != 0
-				&& empty($result)
+			$resultObject->meta->effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+			$resultObject->meta->curlErrorCode = curl_errno($ch);
+			$resultObject->meta->curlErrorMessage = curl_error($ch);
+			$resultObject->meta->code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			// If there are no errors or something was received
+			$isCurlSuccess =
+				$resultObject->meta->curlErrorCode == 0
+				|| !empty($resultObject->data)
+			;
+			// If the HTTP code is not an error
+			$isHttpCodeSuccess =
+				$resultObject->meta->code < 400
+				|| $resultObject->meta->code >= 600
+			;
+			$resultObject->meta->isSuccess =
+				$isCurlSuccess
+				&& $isHttpCodeSuccess
 			;
 			
 			// Log errors or debug info
 			$this->log([
-				'effectiveUrl' => curl_getinfo($ch, CURLINFO_EFFECTIVE_URL),
-				'httpCode' => curl_getinfo($ch, CURLINFO_HTTP_CODE),
-				'curlErrorCode' => $curlErrorNo,
-				'curlErrorMessage' => curl_error($ch),
-				'isCurlError' => $isCurlError,
+				'isSuccess' => $resultObject->meta->isSuccess,
+				'isHttpCodeSuccess' => $isHttpCodeSuccess,
+				'effectiveUrl' => $resultObject->meta->effectiveUrl,
+				'httpCode' => $resultObject->meta->code,
+				'curlErrorCode' => $resultObject->meta->curlErrorCode,
+				'curlErrorMessage' => $resultObject->meta->curlErrorMessage,
 			]);
 			
-			if ($isCurlError){
-				$result = '';
+			if (!$isCurlSuccess){
+				$resultObject->data = '';
 			}elseif ($manualRedirect){
 				$redirectCount = 10;
 				
 				while (0 < $redirectCount--){
 					// Получаем заголовки, контент и код ответа
 					$resultHeader = substr(
-						$result,
+						$resultObject->data,
 						0,
 						curl_getinfo(
 							$ch,
@@ -313,7 +340,7 @@ class Snippet extends \DDTools\Snippet {
 						)
 					);
 					$resultData = substr(
-						$result,
+						$resultObject->data,
 						curl_getinfo(
 							$ch,
 							CURLINFO_HEADER_SIZE
@@ -386,34 +413,46 @@ class Snippet extends \DDTools\Snippet {
 							$newUrl
 						);
 						
-						$result = curl_exec($ch);
+						$resultObject->data = curl_exec($ch);
 						
 						// Get information about the request
-						$curlErrorNo = curl_errno($ch);
-						
-						// If there are errors or nothing was received
-						$isCurlError =
-							$curlErrorNo != 0
-							&& empty($result)
+						$resultObject->meta->effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+						$resultObject->meta->curlErrorCode = curl_errno($ch);
+						$resultObject->meta->curlErrorMessage = curl_error($ch);
+						$resultObject->meta->code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+						// If there are no errors or something was received
+						$isCurlSuccess =
+							$resultObject->meta->curlErrorCode == 0
+							|| !empty($resultObject->data)
+						;
+						// If the HTTP code is not an error
+						$isHttpCodeSuccess =
+							$resultObject->meta->code < 400
+							|| $resultObject->meta->code >= 600
+						;
+						$resultObject->meta->isSuccess =
+							$isCurlSuccess
+							&& $isHttpCodeSuccess
 						;
 						
 						// Log errors or debug info
 						$this->log([
-							'effectiveUrl' => curl_getinfo($ch, CURLINFO_EFFECTIVE_URL),
-							'httpCode' => curl_getinfo($ch, CURLINFO_HTTP_CODE),
-							'curlErrorCode' => $curlErrorNo,
-							'curlErrorMessage' => curl_error($ch),
-							'isCurlError' => $isCurlError,
+							'isSuccess' => $resultObject->meta->isSuccess,
+							'isHttpCodeSuccess' => $isHttpCodeSuccess,
+							'effectiveUrl' => $resultObject->meta->effectiveUrl,
+							'httpCode' => $resultObject->meta->code,
+							'curlErrorCode' => $resultObject->meta->curlErrorCode,
+							'curlErrorMessage' => $resultObject->meta->curlErrorMessage,
 							'context' => 'during manual redirect',
 						]);	
 						
-						if ($isCurlError){
-							$result = false;
+						if (!$isCurlSuccess){
+							$resultObject->data = false;
 							
 							break;
 						}
 					}else{
-						$result = $resultData;
+						$resultObject->data = $resultData;
 						
 						break;
 					}
@@ -424,19 +463,42 @@ class Snippet extends \DDTools\Snippet {
 			curl_close($ch);
 		}
 		
+		// Process result based on outputter->type parameter
+		switch ($this->params->outputter->type){
+			case 'meta':
+				$result = $resultObject->meta;
+			break;
+			
+			case 'metadata':
+				$result = $resultObject;
+			break;
+			
+			// case 'data' or default
+			default:
+				$result = $resultObject->data;
+		}
+		
+		if (!empty($this->params->outputter->convertTo)){
+			$result = \DDTools\Tools\Objects::convertType([
+				'object' => $result,
+				'type' => $this->params->outputter->convertTo,
+			]);
+		}
+		
 		return $result;
 	}
 	
 	/**
 	 * log
-	 * @version 1.2 (2025-11-17)
+	 * @version 2.0 (2025-11-19)
 	 * 
 	 * @param $params {stdClass|arrayAssociative}
 	 * @param $params->effectiveUrl {string}
 	 * @param $params->httpCode {integer}
+	 * @param $params->isSuccess {boolean}
+	 * @param $params->isHttpCodeSuccess {boolean}
 	 * @param [$params->curlErrorCode=0] {integer}
 	 * @param [$params->curlErrorMessage=''] {string}
-	 * @param [$params->isCurlError=true] {boolean}
 	 * @param [$params->context=''] {string}
 	 * 
 	 * @return {void}
@@ -450,33 +512,24 @@ class Snippet extends \DDTools\Snippet {
 					'httpCode' => 0,
 					'curlErrorCode' => 0,
 					'curlErrorMessage' => '',
-					'isCurlError' => true,
+					'isSuccess' => false,
+					'isHttpCodeSuccess' => false,
 					'context' => '',
 				],
 				$params,
 			],
 		]);
 		
-		$isHttpCodeError =
-			$params->httpCode >= 400
-			&& $params->httpCode < 600
-		;
-		
-		$isError =
-			$params->isCurlError
-			|| $isHttpCodeError
-		;
-		
 		if (
-			$isError
+			!$params->isSuccess
 			|| $this->params->isDebug
 		){
 			// Compose message title
 			$messageTitle = 'Request debug info';
 			
-			if ($isError){
+			if (!$params->isSuccess){
 				$messageTitle =
-					$isHttpCodeError
+					!$params->isHttpCodeSuccess
 					? 'HTTP error response received'
 					: 'CURL request failed'
 				;
@@ -504,9 +557,9 @@ class Snippet extends \DDTools\Snippet {
 					. '</ul>'
 				,
 				'eventType' =>
-					$isError
-					? 'error'
-					: 'information'
+					$params->isSuccess
+					? 'information'
+					: 'error'
 				,
 				'source' => 'ddMakeHttpRequest',
 			]);

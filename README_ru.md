@@ -127,6 +127,53 @@ require_once(
 		* `0`
 		* `1`
 	* Значение по умолчанию: `0`
+	
+* `outputter`
+	* Описание: Параметры вывода.
+	* Допустимые значения:
+		* `stringJsonObject` — как [JSON](https://ru.wikipedia.org/wiki/JSON) объект
+		* `stringHjsonObject` — как [HJSON](https://hjson.github.io/)
+		* `stringQueryFormatted` — как [Query string](https://ru.wikipedia.org/wiki/Query_string)
+		* Также можно задать нативным PHP объектом или массивом (например, при вызове через `\DDTools\Snippet::runSnippet`):
+			* `arrayAssociative`
+			* `object`
+	* Значение по умолчанию:
+		```hjson
+		{
+			type: data
+			convertTo: ""
+		}
+		```
+	
+* `outputter->type`
+	* Описание: Что возвращать в качестве результата сниппета.
+		* Значения регистронезависимы (следующие значения равны: `metaData`, `metadata`, `METADATA` и т. п.).
+	* Допустимые значения:
+		* `'data'` — только тело ответа
+		* `'meta'` — только метаданные, доступны следующие свойства:
+			* `'isSuccess'` — Запрос был успешным
+			* `'effectiveUrl'` — Финальный URL
+			* `'curlErrorCode'` — Код ошибки CURL
+			* `'curlErrorMessage'` — Сообщение об ошибке CURL
+			* `'code'` — HTTP код
+		* `'metaData'` — и тело ответа, и метаданные в виде JSON-объекта со свойствами `data` и `meta`
+	* Значение по умолчанию: `'data'`
+	
+* `outputter->convertTo`
+	* Описание: Формат вывода (когда результат является объектом или массивом).
+		* Значения регистронезависимы (следующие значения равны: `stringjsonauto`, `stringJsonAuto`, `STRINGJSONAUTO` и т. п.).
+	* Допустимые значения:
+		* `''` (пустое значение) — возвращать как есть, без конвертации (значение по умолчанию)
+		* Сниппет умеет возвращать объект в виде строки:
+			* `'stringJsonAuto'` — автоматиески будет выбран `stringJsonObject` или `stringJsonArray`, в зависимости от результата
+			* `'stringJsonObject'`
+			* `'stringJsonArray'`
+			* `'stringQueryFormatted'` — [Query string](https://ru.wikipedia.org/wiki/Query_string)
+		* Сниппет также умеет возвращать объект в виде нативного PHP объекта или массива (удобно при вызове через `\DDTools\Snippet`):
+			* `'objectAuto'` — `stdClass` или `array` в зависимости от результата
+			* `'objectStdClass'` — `stdClass`
+			* `'objectArray'` — `array`
+	* Значение по умолчанию: — (без конвертации)
 
 
 ## Примеры
@@ -183,6 +230,90 @@ require_once(
 		'proxy' => 'socks5://user:password@11.22.33.44:5555',
 	],
 ]);
+```
+
+
+### Получить только метаданные ответа
+
+```php
+$responseMeta = \DDTools\Snippet::runSnippet([
+	'name' => 'ddMakeHttpRequest',
+	'params' => [
+		'url' => 'https://www.example.com/',
+		'outputter' => [
+			'type' => 'meta',
+		],
+	],
+]);
+
+// Проверяем, успешен ли запрос
+if ($responseMeta->isSuccess){
+	// Успех
+}else{
+	// Ошибка
+	error_log('HTTP запрос не удался: ' . $responseMeta->curlErrorMessage);
+}
+```
+
+
+### Получить и данные, и метаданные
+
+```php
+$result = \DDTools\Snippet::runSnippet([
+	'name' => 'ddMakeHttpRequest',
+	'params' => [
+		'url' => 'https://api.example.com/users',
+		'outputter' => [
+			'type' => 'metadata',
+		],
+	],
+]);
+
+if ($result->meta->isSuccess){
+	// Обрабатываем данные ответа
+	$users = json_decode($result->data);
+}
+```
+
+
+### Конвертировать результат в JSON
+
+```php
+// Получаем результат в виде JSON-строки
+$jsonString = \DDTools\Snippet::runSnippet([
+	'name' => 'ddMakeHttpRequest',
+	'params' => [
+		'url' => 'https://api.example.com/users',
+		'outputter' => [
+			'type' => 'metadata',
+			'convertTo' => 'stringJsonAuto',
+		],
+	],
+]);
+
+// Теперь можно использовать в JavaScript или сохранить в файл
+```
+
+
+### Конвертировать результат в массив
+
+```php
+// Получаем метаданные ответа в виде PHP-массива
+$metaArray = \DDTools\Snippet::runSnippet([
+	'name' => 'ddMakeHttpRequest',
+	'params' => [
+		'url' => 'https://api.example.com/status',
+		'outputter' => [
+			'type' => 'meta',
+			'convertTo' => 'objectArray',
+		],
+	],
+]);
+
+// Обращаемся как к массиву
+if ($metaArray['isSuccess']){
+	echo 'HTTP код: ' . $metaArray['code'];
+}
 ```
 
 

@@ -127,6 +127,53 @@ require_once(
 		* `0`
 		* `1`
 	* Default value: `0`
+	
+* `outputter`
+	* Description: Output parameters.
+	* Valid values:
+		* `stringJsonObject` — as [JSON](https://en.wikipedia.org/wiki/JSON) object
+		* `stringHjsonObject` — as [HJSON](https://hjson.github.io/)
+		* `stringQueryFormatted` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* It can also be set as a native PHP object or array (e. g. for calls through `\DDTools\Snippet::runSnippet`):
+			* `arrayAssociative`
+			* `object`
+	* Default value:
+		```hjson
+		{
+			type: data
+			convertTo: ""
+		}
+		```
+	
+* `outputter->type`
+	* Description: What to return as snippet result.
+		* Values are case insensitive (the following values are equal: `'metaData'`, `'metadata'`, `'METADATA'`, etc).
+	* Valid values:
+		* `'data'` — response body only
+		* `'meta'` — only metadata, the following properties are available:
+			* `'isSuccess'` — Whether the request was successful
+			* `'effectiveUrl'` — Effective URL
+			* `'curlErrorCode'` — CURL error code
+			* `'curlErrorMessage'` — CURL error message
+			* `'code'` — HTTP code
+		* `'metaData'` — both response body and metadata as JSON object with `data` and `meta` properties
+	* Default value: `'data'`
+	
+* `outputter->convertTo`
+	* Description: Output format (when result is an object or array).
+		* Values are case insensitive (the following values are equal: `'stringjsonauto'`, `'stringJsonAuto'`, `'STRINGJSONAUTO'`, etc).
+	* Valid values:
+		* `''` (empty value) — return as is, without conversion (default value)
+		* The snippet can return object as string:
+			* `'stringJsonAuto'` — `stringJsonObject` or `stringJsonArray` depends on result object
+			* `'stringJsonObject'`
+			* `'stringJsonArray'`
+			* `'stringQueryFormatted'` — [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* The snippet can also return object as a native PHP object or array (it is convenient to call through `\DDTools\Snippet`).
+			* `'objectAuto'` — `stdClass` or `array` depends on result object
+			* `'objectStdClass'` — `stdClass`
+			* `'objectArray'` — `array`
+	* Default value: — (without conversion)
 
 
 ## Examples
@@ -183,6 +230,90 @@ Or Query string:
 		'proxy' => 'socks5://user:password@11.22.33.44:5555',
 	],
 ]);
+```
+
+
+### Get only meta
+
+```php
+$responseMeta = \DDTools\Snippet::runSnippet([
+	'name' => 'ddMakeHttpRequest',
+	'params' => [
+		'url' => 'https://example.com/',
+		'outputter' => [
+			'type' => 'meta',
+		],
+	],
+]);
+
+// Check if request was successful
+if ($responseMeta->isSuccess){
+	// Success
+}else{
+	// Error
+	error_log('HTTP request failed: ' . $responseMeta->curlErrorMessage);
+}
+```
+
+
+### Get both data and meta
+
+```php
+$result = \DDTools\Snippet::runSnippet([
+	'name' => 'ddMakeHttpRequest',
+	'params' => [
+		'url' => 'https://api.example.com/users',
+		'outputter' => [
+			'type' => 'metaData',
+		],
+	],
+]);
+
+if ($result->meta->isSuccess){
+	// Process response data
+	$users = json_decode($result->data);
+}
+```
+
+
+### Convert result to JSON
+
+```php
+// Get result as JSON string
+$jsonString = \DDTools\Snippet::runSnippet([
+	'name' => 'ddMakeHttpRequest',
+	'params' => [
+		'url' => 'https://api.example.com/users',
+		'outputter' => [
+			'type' => 'metaData',
+			'convertTo' => 'stringJsonAuto',
+		],
+	],
+]);
+
+// Now you can use it in JavaScript or save to file
+```
+
+
+### Convert result to array
+
+```php
+// Get response meta as PHP array
+$metaArray = \DDTools\Snippet::runSnippet([
+	'name' => 'ddMakeHttpRequest',
+	'params' => [
+		'url' => 'https://api.example.com/status',
+		'outputter' => [
+			'type' => 'meta',
+			'convertTo' => 'objectArray',
+		],
+	],
+]);
+
+// Access as array
+if ($metaArray['isSuccess']){
+	echo 'HTTP code: ' . $metaArray['code'];
+}
 ```
 
 
