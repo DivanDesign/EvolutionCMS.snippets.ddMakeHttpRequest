@@ -79,7 +79,7 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * run
-	 * @version 1.4.6 (2025-11-21)
+	 * @version 1.4.7 (2025-11-21)
 	 * 
 	 * @return {mixed} — Response data, metadata, or both depending on outputter.
 	 */
@@ -88,7 +88,7 @@ class Snippet extends \DDTools\Snippet {
 		$theResultInstance = new \ddMakeHttpRequest\Result();
 		
 		if (!empty($this->params->url)){
-			$manualRedirect = false;
+			$isManualRedirect = false;
 			
 			// Разбиваем адрес на компоненты
 			$urlObject = $this->parseUrlStrToObject([
@@ -147,7 +147,7 @@ class Snippet extends \DDTools\Snippet {
 					1
 				);
 				
-				$manualRedirect = true;
+				$isManualRedirect = true;
 			}else{
 				curl_setopt(
 					$curlHandle,
@@ -276,7 +276,7 @@ class Snippet extends \DDTools\Snippet {
 			
 			if (!$theResultInstance->meta->isCurlSuccess){
 				$theResultInstance->data = '';
-			}elseif ($manualRedirect){
+			}elseif ($isManualRedirect){
 				$redirectCount = 10;
 				
 				while (0 < $redirectCount--){
