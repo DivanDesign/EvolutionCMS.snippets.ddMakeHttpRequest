@@ -79,22 +79,13 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * run
-	 * @version 1.4 (2025-11-19)
+	 * @version 1.4.1 (2025-11-21)
 	 * 
 	 * @return {mixed} — Response data, metadata, or both depending on outputter.
 	 */
 	public function run(){
-		// Initialize result with all fields
-		$resultObject = (object) [
-			'meta' => (object) [
-				'isSuccess' => false,
-				'effectiveUrl' => '',
-				'curlErrorCode' => 0,
-				'curlErrorMessage' => '',
-				'code' => 0,
-			],
-			'data' => '',
-		];
+		// Initialize result object
+		$resultObject = new \ddMakeHttpRequest\Result();
 		
 		if (!empty($this->params->url)){
 			$manualRedirect = false;
