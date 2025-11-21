@@ -79,13 +79,13 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * run
-	 * @version 1.4.1 (2025-11-21)
+	 * @version 1.4.2 (2025-11-21)
 	 * 
 	 * @return {mixed} — Response data, metadata, or both depending on outputter.
 	 */
 	public function run(){
 		// Initialize result object
-		$resultObject = new \ddMakeHttpRequest\Result();
+		$theResultInstance = new \ddMakeHttpRequest\Result();
 		
 		if (!empty($this->params->url)){
 			$manualRedirect = false;
@@ -109,7 +109,7 @@ class Snippet extends \DDTools\Snippet {
 			;
 			
 			// Инициализируем сеанс CURL
-			$ch = curl_init(
+			$curlHandle = curl_init(
 				$urlObject->scheme . '://'
 				. $urlObject->host
 				. $urlObject->path
@@ -118,7 +118,7 @@ class Snippet extends \DDTools\Snippet {
 			
 			// Выставление таймаута
 			curl_setopt(
-				$ch,
+				$curlHandle,
 				CURLOPT_TIMEOUT,
 				$this->params->timeout
 			);
@@ -126,12 +126,12 @@ class Snippet extends \DDTools\Snippet {
 			// Если необходимо соединиться с https
 			if ($urlObject->scheme === 'https'){
 				curl_setopt(
-					$ch,
+					$curlHandle,
 					CURLOPT_SSL_VERIFYPEER,
 					0
 				);
 				curl_setopt(
-					$ch,
+					$curlHandle,
 					CURLOPT_SSL_VERIFYHOST,
 					0
 				);
@@ -140,7 +140,7 @@ class Snippet extends \DDTools\Snippet {
 			// Устанавливаем порт, если задан
 			if(isset($urlObject->port)){
 				curl_setopt(
-					$ch,
+					$curlHandle,
 					CURLOPT_PORT,
 					$urlObject->port
 				);
@@ -148,7 +148,7 @@ class Snippet extends \DDTools\Snippet {
 			
 			// Результат должен быть возвращен, а не выведен
 			curl_setopt(
-				$ch,
+				$curlHandle,
 				CURLOPT_RETURNTRANSFER,
 				1
 			);
@@ -160,7 +160,7 @@ class Snippet extends \DDTools\Snippet {
 				|| ini_get('safe_mode')
 			){
 				curl_setopt(
-					$ch,
+					$curlHandle,
 					CURLOPT_HEADER,
 					1
 				);
@@ -168,20 +168,20 @@ class Snippet extends \DDTools\Snippet {
 				$manualRedirect = true;
 			}else{
 				curl_setopt(
-					$ch,
+					$curlHandle,
 					CURLOPT_HEADER,
 					0
 				);
 				// При установке этого параметра в ненулевое значение, при получении HTTP заголовка "Location: " будет происходить перенаправление на указанный этим заголовком URL (это действие выполняется рекурсивно, для каждого полученного заголовка "Location:").
 				curl_setopt(
-					$ch,
+					$curlHandle,
 					CURLOPT_FOLLOWLOCATION,
 					true
 				);
 			}
 			
 			curl_setopt(
-				$ch,
+				$curlHandle,
 				CURLOPT_MAXREDIRS,
 				10
 			);
@@ -208,28 +208,28 @@ class Snippet extends \DDTools\Snippet {
 				if ($this->params->method == 'post'){
 					// Запрос будет методом POST типа application/x-www-form-urlencoded (используемый браузерами при отправке форм)
 					curl_setopt(
-						$ch,
+						$curlHandle,
 						CURLOPT_POST,
 						1
 					);
 				// Для остальных методов используем кастомный метод
 				}else{
 					curl_setopt(
-						$ch,
+						$curlHandle,
 						CURLOPT_CUSTOMREQUEST,
 						strtoupper($this->params->method)
 					);
 				}
 				
 				curl_setopt(
-					$ch,
+					$curlHandle,
 					CURLOPT_POSTFIELDS,
 					$this->params->data
 				);
 			}elseif ($this->params->method != 'get'){
 				// Для других методов (кроме GET и POST/PUT/PATCH/DELETE с данными) используем кастомный метод
 				curl_setopt(
-					$ch,
+					$curlHandle,
 					CURLOPT_CUSTOMREQUEST,
 					strtoupper($this->params->method)
 				);
@@ -238,7 +238,7 @@ class Snippet extends \DDTools\Snippet {
 			// Если заданы какие-то HTTP заголовки
 			if (is_array($this->params->headers)){
 				curl_setopt(
-					$ch,
+					$curlHandle,
 					CURLOPT_HTTPHEADER,
 					$this->params->headers
 				);
@@ -247,7 +247,7 @@ class Snippet extends \DDTools\Snippet {
 			// Если задан UserAgent
 			if (!empty($this->params->userAgent)){
 				curl_setopt(
-					$ch,
+					$curlHandle,
 					CURLOPT_USERAGENT,
 					$this->params->userAgent
 				);
@@ -256,7 +256,7 @@ class Snippet extends \DDTools\Snippet {
 			// Если задано использование печенек
 			if ($this->params->isCookieUsed){
 				curl_setopt(
-					$ch,
+					$curlHandle,
 					CURLOPT_COOKIEFILE,
 					(
 						\ddTools::$modx->getConfig('base_path')
@@ -264,7 +264,7 @@ class Snippet extends \DDTools\Snippet {
 					)
 				);
 				curl_setopt(
-					$ch,
+					$curlHandle,
 					CURLOPT_COOKIEJAR,
 					(
 						\ddTools::$modx->getConfig('base_path')
@@ -276,69 +276,69 @@ class Snippet extends \DDTools\Snippet {
 			// Если задан прокси-сервер
 			if(!empty($this->params->proxy)){
 				curl_setopt(
-					$ch,
+					$curlHandle,
 					CURLOPT_PROXY,
 					$this->params->proxy
 				);
 			}
 			
 			// Выполняем запрос
-			$resultObject->data = curl_exec($ch);
+			$theResultInstance->data = curl_exec($curlHandle);
 			
 			// Get information about the request
-			$resultObject->meta->effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-			$resultObject->meta->curlErrorCode = curl_errno($ch);
-			$resultObject->meta->curlErrorMessage = curl_error($ch);
-			$resultObject->meta->code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			$theResultInstance->meta->effectiveUrl = curl_getinfo($curlHandle, CURLINFO_EFFECTIVE_URL);
+			$theResultInstance->meta->curlErrorCode = curl_errno($curlHandle);
+			$theResultInstance->meta->curlErrorMessage = curl_error($curlHandle);
+			$theResultInstance->meta->code = curl_getinfo($curlHandle, CURLINFO_HTTP_CODE);
 			// If there are no errors or something was received
 			$isCurlSuccess =
-				$resultObject->meta->curlErrorCode == 0
-				|| !empty($resultObject->data)
+				$theResultInstance->meta->curlErrorCode == 0
+				|| !empty($theResultInstance->data)
 			;
 			// If the HTTP code is not an error
 			$isHttpCodeSuccess =
-				$resultObject->meta->code < 400
-				|| $resultObject->meta->code >= 600
+				$theResultInstance->meta->code < 400
+				|| $theResultInstance->meta->code >= 600
 			;
-			$resultObject->meta->isSuccess =
+			$theResultInstance->meta->isSuccess =
 				$isCurlSuccess
 				&& $isHttpCodeSuccess
 			;
 			
 			// Log errors or debug info
 			$this->log([
-				'isSuccess' => $resultObject->meta->isSuccess,
+				'isSuccess' => $theResultInstance->meta->isSuccess,
 				'isHttpCodeSuccess' => $isHttpCodeSuccess,
-				'effectiveUrl' => $resultObject->meta->effectiveUrl,
-				'httpCode' => $resultObject->meta->code,
-				'curlErrorCode' => $resultObject->meta->curlErrorCode,
-				'curlErrorMessage' => $resultObject->meta->curlErrorMessage,
+				'effectiveUrl' => $theResultInstance->meta->effectiveUrl,
+				'httpCode' => $theResultInstance->meta->code,
+				'curlErrorCode' => $theResultInstance->meta->curlErrorCode,
+				'curlErrorMessage' => $theResultInstance->meta->curlErrorMessage,
 			]);
 			
 			if (!$isCurlSuccess){
-				$resultObject->data = '';
+				$theResultInstance->data = '';
 			}elseif ($manualRedirect){
 				$redirectCount = 10;
 				
 				while (0 < $redirectCount--){
 					// Получаем заголовки, контент и код ответа
 					$resultHeader = substr(
-						$resultObject->data,
+						$theResultInstance->data,
 						0,
 						curl_getinfo(
-							$ch,
+							$curlHandle,
 							CURLINFO_HEADER_SIZE
 						)
 					);
 					$resultData = substr(
-						$resultObject->data,
+						$theResultInstance->data,
 						curl_getinfo(
-							$ch,
+							$curlHandle,
 							CURLINFO_HEADER_SIZE
 						)
 					);
 					$resultResponseCode = curl_getinfo(
-						$ch,
+						$curlHandle,
 						CURLINFO_HTTP_CODE
 					);
 					
@@ -371,7 +371,7 @@ class Snippet extends \DDTools\Snippet {
 						
 						// Собираем новый url
 						$lastUrlObject = (object) parse_url(curl_getinfo(
-							$ch,
+							$curlHandle,
 							CURLINFO_EFFECTIVE_URL
 						));
 						
@@ -399,51 +399,51 @@ class Snippet extends \DDTools\Snippet {
 						
 						// Выполняем запрос с новым адресом
 						curl_setopt(
-							$ch,
+							$curlHandle,
 							CURLOPT_URL,
 							$newUrl
 						);
 						
-						$resultObject->data = curl_exec($ch);
+						$theResultInstance->data = curl_exec($curlHandle);
 						
 						// Get information about the request
-						$resultObject->meta->effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-						$resultObject->meta->curlErrorCode = curl_errno($ch);
-						$resultObject->meta->curlErrorMessage = curl_error($ch);
-						$resultObject->meta->code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+						$theResultInstance->meta->effectiveUrl = curl_getinfo($curlHandle, CURLINFO_EFFECTIVE_URL);
+						$theResultInstance->meta->curlErrorCode = curl_errno($curlHandle);
+						$theResultInstance->meta->curlErrorMessage = curl_error($curlHandle);
+						$theResultInstance->meta->code = curl_getinfo($curlHandle, CURLINFO_HTTP_CODE);
 						// If there are no errors or something was received
 						$isCurlSuccess =
-							$resultObject->meta->curlErrorCode == 0
-							|| !empty($resultObject->data)
+							$theResultInstance->meta->curlErrorCode == 0
+							|| !empty($theResultInstance->data)
 						;
 						// If the HTTP code is not an error
 						$isHttpCodeSuccess =
-							$resultObject->meta->code < 400
-							|| $resultObject->meta->code >= 600
+							$theResultInstance->meta->code < 400
+							|| $theResultInstance->meta->code >= 600
 						;
-						$resultObject->meta->isSuccess =
+						$theResultInstance->meta->isSuccess =
 							$isCurlSuccess
 							&& $isHttpCodeSuccess
 						;
 						
 						// Log errors or debug info
 						$this->log([
-							'isSuccess' => $resultObject->meta->isSuccess,
+							'isSuccess' => $theResultInstance->meta->isSuccess,
 							'isHttpCodeSuccess' => $isHttpCodeSuccess,
-							'effectiveUrl' => $resultObject->meta->effectiveUrl,
-							'httpCode' => $resultObject->meta->code,
-							'curlErrorCode' => $resultObject->meta->curlErrorCode,
-							'curlErrorMessage' => $resultObject->meta->curlErrorMessage,
+							'effectiveUrl' => $theResultInstance->meta->effectiveUrl,
+							'httpCode' => $theResultInstance->meta->code,
+							'curlErrorCode' => $theResultInstance->meta->curlErrorCode,
+							'curlErrorMessage' => $theResultInstance->meta->curlErrorMessage,
 							'context' => 'during manual redirect',
 						]);	
 						
 						if (!$isCurlSuccess){
-							$resultObject->data = false;
+							$theResultInstance->data = false;
 							
 							break;
 						}
 					}else{
-						$resultObject->data = $resultData;
+						$theResultInstance->data = $resultData;
 						
 						break;
 					}
@@ -451,22 +451,22 @@ class Snippet extends \DDTools\Snippet {
 			}
 			
 			// Закрываем сеанс CURL
-			curl_close($ch);
+			curl_close($curlHandle);
 		}
 		
 		// Process result based on outputter->type parameter
 		switch ($this->params->outputter->type){
 			case 'meta':
-				$result = $resultObject->meta;
+				$result = $theResultInstance->meta;
 			break;
 			
 			case 'metadata':
-				$result = $resultObject;
+				$result = $theResultInstance;
 			break;
 			
 			// case 'data' or default
 			default:
-				$result = $resultObject->data;
+				$result = $theResultInstance->data;
 		}
 		
 		if (!empty($this->params->outputter->convertTo)){
