@@ -79,7 +79,7 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * run
-	 * @version 1.4.4 (2025-11-21)
+	 * @version 1.4.5 (2025-11-21)
 	 * 
 	 * @return {mixed} — Response data, metadata, or both depending on outputter.
 	 */
@@ -91,30 +91,12 @@ class Snippet extends \DDTools\Snippet {
 			$manualRedirect = false;
 			
 			// Разбиваем адрес на компоненты
-			$urlObject = (object) parse_url($this->params->url);
-			$urlObject->scheme =
-				isset($urlObject->scheme)
-				? $urlObject->scheme
-				: 'http'
-			;
-			$urlObject->path =
-				isset($urlObject->path)
-				? $urlObject->path
-				: ''
-			;
-			$urlObject->query =
-				isset($urlObject->query)
-				? '?' . $urlObject->query
-				: ''
-			;
+			$urlObject = $this->parseUrlStrToObject([
+				'url' => $this->params->url,
+			]);
 			
 			// Инициализируем сеанс CURL
-			$curlHandle = curl_init(
-				$urlObject->scheme . '://'
-				. $urlObject->host
-				. $urlObject->path
-				. $urlObject->query
-			);
+			$curlHandle = curl_init($urlObject->full);
 			
 			// Выставление таймаута
 			curl_setopt(
@@ -354,47 +336,27 @@ class Snippet extends \DDTools\Snippet {
 						
 						
 						// Парсим url
-						$redirectUrlObject = parse_url(trim($newUrlStr));
-						$redirectUrlObject =
-							is_array($redirectUrlObject)
-							? (object) $redirectUrlObject
-							: new \stdClass()
-						;
+						$lastUrlObject = $this->parseUrlStrToObject([
+							'url' => curl_getinfo(
+								$curlHandle,
+								CURLINFO_EFFECTIVE_URL
+							),
+						]);
 						
-						
-						// Собираем новый url
-						$lastUrlObject = (object) parse_url(curl_getinfo(
-							$curlHandle,
-							CURLINFO_EFFECTIVE_URL
-						));
-						
-						if (!$redirectUrlObject->scheme){
-							$redirectUrlObject->scheme = $lastUrlObject->scheme;
-						}
-						if (!$redirectUrlObject->host){
-							$redirectUrlObject->host = $lastUrlObject->host;
-						}
-						if (!$redirectUrlObject->path){
-							$redirectUrlObject->path = $lastUrlObject->path;
-						}
-						
-						$newUrl =
-							$redirectUrlObject->scheme . '://'
-							. $redirectUrlObject->host
-							. $redirectUrlObject->path
-							. (
-								!empty($redirectUrlObject->query)
-								? '?' . $redirectUrlObject->query
-								: ''
-							)
-						;
-						
+						$redirectUrlObject = $this->parseUrlStrToObject([
+							'url' => trim($newUrlStr),
+							'defaults' => [
+								'scheme' => $lastUrlObject->scheme,
+								'host' => $lastUrlObject->host,
+								'path' => $lastUrlObject->path,
+							],
+						]);
 						
 						// Выполняем запрос с новым адресом
 						curl_setopt(
 							$curlHandle,
 							CURLOPT_URL,
-							$newUrl
+							$redirectUrlObject->full
 						);
 						
 						$theResultInstance->fetchFromCurl([
@@ -463,6 +425,78 @@ class Snippet extends \DDTools\Snippet {
 		}
 		
 		return $result;
+	}
+	
+	/**
+	 * parseUrlStrToObject
+	 * @version 1.0 (2025-11-21)
+	 * 
+	 * @param $params {stdClass|arrayAssociative}
+	 * @param $params->url {string}
+	 * @param [$params->defaults] {stdClass|arrayAssociative} — Default values for missing URL components
+	 * @param [$params->defaults->scheme='http'] {string}
+	 * @param [$params->defaults->host=''] {string}
+	 * @param [$params->defaults->path=''] {string}
+	 * 
+	 * @return $result {stdClass} — Parsed URL object with all components and full URL string
+	 * @return $result->scheme {string}
+	 * @return $result->host {string}
+	 * @return $result->path {string}
+	 * @return $result->query {string} — With '?' prefix if present, empty string otherwise
+	 * @return $result->full {string} — Complete URL string
+	 */
+	private function parseUrlStrToObject($params = []){
+		$params = \DDTools\Tools\Objects::extend([
+			'objects' => [
+				(object) [
+					'url' => '',
+					'defaults' => [
+						'scheme' => 'http',
+						'host' => '',
+						'path' => '',
+					],
+				],
+				$params,
+			],
+		]);
+		
+		// Parse URL
+		$resultUrlObject = parse_url($params->url);
+		$resultUrlObject =
+			is_array($resultUrlObject)
+			? (object) $resultUrlObject
+			: new \stdClass()
+		;
+		
+		// Apply defaults
+		if (!isset($resultUrlObject->scheme)){
+			$resultUrlObject->scheme = $params->defaults->scheme;
+		}
+		if (!isset($resultUrlObject->host)){
+			$resultUrlObject->host = $params->defaults->host;
+		}
+		if (!isset($resultUrlObject->path)){
+			$resultUrlObject->path = $params->defaults->path;
+		}
+		if (!isset($resultUrlObject->query)){
+			$resultUrlObject->query = $params->defaults->query;
+		}
+		
+		$resultUrlObject->query =
+			!empty($resultUrlObject->query)
+			? '?' . $resultUrlObject->query
+			: ''
+		;
+		
+		// Build full URL
+		$resultUrlObject->full =
+			$resultUrlObject->scheme . '://'
+			. $resultUrlObject->host
+			. $resultUrlObject->path
+			. $resultUrlObject->query
+		;
+		
+		return $resultUrlObject;
 	}
 	
 	/**
