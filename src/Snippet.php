@@ -79,7 +79,7 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * run
-	 * @version 1.4.3 (2025-11-21)
+	 * @version 1.4.4 (2025-11-21)
 	 * 
 	 * @return {mixed} — Response data, metadata, or both depending on outputter.
 	 */
@@ -304,12 +304,8 @@ class Snippet extends \DDTools\Snippet {
 			
 			// Log errors or debug info
 			$this->log([
-				'isSuccess' => $theResultInstance->meta->isSuccess,
+				'theResultInstance' => $theResultInstance,
 				'isHttpCodeSuccess' => $isHttpCodeSuccess,
-				'effectiveUrl' => $theResultInstance->meta->effectiveUrl,
-				'httpCode' => $theResultInstance->meta->code,
-				'curlErrorCode' => $theResultInstance->meta->curlErrorCode,
-				'curlErrorMessage' => $theResultInstance->meta->curlErrorMessage,
 			]);
 			
 			if (!$isCurlSuccess){
@@ -422,14 +418,10 @@ class Snippet extends \DDTools\Snippet {
 						
 						// Log errors or debug info
 						$this->log([
-							'isSuccess' => $theResultInstance->meta->isSuccess,
+							'theResultInstance' => $theResultInstance,
 							'isHttpCodeSuccess' => $isHttpCodeSuccess,
-							'effectiveUrl' => $theResultInstance->meta->effectiveUrl,
-							'httpCode' => $theResultInstance->meta->code,
-							'curlErrorCode' => $theResultInstance->meta->curlErrorCode,
-							'curlErrorMessage' => $theResultInstance->meta->curlErrorMessage,
 							'context' => 'during manual redirect',
-						]);	
+						]);
 						
 						if (!$isCurlSuccess){
 							$theResultInstance->data = false;
@@ -475,15 +467,11 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * log
-	 * @version 2.0 (2025-11-19)
+	 * @version 3.0 (2025-11-21)
 	 * 
 	 * @param $params {stdClass|arrayAssociative}
-	 * @param $params->effectiveUrl {string}
-	 * @param $params->httpCode {integer}
-	 * @param $params->isSuccess {boolean}
+	 * @param $params->theResultInstance {\ddMakeHttpRequest\Result}
 	 * @param $params->isHttpCodeSuccess {boolean}
-	 * @param [$params->curlErrorCode=0] {integer}
-	 * @param [$params->curlErrorMessage=''] {string}
 	 * @param [$params->context=''] {string}
 	 * 
 	 * @return {void}
@@ -493,11 +481,7 @@ class Snippet extends \DDTools\Snippet {
 			'objects' => [
 				// Defaults
 				(object) [
-					'effectiveUrl' => '',
-					'httpCode' => 0,
-					'curlErrorCode' => 0,
-					'curlErrorMessage' => '',
-					'isSuccess' => false,
+					'theResultInstance' => null,
 					'isHttpCodeSuccess' => false,
 					'context' => '',
 				],
@@ -506,13 +490,13 @@ class Snippet extends \DDTools\Snippet {
 		]);
 		
 		if (
-			!$params->isSuccess
+			!$params->theResultInstance->meta->isSuccess
 			|| $this->params->isDebug
 		){
 			// Compose message title
 			$messageTitle = 'Request debug info';
 			
-			if (!$params->isSuccess){
+			if (!$params->theResultInstance->meta->isSuccess){
 				$messageTitle =
 					!$params->isHttpCodeSuccess
 					? 'HTTP error response received'
@@ -528,13 +512,13 @@ class Snippet extends \DDTools\Snippet {
 				'message' =>
 					'<p>' . $messageTitle . '.</p>'
 					. '<ul>'
-						. '<li>URL: <code>' . htmlspecialchars($params->effectiveUrl) . '</code>;</li>'
-						. '<li>HTTP code: <code>' . $params->httpCode . '</code>;</li>'
+						. '<li>URL: <code>' . htmlspecialchars($params->theResultInstance->meta->effectiveUrl) . '</code>;</li>'
+						. '<li>HTTP code: <code>' . $params->theResultInstance->meta->code . '</code>;</li>'
 						. (
-							$params->curlErrorCode != 0
+							$params->theResultInstance->meta->curlErrorCode != 0
 							? (
-								'<li>CURL error code: <code>' . $params->curlErrorCode . '</code>;</li>'
-								. '<li>CURL error message: <code>' . htmlspecialchars($params->curlErrorMessage) . '</code>;</li>'
+								'<li>CURL error code: <code>' . $params->theResultInstance->meta->curlErrorCode . '</code>;</li>'
+								. '<li>CURL error message: <code>' . htmlspecialchars($params->theResultInstance->meta->curlErrorMessage) . '</code>;</li>'
 							)
 							: ''
 						)
@@ -542,7 +526,7 @@ class Snippet extends \DDTools\Snippet {
 					. '</ul>'
 				,
 				'eventType' =>
-					$params->isSuccess
+					$params->theResultInstance->meta->isSuccess
 					? 'information'
 					: 'error'
 				,
