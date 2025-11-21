@@ -79,7 +79,7 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * run
-	 * @version 1.4.5 (2025-11-21)
+	 * @version 1.4.6 (2025-11-21)
 	 * 
 	 * @return {mixed} — Response data, metadata, or both depending on outputter.
 	 */
@@ -269,28 +269,12 @@ class Snippet extends \DDTools\Snippet {
 				'curlHandle' => $curlHandle,
 			]);
 			
-			// If there are no errors or something was received
-			$isCurlSuccess =
-				$theResultInstance->meta->curlErrorCode == 0
-				|| !empty($theResultInstance->data)
-			;
-			// If the HTTP code is not an error
-			$isHttpCodeSuccess =
-				$theResultInstance->meta->code < 400
-				|| $theResultInstance->meta->code >= 600
-			;
-			$theResultInstance->meta->isSuccess =
-				$isCurlSuccess
-				&& $isHttpCodeSuccess
-			;
-			
 			// Log errors or debug info
 			$this->log([
 				'theResultInstance' => $theResultInstance,
-				'isHttpCodeSuccess' => $isHttpCodeSuccess,
 			]);
 			
-			if (!$isCurlSuccess){
+			if (!$theResultInstance->meta->isCurlSuccess){
 				$theResultInstance->data = '';
 			}elseif ($manualRedirect){
 				$redirectCount = 10;
@@ -363,29 +347,13 @@ class Snippet extends \DDTools\Snippet {
 							'curlHandle' => $curlHandle,
 						]);
 						
-						// If there are no errors or something was received
-						$isCurlSuccess =
-							$theResultInstance->meta->curlErrorCode == 0
-							|| !empty($theResultInstance->data)
-						;
-						// If the HTTP code is not an error
-						$isHttpCodeSuccess =
-							$theResultInstance->meta->code < 400
-							|| $theResultInstance->meta->code >= 600
-						;
-						$theResultInstance->meta->isSuccess =
-							$isCurlSuccess
-							&& $isHttpCodeSuccess
-						;
-						
 						// Log errors or debug info
 						$this->log([
 							'theResultInstance' => $theResultInstance,
-							'isHttpCodeSuccess' => $isHttpCodeSuccess,
 							'context' => 'during manual redirect',
 						]);
 						
-						if (!$isCurlSuccess){
+						if (!$theResultInstance->meta->isCurlSuccess){
 							$theResultInstance->data = false;
 							
 							break;
@@ -501,11 +469,10 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * log
-	 * @version 3.0.1 (2025-11-21)
+	 * @version 3.0.2 (2025-11-21)
 	 * 
 	 * @param $params {stdClass|arrayAssociative}
 	 * @param $params->theResultInstance {\ddMakeHttpRequest\Result}
-	 * @param $params->isHttpCodeSuccess {boolean}
 	 * @param [$params->context=''] {string}
 	 * 
 	 * @return {void}
@@ -516,7 +483,6 @@ class Snippet extends \DDTools\Snippet {
 				// Defaults
 				(object) [
 					'theResultInstance' => null,
-					'isHttpCodeSuccess' => false,
 					'context' => '',
 				],
 				$params,
@@ -532,7 +498,7 @@ class Snippet extends \DDTools\Snippet {
 			
 			if (!$params->theResultInstance->meta->isSuccess){
 				$messageTitle =
-					!$params->isHttpCodeSuccess
+					!$params->theResultInstance->meta->isHttpCodeSuccess
 					? 'HTTP error response received'
 					: 'CURL request failed'
 				;

@@ -10,6 +10,8 @@ class Result {
 	/**
 	 * @property $meta {stdClass} — Response meta
 	 * @property $meta->isSuccess {boolean}
+	 * @property $meta->isCurlSuccess {boolean}
+	 * @property $meta->isHttpCodeSuccess {boolean}
 	 * @property $meta->effectiveUrl {string}
 	 * @property $meta->curlErrorCode {integer}
 	 * @property $meta->message {string}
@@ -17,6 +19,8 @@ class Result {
 	 */
 	public $meta = [
 		'isSuccess' => false,
+		'isCurlSuccess' => false,
+		'isHttpCodeSuccess' => false,
 		'effectiveUrl' => '',
 		'curlErrorCode' => 0,
 		'message' => '',
@@ -38,7 +42,7 @@ class Result {
 	
 	/**
 	 * fetchFromCurl
-	 * @version 1.0.1 (2025-11-21)
+	 * @version 1.1 (2025-11-21)
 	 * 
 	 * @desc Fetches data from a CURL handle and sets the properties of the instance.
 	 * 
@@ -64,6 +68,24 @@ class Result {
 			$params->curlHandle,
 			CURLINFO_HTTP_CODE
 		);
+		
+		// Calculate success flags
+		// If there are no errors or something was received
+		$this->meta->isCurlSuccess =
+			$this->meta->curlErrorCode == 0
+			|| !empty($this->data)
+		;
+		
+		// If the HTTP code is not an error
+		$this->meta->isHttpCodeSuccess =
+			$this->meta->code < 400
+			|| $this->meta->code >= 600
+		;
+		
+		$this->meta->isSuccess =
+			$this->meta->isCurlSuccess
+			&& $this->meta->isHttpCodeSuccess
+		;
 	}
 }
 ?>
