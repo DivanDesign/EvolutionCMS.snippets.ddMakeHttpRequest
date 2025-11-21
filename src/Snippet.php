@@ -79,7 +79,7 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * run
-	 * @version 1.4.2 (2025-11-21)
+	 * @version 1.4.3 (2025-11-21)
 	 * 
 	 * @return {mixed} — Response data, metadata, or both depending on outputter.
 	 */
@@ -283,13 +283,10 @@ class Snippet extends \DDTools\Snippet {
 			}
 			
 			// Выполняем запрос
-			$theResultInstance->data = curl_exec($curlHandle);
+			$theResultInstance->fetchFromCurl([
+				'curlHandle' => $curlHandle,
+			]);
 			
-			// Get information about the request
-			$theResultInstance->meta->effectiveUrl = curl_getinfo($curlHandle, CURLINFO_EFFECTIVE_URL);
-			$theResultInstance->meta->curlErrorCode = curl_errno($curlHandle);
-			$theResultInstance->meta->curlErrorMessage = curl_error($curlHandle);
-			$theResultInstance->meta->code = curl_getinfo($curlHandle, CURLINFO_HTTP_CODE);
 			// If there are no errors or something was received
 			$isCurlSuccess =
 				$theResultInstance->meta->curlErrorCode == 0
@@ -404,13 +401,10 @@ class Snippet extends \DDTools\Snippet {
 							$newUrl
 						);
 						
-						$theResultInstance->data = curl_exec($curlHandle);
+						$theResultInstance->fetchFromCurl([
+							'curlHandle' => $curlHandle,
+						]);
 						
-						// Get information about the request
-						$theResultInstance->meta->effectiveUrl = curl_getinfo($curlHandle, CURLINFO_EFFECTIVE_URL);
-						$theResultInstance->meta->curlErrorCode = curl_errno($curlHandle);
-						$theResultInstance->meta->curlErrorMessage = curl_error($curlHandle);
-						$theResultInstance->meta->code = curl_getinfo($curlHandle, CURLINFO_HTTP_CODE);
 						// If there are no errors or something was received
 						$isCurlSuccess =
 							$theResultInstance->meta->curlErrorCode == 0

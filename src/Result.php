@@ -35,5 +35,35 @@ class Result {
 	public function __construct(){
 		$this->meta = (object) $this->meta;
 	}
+	
+	/**
+	 * fetchFromCurl
+	 * @version 1.0 (2025-11-21)
+	 * 
+	 * @desc Fetches data from a CURL handle and sets the properties of the instance.
+	 * 
+	 * @param $params {stdClass|arrayAssociative}
+	 * @param $params->curlHandle {resource} — CURL handle
+	 * 
+	 * @return {void}
+	 */
+	public function fetchFromCurl($params = []){
+		$params = (object) $params;
+		
+		// Execute request
+		$this->data = curl_exec($params->curlHandle);
+		
+		// Get information about the request
+		$this->meta->effectiveUrl = curl_getinfo(
+			$params->curlHandle,
+			CURLINFO_EFFECTIVE_URL
+		);
+		$this->meta->curlErrorCode = curl_errno($params->curlHandle);
+		$this->meta->curlErrorMessage = curl_error($params->curlHandle);
+		$this->meta->code = curl_getinfo(
+			$params->curlHandle,
+			CURLINFO_HTTP_CODE
+		);
+	}
 }
 ?>
