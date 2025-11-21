@@ -12,14 +12,14 @@ class Result {
 	 * @property $meta->isSuccess {boolean}
 	 * @property $meta->effectiveUrl {string}
 	 * @property $meta->curlErrorCode {integer}
-	 * @property $meta->curlErrorMessage {string}
+	 * @property $meta->message {string}
 	 * @property $meta->code {integer}
 	 */
 	public $meta = [
 		'isSuccess' => false,
 		'effectiveUrl' => '',
 		'curlErrorCode' => 0,
-		'curlErrorMessage' => '',
+		'message' => '',
 		'code' => 0,
 	];
 	
@@ -38,7 +38,7 @@ class Result {
 	
 	/**
 	 * fetchFromCurl
-	 * @version 1.0 (2025-11-21)
+	 * @version 1.0.1 (2025-11-21)
 	 * 
 	 * @desc Fetches data from a CURL handle and sets the properties of the instance.
 	 * 
@@ -59,7 +59,7 @@ class Result {
 			CURLINFO_EFFECTIVE_URL
 		);
 		$this->meta->curlErrorCode = curl_errno($params->curlHandle);
-		$this->meta->curlErrorMessage = curl_error($params->curlHandle);
+		$this->meta->message = curl_error($params->curlHandle);
 		$this->meta->code = curl_getinfo(
 			$params->curlHandle,
 			CURLINFO_HTTP_CODE

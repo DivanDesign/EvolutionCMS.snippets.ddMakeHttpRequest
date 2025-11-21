@@ -154,7 +154,7 @@ require_once(
 			* `'isSuccess'` — Whether the request was successful
 			* `'effectiveUrl'` — Effective URL
 			* `'curlErrorCode'` — CURL error code
-			* `'curlErrorMessage'` — CURL error message
+			* `'message'` — CURL error message
 			* `'code'` — HTTP code
 		* `'metaData'` — both response body and metadata as JSON object with `data` and `meta` properties
 	* Default value: `'data'`
@@ -251,7 +251,7 @@ if ($responseMeta->isSuccess){
 	// Success
 }else{
 	// Error
-	error_log('HTTP request failed: ' . $responseMeta->curlErrorMessage);
+	error_log('HTTP request failed: ' . $responseMeta->message);
 }
 ```
 

@@ -501,7 +501,7 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * log
-	 * @version 3.0 (2025-11-21)
+	 * @version 3.0.1 (2025-11-21)
 	 * 
 	 * @param $params {stdClass|arrayAssociative}
 	 * @param $params->theResultInstance {\ddMakeHttpRequest\Result}
@@ -552,7 +552,7 @@ class Snippet extends \DDTools\Snippet {
 							$params->theResultInstance->meta->curlErrorCode != 0
 							? (
 								'<li>CURL error code: <code>' . $params->theResultInstance->meta->curlErrorCode . '</code>;</li>'
-								. '<li>CURL error message: <code>' . htmlspecialchars($params->theResultInstance->meta->curlErrorMessage) . '</code>;</li>'
+								. '<li>CURL error message: <code>' . htmlspecialchars($params->theResultInstance->meta->message) . '</code>;</li>'
 							)
 							: ''
 						)

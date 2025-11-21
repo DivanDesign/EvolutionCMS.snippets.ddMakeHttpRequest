@@ -154,7 +154,7 @@ require_once(
 			* `'isSuccess'` — Запрос был успешным
 			* `'effectiveUrl'` — Финальный URL
 			* `'curlErrorCode'` — Код ошибки CURL
-			* `'curlErrorMessage'` — Сообщение об ошибке CURL
+			* `'message'` — Сообщение об ошибке CURL
 			* `'code'` — HTTP код
 		* `'metaData'` — и тело ответа, и метаданные в виде JSON-объекта со свойствами `data` и `meta`
 	* Значение по умолчанию: `'data'`
@@ -251,7 +251,7 @@ if ($responseMeta->isSuccess){
 	// Успех
 }else{
 	// Ошибка
-	error_log('HTTP запрос не удался: ' . $responseMeta->curlErrorMessage);
+	error_log('HTTP запрос не удался: ' . $responseMeta->message);
 }
 ```
 
