@@ -55,12 +55,23 @@ require_once(
 
 ## Parameters description
 
-* `url`
+* `requester`
+	* Description: Request parameters.
+	* Valid values:
+		* `stringJsonObject` — as [JSON](https://en.wikipedia.org/wiki/JSON) object
+		* `stringHjsonObject` — as [HJSON](https://hjson.github.io/)
+		* `stringQueryFormatted` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* It can also be set as a native PHP object or array (e. g. for calls through `\DDTools\Snippet::runSnippet`):
+			* `arrayAssociative`
+			* `object`
+	* Default value: —
+	
+* `requester->url`
 	* Description: The URL to fetch.
 	* Valid values: `string`
 	* **Required**
 	
-* `method`
+* `requester->method`
 	* Description: Request type.
 	* Valid values:
 		* `'get'`
@@ -70,7 +81,7 @@ require_once(
 		* `'delete'`
 	* Default value: `'get'`
 	
-* `data`
+* `requester->data`
 	* Description: The full data to send in request body. Can be used with POST, PUT, PATCH, DELETE methods.
 	* Valid values:
 		* `stringJsonObject` — as [JSON](https://en.wikipedia.org/wiki/JSON) object
@@ -82,14 +93,14 @@ require_once(
 			* `object`
 	* Default value: —
 	
-* `isRawDataEnabled`
+* `requester->isRawDataEnabled`
 	* Description: Send raw `data`. E. g. if you need JSON in request payload.
 	* Valid values:
 		* `0`
 		* `1`
 	* Default value: `0`
 	
-* `headers`
+* `requester->headers`
 	* Description: An array of HTTP header fields to set.
 	* Valid values:
 		* `stringJsonArray` — as [JSON](https://en.wikipedia.org/wiki/JSON)
@@ -99,22 +110,22 @@ require_once(
 			* `array`
 	* Default value: —
 	
-* `userAgent`
+* `requester->userAgent`
 	* Description: The contents of the `User-Agent: ` header to be used in a HTTP request.
 	* Valid values: `string`
 	* Default value: —
 	
-* `timeout`
+* `requester->timeout`
 	* Description: The maximum number of seconds for execute request.
 	* Valid values: `integer`
 	* Default value: `60`
 	
-* `proxy`
+* `requester->proxy`
 	* Description: Proxy server in format `[+protocol+]://[+user+]:[+password+]@[+ip+]:[+port+]`. E. g. `http://user:password@11.22.33.44:5555` or `socks5://user:password@11.22.33.44:5555`.
 	* Valid values: `string`
 	* Default value: —
 	
-* `isCookieUsed`
+* `requester->isCookieUsed`
 	* Description: Enable cookies. The `assets/cache/ddMakeHttpRequest_cookie.txt` file is used.
 	* Valid values:
 		* `0`
@@ -185,7 +196,9 @@ require_once(
 
 ```
 [[ddMakeHttpRequest?
-	&url=`http://www.example.com?name=John&surname=Doe`
+	&requester=`{
+		url: http://www.example.com?name=John&surname=Doe
+	}`
 ]]
 ```
 
@@ -196,10 +209,12 @@ Set data as HJSON:
 
 ```
 [[ddMakeHttpRequest?
-	&url=`http://www.example.com/`
-	&data=`{
-		name: John
-		surname: Doe
+	&requester=`{
+		url: http://www.example.com/
+		data: {
+			name: John
+			surname: Doe
+		}
 	}`
 ]]
 ```
@@ -208,8 +223,10 @@ Or Query string:
 
 ```
 [[ddMakeHttpRequest?
-	&url=`http://www.example.com/`
-	&data=`name=John&surname=Doe`
+	&requester=`{
+		url: http://www.example.com/
+		data: name=John&surname=Doe
+	}`
 ]]
 ```
 
@@ -220,16 +237,18 @@ Or Query string:
 \DDTools\Snippet::runSnippet([
 	'name' => 'ddMakeHttpRequest',
 	'params' => [
-		'url' => 'https://www.example.com/',
-		'data' => [
-			'name' => 'John',
-			'surname' => 'Doe',
+		'requester' => [
+			'url' => 'https://www.example.com/',
+			'data' => [
+				'name' => 'John',
+				'surname' => 'Doe',
+			],
+			'headers' => [
+				'Accept: application/vnd.api+json',
+				'Content-Type: application/vnd.api+json',
+			],
+			'proxy' => 'socks5://user:password@11.22.33.44:5555',
 		],
-		'headers' => [
-			'Accept: application/vnd.api+json',
-			'Content-Type: application/vnd.api+json',
-		],
-		'proxy' => 'socks5://user:password@11.22.33.44:5555',
 	],
 ]);
 ```
@@ -241,7 +260,9 @@ Or Query string:
 $responseMeta = \DDTools\Snippet::runSnippet([
 	'name' => 'ddMakeHttpRequest',
 	'params' => [
-		'url' => 'https://example.com/',
+		'requester' => [
+			'url' => 'https://example.com/',
+		],
 		'outputter' => [
 			'type' => 'meta',
 		],
@@ -264,7 +285,9 @@ if ($responseMeta->isSuccess){
 $result = \DDTools\Snippet::runSnippet([
 	'name' => 'ddMakeHttpRequest',
 	'params' => [
-		'url' => 'https://api.example.com/users',
+		'requester' => [
+			'url' => 'https://api.example.com/users',
+		],
 		'outputter' => [
 			'type' => 'metaData',
 		],
@@ -285,7 +308,9 @@ if ($result->meta->isSuccess){
 $jsonString = \DDTools\Snippet::runSnippet([
 	'name' => 'ddMakeHttpRequest',
 	'params' => [
-		'url' => 'https://api.example.com/users',
+		'requester' => [
+			'url' => 'https://api.example.com/users',
+		],
 		'outputter' => [
 			'type' => 'metaData',
 			'convertTo' => 'stringJsonAuto',
@@ -304,7 +329,9 @@ $jsonString = \DDTools\Snippet::runSnippet([
 $metaArray = \DDTools\Snippet::runSnippet([
 	'name' => 'ddMakeHttpRequest',
 	'params' => [
-		'url' => 'https://api.example.com/status',
+		'requester' => [
+			'url' => 'https://api.example.com/status',
+		],
 		'outputter' => [
 			'type' => 'meta',
 			'convertTo' => 'objectArray',

@@ -4,17 +4,19 @@ namespace ddMakeHttpRequest;
 class Snippet extends \DDTools\Snippet {
 	protected $version = '2.3.2';
 	
+	// Defaults
 	protected $params = [
-		// Defaults
-		'url' => null,
-		'method' => 'get',
-		'data' => null,
-		'isRawDataEnabled' => false,
-		'headers' => [],
-		'userAgent' => null,
-		'timeout' => 60,
-		'proxy' => null,
-		'isCookieUsed' => false,
+		'requester' => [
+			'url' => null,
+			'method' => 'get',
+			'data' => null,
+			'isRawDataEnabled' => false,
+			'headers' => [],
+			'userAgent' => null,
+			'timeout' => 60,
+			'proxy' => null,
+			'isCookieUsed' => false,
+		],
 		'isDebug' => false,
 		'outputter' => [
 			'type' => 'data',
@@ -23,25 +25,14 @@ class Snippet extends \DDTools\Snippet {
 	];
 	
 	protected $paramsTypes = [
-		'isRawDataEnabled' => 'boolean',
-		'headers' => 'objectArray',
-		'timeout' => 'integer',
-		'isCookieUsed' => 'boolean',
+		'requester' => 'objectStdClass',
 		'isDebug' => 'boolean',
 		'outputter' => 'objectStdClass',
 	];
 	
-	protected $renamedParamsCompliance = [
-		'method' => 'metod',
-		'userAgent' => 'uagent',
-		'data' => ['post', 'postData'],
-		'isRawDataEnabled' => 'sendRawPostData',
-		'isCookieUsed' => ['useCookie', 'cookie'],
-	];
-	
 	/**
 	 * prepareParams
-	 * @version 1.2.1 (2025-11-19)
+	 * @version 1.2.2 (2025-11-23)
 	 * 
 	 * @param $this->params {stdClass|arrayAssociative|stringJsonObject|stringQueryFormatted}
 	 * 
@@ -51,26 +42,28 @@ class Snippet extends \DDTools\Snippet {
 		// Call base method
 		parent::prepareParams($params);
 		
-		$this->params->method = strtolower($this->params->method);
+		$this->prepareParams_backwardCompatibility();
+		
+		$this->params->requester->method = strtolower($this->params->requester->method);
 		$this->params->outputter->type = strtolower($this->params->outputter->type);
 		
-		if (is_object($this->params->data)){
-			$this->params->data = (array) $this->params->data;
+		if (is_object($this->params->requester->data)){
+			$this->params->requester->data = (array) $this->params->requester->data;
 		}
 		
-		if (!empty($this->params->data)){
-			if (empty($this->params->method)){
-				$this->params->method = 'post';
+		if (!empty($this->params->requester->data)){
+			if (empty($this->params->requester->method)){
+				$this->params->requester->method = 'post';
 			}
 			
 			if (
 				// Если отправляемые данные переданы строкой
-				!is_array($this->params->data)
+				!is_array($this->params->requester->data)
 				// И обрабатывать её можно
-				&& !$this->params->isRawDataEnabled
+				&& !$this->params->requester->isRawDataEnabled
 			){
-				$this->params->data = \DDTools\Tools\Objects::convertType([
-					'object' => $this->params->data,
+				$this->params->requester->data = \DDTools\Tools\Objects::convertType([
+					'object' => $this->params->requester->data,
 					'type' => 'objectArray',
 				]);
 			}
@@ -78,8 +71,62 @@ class Snippet extends \DDTools\Snippet {
 	}
 	
 	/**
+	 * prepareParams_backwardCompatibility
+	 * @version 1.0 (2025-11-23)
+	 * 
+	 * @desc Backward compatibility with old parameter structure
+	 * 
+	 * @return {void}
+	 */
+	private function prepareParams_backwardCompatibility(){
+		$isLogMessageNeeded = false;
+		
+		$rootLevelParams = \ddTools::verifyRenamedParams([
+			'params' => $this->params,
+			// Compliance for renaming old parameter names
+			'compliance' => [
+				'method' => 'metod',
+				'userAgent' => 'uagent',
+				'data' => ['post', 'postData'],
+				'isRawDataEnabled' => 'sendRawPostData',
+				'isCookieUsed' => ['useCookie', 'cookie'],
+			],
+			'returnCorrectedOnly' => false,
+		]);
+		
+		// Check if any `requester` parameters are on root level and move to `requester`
+		foreach (
+			array_keys((array) $this->params->requester)
+			as $paramName
+		){
+			if (
+				\DDTools\Tools\Objects::isPropExists([
+					'object' => $rootLevelParams,
+					'propName' => $paramName,
+				])
+			){
+				$isLogMessageNeeded = true;
+				
+				// Move to requester
+				$this->params->requester->{$paramName} = $rootLevelParams->{$paramName};
+				// Remove from root level
+				unset($this->params->{$paramName});
+			}
+		}
+		
+		// If something was found on root level
+		if ($isLogMessageNeeded){
+			// Log deprecation warning
+			\ddTools::logEvent([
+				'message' => '<p>You are using deprecated snippet parameters.</p><p>Backward compatibility is maintained and everything is working fine right now. But we strongly recommend to stay up to date.</p><p>Please use <code>requester</code> parameter with nested properties instead of root-level parameters.</p><p>Checkout documentation and fix it ASAP.</p>',
+				'source' => 'ddMakeHttpRequest',
+			]);
+		}
+	}
+	
+	/**
 	 * run
-	 * @version 1.4.7 (2025-11-21)
+	 * @version 1.4.8 (2025-11-23)
 	 * 
 	 * @return {mixed} — Response data, metadata, or both depending on outputter.
 	 */
@@ -87,12 +134,12 @@ class Snippet extends \DDTools\Snippet {
 		// Initialize result object
 		$theResultInstance = new \ddMakeHttpRequest\Result();
 		
-		if (!empty($this->params->url)){
+		if (!empty($this->params->requester->url)){
 			$isManualRedirect = false;
 			
 			// Разбиваем адрес на компоненты
 			$urlObject = $this->parseUrlStrToObject([
-				'url' => $this->params->url,
+				'url' => $this->params->requester->url,
 			]);
 			
 			// Инициализируем сеанс CURL
@@ -102,7 +149,7 @@ class Snippet extends \DDTools\Snippet {
 			curl_setopt(
 				$curlHandle,
 				CURLOPT_TIMEOUT,
-				$this->params->timeout
+				$this->params->requester->timeout
 			);
 			
 			// Если необходимо соединиться с https
@@ -171,7 +218,7 @@ class Snippet extends \DDTools\Snippet {
 			// Если есть переменные для отправки
 			if (
 				in_array(
-					$this->params->method,
+					$this->params->requester->method,
 					[
 						'post',
 						'put',
@@ -179,15 +226,15 @@ class Snippet extends \DDTools\Snippet {
 						'delete',
 					]
 				)
-				&& !empty($this->params->data)
+				&& !empty($this->params->requester->data)
 			){
 				// Если он массив — делаем query string
-				if (is_array($this->params->data)){
-					$this->params->data = http_build_query($this->params->data);
+				if (is_array($this->params->requester->data)){
+					$this->params->requester->data = http_build_query($this->params->requester->data);
 				}
 				
 				// Для POST используем стандартный метод
-				if ($this->params->method == 'post'){
+				if ($this->params->requester->method == 'post'){
 					// Запрос будет методом POST типа application/x-www-form-urlencoded (используемый браузерами при отправке форм)
 					curl_setopt(
 						$curlHandle,
@@ -199,44 +246,44 @@ class Snippet extends \DDTools\Snippet {
 					curl_setopt(
 						$curlHandle,
 						CURLOPT_CUSTOMREQUEST,
-						strtoupper($this->params->method)
+						strtoupper($this->params->requester->method)
 					);
 				}
 				
 				curl_setopt(
 					$curlHandle,
 					CURLOPT_POSTFIELDS,
-					$this->params->data
+					$this->params->requester->data
 				);
-			}elseif ($this->params->method != 'get'){
+			}elseif ($this->params->requester->method != 'get'){
 				// Для других методов (кроме GET и POST/PUT/PATCH/DELETE с данными) используем кастомный метод
 				curl_setopt(
 					$curlHandle,
 					CURLOPT_CUSTOMREQUEST,
-					strtoupper($this->params->method)
+					strtoupper($this->params->requester->method)
 				);
 			}
 			
 			// Если заданы какие-то HTTP заголовки
-			if (is_array($this->params->headers)){
+			if (is_array($this->params->requester->headers)){
 				curl_setopt(
 					$curlHandle,
 					CURLOPT_HTTPHEADER,
-					$this->params->headers
+					$this->params->requester->headers
 				);
 			}
 			
 			// Если задан UserAgent
-			if (!empty($this->params->userAgent)){
+			if (!empty($this->params->requester->userAgent)){
 				curl_setopt(
 					$curlHandle,
 					CURLOPT_USERAGENT,
-					$this->params->userAgent
+					$this->params->requester->userAgent
 				);
 			}
 			
 			// Если задано использование печенек
-			if ($this->params->isCookieUsed){
+			if ($this->params->requester->isCookieUsed){
 				curl_setopt(
 					$curlHandle,
 					CURLOPT_COOKIEFILE,
@@ -256,11 +303,11 @@ class Snippet extends \DDTools\Snippet {
 			}
 			
 			// Если задан прокси-сервер
-			if(!empty($this->params->proxy)){
+			if(!empty($this->params->requester->proxy)){
 				curl_setopt(
 					$curlHandle,
 					CURLOPT_PROXY,
-					$this->params->proxy
+					$this->params->requester->proxy
 				);
 			}
 			

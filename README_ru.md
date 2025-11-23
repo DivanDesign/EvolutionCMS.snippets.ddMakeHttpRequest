@@ -55,12 +55,23 @@ require_once(
 
 ## Описание параметров
 
-* `url`
+* `requester`
+	* Описание: Параметры запроса.
+	* Допустимые значения:
+		* `stringJsonObject` — в виде [JSON](https://ru.wikipedia.org/wiki/JSON) объекта
+		* `stringHjsonObject` — в виде [HJSON](https://hjson.github.io/)
+		* `stringQueryFormatted` — в виде [Query string](https://ru.wikipedia.org/wiki/Query_string)
+		* Также можно задать нативным PHP объектом или массивом (например, при вызове через `\DDTools\Snippet::runSnippet`):
+			* `arrayAssociative`
+			* `object`
+	* Значение по умолчанию: —
+	
+* `requester->url`
 	* Описание: Адрес, к которому обращаться.
 	* Допустимые значения: `string`
 	* **Обязателен**
 	
-* `method`
+* `requester->method`
 	* Описание: Тип запроса.
 	* Допустимые значения:
 		* `'get'`
@@ -70,7 +81,7 @@ require_once(
 		* `'delete'`
 	* Значение по умолчанию: `'get'`
 	
-* `data`
+* `requester->data`
 	* Описание: Данные, которые нужно отправить. Можно использовать с методами POST, PUT, PATCH, DELETE.
 	* Допустимые значения:
 		* `stringJsonObject` — в виде [JSON](https://en.wikipedia.org/wiki/JSON) object
@@ -82,14 +93,14 @@ require_once(
 			* `object`
 	* Значение по умолчанию: —
 	
-* `isRawDataEnabled`
-	* Описание: Отправить `data` в сыром виде. Например, если нужен JSON in request payload.
+* `requester->isRawDataEnabled`
+	* Описание: Отправить `data` в сыром виде. Например, если нужен JSON в payload запроса.
 	* Допустимые значения:
 		* `0`
 		* `1`
 	* Значение по умолчанию: `0`
 	
-* `headers`
+* `requester->headers`
 	* Описание: Заголовки, которые нужно отправить.
 	* Допустимые значения:
 		* `stringJsonArray` — в виде [JSON](https://en.wikipedia.org/wiki/JSON)
@@ -99,22 +110,22 @@ require_once(
 			* `array`
 	* Значение по умолчанию: —
 	
-* `userAgent`
+* `requester->userAgent`
 	* Описание: Значение HTTP заголовка `User-Agent: `.
 	* Допустимые значения: `string`
 	* Значение по умолчанию: —
 	
-* `timeout`
+* `requester->timeout`
 	* Описание: Максимальное время выполнения запроса в секундах.
 	* Допустимые значения: `integer`
 	* Значение по умолчанию: `60`
 	
-* `proxy`
+* `requester->proxy`
 	* Описание: Прокси сервер в формате `[+protocol+]://[+user+]:[+password+]@[+ip+]:[+port+]`. Пример: `http://asan:gd324ukl@11.22.33.44:5555`, `socks5://asan:gd324ukl@11.22.33.44:5555`.
 	* Допустимые значения: `string`
 	* Значение по умолчанию: —
 	
-* `isCookieUsed`
+* `requester->isCookieUsed`
 	* Описание: Использовать cookie? Используется файл `assets/cache/ddMakeHttpRequest_cookie.txt`.
 	* Допустимые значения:
 		* `0`
@@ -185,7 +196,9 @@ require_once(
 
 ```
 [[ddMakeHttpRequest?
-	&url=`http://www.example.com?name=John&surname=Doe`
+	&requester=`{
+		url: http://www.example.com?name=John&surname=Doe
+	}`
 ]]
 ```
 
@@ -196,10 +209,12 @@ require_once(
 
 ```
 [[ddMakeHttpRequest?
-	&url=`http://www.example.com/`
-	&data=`{
-		name: John
-		surname: Doe
+	&requester=`{
+		url: http://www.example.com/
+		data: {
+			name: John
+			surname: Doe
+		}
 	}`
 ]]
 ```
@@ -208,8 +223,10 @@ require_once(
 
 ```
 [[ddMakeHttpRequest?
-	&url=`http://www.example.com/`
-	&data=`name=John&surname=Doe`
+	&requester=`{
+		url: http://www.example.com/
+		data: name=John&surname=Doe
+	}`
 ]]
 ```
 
@@ -220,16 +237,18 @@ require_once(
 \DDTools\Snippet::runSnippet([
 	'name' => 'ddMakeHttpRequest',
 	'params' => [
-		'url' => 'https://www.example.com/',
-		'data' => [
-			'name' => 'John',
-			'surname' => 'Doe',
+		'requester' => [
+			'url' => 'https://www.example.com/',
+			'data' => [
+				'name' => 'John',
+				'surname' => 'Doe',
+			],
+			'headers' => [
+				'Accept: application/vnd.api+json',
+				'Content-Type: application/vnd.api+json',
+			],
+			'proxy' => 'socks5://user:password@11.22.33.44:5555',
 		],
-		'headers' => [
-			'Accept: application/vnd.api+json',
-			'Content-Type: application/vnd.api+json',
-		],
-		'proxy' => 'socks5://user:password@11.22.33.44:5555',
 	],
 ]);
 ```
@@ -241,7 +260,9 @@ require_once(
 $responseMeta = \DDTools\Snippet::runSnippet([
 	'name' => 'ddMakeHttpRequest',
 	'params' => [
-		'url' => 'https://www.example.com/',
+		'requester' => [
+			'url' => 'https://www.example.com/',
+		],
 		'outputter' => [
 			'type' => 'meta',
 		],
@@ -264,7 +285,9 @@ if ($responseMeta->isSuccess){
 $result = \DDTools\Snippet::runSnippet([
 	'name' => 'ddMakeHttpRequest',
 	'params' => [
-		'url' => 'https://api.example.com/users',
+		'requester' => [
+			'url' => 'https://api.example.com/users',
+		],
 		'outputter' => [
 			'type' => 'metadata',
 		],
@@ -285,7 +308,9 @@ if ($result->meta->isSuccess){
 $jsonString = \DDTools\Snippet::runSnippet([
 	'name' => 'ddMakeHttpRequest',
 	'params' => [
-		'url' => 'https://api.example.com/users',
+		'requester' => [
+			'url' => 'https://api.example.com/users',
+		],
 		'outputter' => [
 			'type' => 'metadata',
 			'convertTo' => 'stringJsonAuto',
@@ -304,7 +329,9 @@ $jsonString = \DDTools\Snippet::runSnippet([
 $metaArray = \DDTools\Snippet::runSnippet([
 	'name' => 'ddMakeHttpRequest',
 	'params' => [
-		'url' => 'https://api.example.com/status',
+		'requester' => [
+			'url' => 'https://api.example.com/status',
+		],
 		'outputter' => [
 			'type' => 'meta',
 			'convertTo' => 'objectArray',
