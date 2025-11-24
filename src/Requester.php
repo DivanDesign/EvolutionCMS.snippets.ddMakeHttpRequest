@@ -28,6 +28,235 @@ class Requester {
 	}
 	
 	/**
+	 * execute
+	 * @version 1.0 (2025-11-24)
+	 * 
+	 * @desc Executes HTTP request and returns result with curl handle for manual redirect handling
+	 * 
+	 * @param $params {stdClass|arrayAssociative} — Request parameters
+	 * @param $params->url {string}
+	 * @param $params->method {string}
+	 * @param $params->data {string|array}
+	 * @param $params->headers {array}
+	 * @param $params->userAgent {string}
+	 * @param $params->timeout {integer}
+	 * @param $params->proxy {string}
+	 * @param $params->isCookieUsed {boolean}
+	 * 
+	 * @return $result {stdClass} — Temporary object with request result and curl handle
+	 * @return $result->theResultInstance {\ddMakeHttpRequest\Result}
+	 * @return $result->curlHandle {resource}
+	 * @return $result->isManualRedirect {boolean}
+	 */
+	public function execute($params = []){
+		$params = (object) $params;
+		
+		// Initialize result object
+		$theResultInstance = new \ddMakeHttpRequest\Result();
+		
+		$curlHandle = null;
+		$isManualRedirect = false;
+		
+		if (!empty($params->url)){
+			// Разбиваем адрес на компоненты
+			$urlObject = self::parseUrlStrToObject([
+				'url' => $params->url,
+			]);
+			
+			// Инициализируем сеанс CURL
+			$curlHandle = curl_init($urlObject->full);
+			
+			// Выставление таймаута
+			curl_setopt(
+				$curlHandle,
+				CURLOPT_TIMEOUT,
+				$params->timeout
+			);
+			
+			// Если необходимо соединиться с https
+			if ($urlObject->scheme === 'https'){
+				curl_setopt(
+					$curlHandle,
+					CURLOPT_SSL_VERIFYPEER,
+					0
+				);
+				curl_setopt(
+					$curlHandle,
+					CURLOPT_SSL_VERIFYHOST,
+					0
+				);
+			}
+			
+			// Устанавливаем порт, если задан
+			if(isset($urlObject->port)){
+				curl_setopt(
+					$curlHandle,
+					CURLOPT_PORT,
+					$urlObject->port
+				);
+			}
+			
+			// Результат должен быть возвращен, а не выведен
+			curl_setopt(
+				$curlHandle,
+				CURLOPT_RETURNTRANSFER,
+				1
+			);
+			
+			// Не включаем полученные заголовки в результат
+			
+			if (
+				ini_get('open_basedir') != ''
+				|| ini_get('safe_mode')
+			){
+				curl_setopt(
+					$curlHandle,
+					CURLOPT_HEADER,
+					1
+				);
+				
+				$isManualRedirect = true;
+			}else{
+				curl_setopt(
+					$curlHandle,
+					CURLOPT_HEADER,
+					0
+				);
+				// При установке этого параметра в ненулевое значение, при получении HTTP заголовка "Location: " будет происходить перенаправление на указанный этим заголовком URL (это действие выполняется рекурсивно, для каждого полученного заголовка "Location:").
+				curl_setopt(
+					$curlHandle,
+					CURLOPT_FOLLOWLOCATION,
+					true
+				);
+			}
+			
+			curl_setopt(
+				$curlHandle,
+				CURLOPT_MAXREDIRS,
+				10
+			);
+			
+			// Если есть переменные для отправки
+			if (
+				in_array(
+					$params->method,
+					[
+						'post',
+						'put',
+						'patch',
+						'delete',
+					]
+				)
+				&& !empty($params->data)
+			){
+				// Если он массив — делаем query string
+				if (is_array($params->data)){
+					$params->data = http_build_query($params->data);
+				}
+				
+				// Для POST используем стандартный метод
+				if ($params->method == 'post'){
+					// Запрос будет методом POST типа application/x-www-form-urlencoded (используемый браузерами при отправке форм)
+					curl_setopt(
+						$curlHandle,
+						CURLOPT_POST,
+						1
+					);
+				// Для остальных методов используем кастомный метод
+				}else{
+					curl_setopt(
+						$curlHandle,
+						CURLOPT_CUSTOMREQUEST,
+						strtoupper($params->method)
+					);
+				}
+				
+				curl_setopt(
+					$curlHandle,
+					CURLOPT_POSTFIELDS,
+					$params->data
+				);
+			}elseif ($params->method != 'get'){
+				// Для других методов (кроме GET и POST/PUT/PATCH/DELETE с данными) используем кастомный метод
+				curl_setopt(
+					$curlHandle,
+					CURLOPT_CUSTOMREQUEST,
+					strtoupper($params->method)
+				);
+			}
+			
+			// Если заданы какие-то HTTP заголовки
+			if (is_array($params->headers)){
+				curl_setopt(
+					$curlHandle,
+					CURLOPT_HTTPHEADER,
+					$params->headers
+				);
+			}
+			
+			// Если задан UserAgent
+			if (!empty($params->userAgent)){
+				curl_setopt(
+					$curlHandle,
+					CURLOPT_USERAGENT,
+					$params->userAgent
+				);
+			}
+			
+			// Если задано использование печенек
+			if ($params->isCookieUsed){
+				curl_setopt(
+					$curlHandle,
+					CURLOPT_COOKIEFILE,
+					(
+						\ddTools::$modx->getConfig('base_path')
+						. 'assets/cache/ddMakeHttpRequest_cookie.txt'
+					)
+				);
+				curl_setopt(
+					$curlHandle,
+					CURLOPT_COOKIEJAR,
+					(
+						\ddTools::$modx->getConfig('base_path')
+						. 'assets/cache/ddMakeHttpRequest_cookie.txt'
+					)
+				);
+			}
+			
+			// Если задан прокси-сервер
+			if(!empty($params->proxy)){
+				curl_setopt(
+					$curlHandle,
+					CURLOPT_PROXY,
+					$params->proxy
+				);
+			}
+			
+			// Выполняем запрос
+			$theResultInstance->fetchFromCurl([
+				'curlHandle' => $curlHandle,
+			]);
+			
+			// Log errors or debug info
+			if (!is_null($this->theLoggerInstance)){
+				$this->theLoggerInstance->log([
+					'theResultInstance' => $theResultInstance,
+				]);
+			}
+			
+			if (!$theResultInstance->meta->isCurlSuccess){
+				$theResultInstance->data = '';
+			}
+		}
+		
+		return (object) [
+			'theResultInstance' => $theResultInstance,
+			'curlHandle' => $curlHandle,
+			'isManualRedirect' => $isManualRedirect,
+		];
+	}
+	
+	/**
 	 * parseUrlStrToObject
 	 * @version 1.0 (2025-11-21)
 	 * 

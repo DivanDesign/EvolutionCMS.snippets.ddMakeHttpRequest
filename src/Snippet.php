@@ -126,207 +126,27 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * run
-	 * @version 1.4.10 (2025-11-24)
+	 * @version 1.4.11 (2025-11-24)
 	 * 
 	 * @return {mixed} — Response data, metadata, or both depending on outputter.
 	 */
 	public function run(){
 		// Initialize logger
 		$theLoggerInstance = new \ddMakeHttpRequest\Logger($this->params);
+		// Initialize requester
+		$theRequester = new \ddMakeHttpRequest\Requester([
+			'theLoggerInstance' => $theLoggerInstance,
+		]);
 		
-		// Initialize result object
-		$theResultInstance = new \ddMakeHttpRequest\Result();
+		$requestResult = $theRequester->execute($this->params->requester);
 		
-		if (!empty($this->params->requester->url)){
-			$isManualRedirect = false;
-			
-			// Разбиваем адрес на компоненты
-			$urlObject = \ddMakeHttpRequest\Requester::parseUrlStrToObject([
-				'url' => $this->params->requester->url,
-			]);
-			
-			// Инициализируем сеанс CURL
-			$curlHandle = curl_init($urlObject->full);
-			
-			// Выставление таймаута
-			curl_setopt(
-				$curlHandle,
-				CURLOPT_TIMEOUT,
-				$this->params->requester->timeout
-			);
-			
-			// Если необходимо соединиться с https
-			if ($urlObject->scheme === 'https'){
-				curl_setopt(
-					$curlHandle,
-					CURLOPT_SSL_VERIFYPEER,
-					0
-				);
-				curl_setopt(
-					$curlHandle,
-					CURLOPT_SSL_VERIFYHOST,
-					0
-				);
-			}
-			
-			// Устанавливаем порт, если задан
-			if(isset($urlObject->port)){
-				curl_setopt(
-					$curlHandle,
-					CURLOPT_PORT,
-					$urlObject->port
-				);
-			}
-			
-			// Результат должен быть возвращен, а не выведен
-			curl_setopt(
-				$curlHandle,
-				CURLOPT_RETURNTRANSFER,
-				1
-			);
-			
-			// Не включаем полученные заголовки в результат
-			
-			if (
-				ini_get('open_basedir') != ''
-				|| ini_get('safe_mode')
-			){
-				curl_setopt(
-					$curlHandle,
-					CURLOPT_HEADER,
-					1
-				);
-				
-				$isManualRedirect = true;
-			}else{
-				curl_setopt(
-					$curlHandle,
-					CURLOPT_HEADER,
-					0
-				);
-				// При установке этого параметра в ненулевое значение, при получении HTTP заголовка "Location: " будет происходить перенаправление на указанный этим заголовком URL (это действие выполняется рекурсивно, для каждого полученного заголовка "Location:").
-				curl_setopt(
-					$curlHandle,
-					CURLOPT_FOLLOWLOCATION,
-					true
-				);
-			}
-			
-			curl_setopt(
-				$curlHandle,
-				CURLOPT_MAXREDIRS,
-				10
-			);
-			
-			// Если есть переменные для отправки
-			if (
-				in_array(
-					$this->params->requester->method,
-					[
-						'post',
-						'put',
-						'patch',
-						'delete',
-					]
-				)
-				&& !empty($this->params->requester->data)
-			){
-				// Если он массив — делаем query string
-				if (is_array($this->params->requester->data)){
-					$this->params->requester->data = http_build_query($this->params->requester->data);
-				}
-				
-				// Для POST используем стандартный метод
-				if ($this->params->requester->method == 'post'){
-					// Запрос будет методом POST типа application/x-www-form-urlencoded (используемый браузерами при отправке форм)
-					curl_setopt(
-						$curlHandle,
-						CURLOPT_POST,
-						1
-					);
-				// Для остальных методов используем кастомный метод
-				}else{
-					curl_setopt(
-						$curlHandle,
-						CURLOPT_CUSTOMREQUEST,
-						strtoupper($this->params->requester->method)
-					);
-				}
-				
-				curl_setopt(
-					$curlHandle,
-					CURLOPT_POSTFIELDS,
-					$this->params->requester->data
-				);
-			}elseif ($this->params->requester->method != 'get'){
-				// Для других методов (кроме GET и POST/PUT/PATCH/DELETE с данными) используем кастомный метод
-				curl_setopt(
-					$curlHandle,
-					CURLOPT_CUSTOMREQUEST,
-					strtoupper($this->params->requester->method)
-				);
-			}
-			
-			// Если заданы какие-то HTTP заголовки
-			if (is_array($this->params->requester->headers)){
-				curl_setopt(
-					$curlHandle,
-					CURLOPT_HTTPHEADER,
-					$this->params->requester->headers
-				);
-			}
-			
-			// Если задан UserAgent
-			if (!empty($this->params->requester->userAgent)){
-				curl_setopt(
-					$curlHandle,
-					CURLOPT_USERAGENT,
-					$this->params->requester->userAgent
-				);
-			}
-			
-			// Если задано использование печенек
-			if ($this->params->requester->isCookieUsed){
-				curl_setopt(
-					$curlHandle,
-					CURLOPT_COOKIEFILE,
-					(
-						\ddTools::$modx->getConfig('base_path')
-						. 'assets/cache/ddMakeHttpRequest_cookie.txt'
-					)
-				);
-				curl_setopt(
-					$curlHandle,
-					CURLOPT_COOKIEJAR,
-					(
-						\ddTools::$modx->getConfig('base_path')
-						. 'assets/cache/ddMakeHttpRequest_cookie.txt'
-					)
-				);
-			}
-			
-			// Если задан прокси-сервер
-			if(!empty($this->params->requester->proxy)){
-				curl_setopt(
-					$curlHandle,
-					CURLOPT_PROXY,
-					$this->params->requester->proxy
-				);
-			}
-			
-			// Выполняем запрос
-			$theResultInstance->fetchFromCurl([
-				'curlHandle' => $curlHandle,
-			]);
-			
-			// Log errors or debug info
-			$theLoggerInstance->log([
-				'theResultInstance' => $theResultInstance,
-			]);
-			
-			if (!$theResultInstance->meta->isCurlSuccess){
-				$theResultInstance->data = '';
-			}elseif ($isManualRedirect){
+		$theResultInstance = $requestResult->theResultInstance;
+		$curlHandle = $requestResult->curlHandle;
+		$isManualRedirect = $requestResult->isManualRedirect;
+		
+		if ($curlHandle){
+			// Handle manual redirects if needed
+			if ($isManualRedirect){
 				$redirectCount = 10;
 				
 				while (0 < $redirectCount--){
