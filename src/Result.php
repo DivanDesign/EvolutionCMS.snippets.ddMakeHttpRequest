@@ -12,6 +12,7 @@ class Result {
 	 * @property $meta->isSuccess {boolean}
 	 * @property $meta->isCurlSuccess {boolean}
 	 * @property $meta->isHttpCodeSuccess {boolean}
+	 * @property $meta->isDataValid {boolean}
 	 * @property $meta->effectiveUrl {string}
 	 * @property $meta->curlErrorCode {integer}
 	 * @property $meta->message {string}
@@ -21,6 +22,7 @@ class Result {
 		'isSuccess' => false,
 		'isCurlSuccess' => false,
 		'isHttpCodeSuccess' => false,
+		'isDataValid' => false,
 		'effectiveUrl' => '',
 		'curlErrorCode' => 0,
 		'message' => '',
@@ -42,7 +44,7 @@ class Result {
 	
 	/**
 	 * fetchFromCurl
-	 * @version 1.1 (2025-11-21)
+	 * @version 1.2 (2025-11-24)
 	 * 
 	 * @desc Fetches data from a CURL handle and sets the properties of the instance.
 	 * 
@@ -70,10 +72,9 @@ class Result {
 		);
 		
 		// Calculate success flags
-		// If there are no errors or something was received
+		// CURL technical success (no CURL errors)
 		$this->meta->isCurlSuccess =
 			$this->meta->curlErrorCode == 0
-			|| !empty($this->data)
 		;
 		
 		// If the HTTP code is not an error
@@ -82,9 +83,13 @@ class Result {
 			|| $this->meta->code >= 600
 		;
 		
+		// Data validation (default: check if data is not empty for backward compatibility)
+		$this->meta->isDataValid = !empty($this->data);
+		
 		$this->meta->isSuccess =
 			$this->meta->isCurlSuccess
 			&& $this->meta->isHttpCodeSuccess
+			&& $this->meta->isDataValid
 		;
 	}
 }

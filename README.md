@@ -162,9 +162,10 @@ require_once(
 	* Valid values:
 		* `'data'` — response body only
 		* `'meta'` — only metadata, the following properties are available:
-			* `'isSuccess'` — Whether the request was successful (both CURL and HTTP code)
+			* `'isSuccess'` — Whether the request was successful (CURL, HTTP code, and data validation)
 			* `'isCurlSuccess'` — Whether CURL execution was successful
 			* `'isHttpCodeSuccess'` — Whether HTTP response code is not an error (< 400 or >= 600)
+			* `'isDataValid'` — Whether response data is valid
 			* `'effectiveUrl'` — Effective URL
 			* `'curlErrorCode'` — CURL error code
 			* `'message'` — CURL error message
