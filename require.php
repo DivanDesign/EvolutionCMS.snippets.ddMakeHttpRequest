@@ -9,6 +9,7 @@ require_once(
 	. '/libs/ddTools/modx.ddtools.class.php'
 );
 
+require_once('src/Logger.php');
 require_once('src/Result.php');
 require_once('src/Snippet.php');
 ?>
