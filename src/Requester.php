@@ -29,9 +29,9 @@ class Requester {
 	
 	/**
 	 * execute
-	 * @version 1.0 (2025-11-24)
+	 * @version 2.0 (2025-11-24)
 	 * 
-	 * @desc Executes HTTP request and returns result with curl handle for manual redirect handling
+	 * @desc Executes HTTP request and returns result. Handles manual redirects if needed.
 	 * 
 	 * @param $params {stdClass|arrayAssociative} — Request parameters
 	 * @param $params->url {string}
@@ -43,10 +43,7 @@ class Requester {
 	 * @param $params->proxy {string}
 	 * @param $params->isCookieUsed {boolean}
 	 * 
-	 * @return $result {stdClass} — Temporary object with request result and curl handle
-	 * @return $result->theResultInstance {\ddMakeHttpRequest\Result}
-	 * @return $result->curlHandle {resource}
-	 * @return $result->isManualRedirect {boolean}
+	 * @return {\ddMakeHttpRequest\Result}
 	 */
 	public function execute($params = []){
 		$params = (object) $params;
@@ -54,10 +51,10 @@ class Requester {
 		// Initialize result object
 		$theResultInstance = new \ddMakeHttpRequest\Result();
 		
-		$curlHandle = null;
-		$isManualRedirect = false;
 		
 		if (!empty($params->url)){
+			$isManualRedirect = false;
+			
 			// Разбиваем адрес на компоненты
 			$urlObject = self::parseUrlStrToObject([
 				'url' => $params->url,
@@ -246,14 +243,103 @@ class Requester {
 			
 			if (!$theResultInstance->meta->isCurlSuccess){
 				$theResultInstance->data = '';
+			}elseif ($isManualRedirect){
+				$redirectCount = 10;
+				
+				while (0 < $redirectCount--){
+					// Получаем заголовки, контент и код ответа
+					$resultHeader = substr(
+						$theResultInstance->data,
+						0,
+						curl_getinfo(
+							$curlHandle,
+							CURLINFO_HEADER_SIZE
+						)
+					);
+					$resultData = substr(
+						$theResultInstance->data,
+						curl_getinfo(
+							$curlHandle,
+							CURLINFO_HEADER_SIZE
+						)
+					);
+					$resultResponseCode = curl_getinfo(
+						$curlHandle,
+						CURLINFO_HTTP_CODE
+					);
+					
+					// Проверяем код на редирект
+					if (intval($resultResponseCode / 100) == 3){
+						// Ищем новый url в заголовках
+						$matches = [];
+						
+						preg_match(
+							'/location:(.*?)\n/i',
+							$resultHeader,
+							$matches
+						);
+						
+						$newUrlStr = '';
+						
+						if (count($matches)){
+							$newUrlStr = array_pop($matches);
+						}
+						
+						
+						// Парсим url
+						$lastUrlObject = self::parseUrlStrToObject([
+							'url' => curl_getinfo(
+								$curlHandle,
+								CURLINFO_EFFECTIVE_URL
+							),
+						]);
+						
+						$redirectUrlObject = self::parseUrlStrToObject([
+							'url' => trim($newUrlStr),
+							'defaults' => [
+								'scheme' => $lastUrlObject->scheme,
+								'host' => $lastUrlObject->host,
+								'path' => $lastUrlObject->path,
+							],
+						]);
+						
+						// Выполняем запрос с новым адресом
+						curl_setopt(
+							$curlHandle,
+							CURLOPT_URL,
+							$redirectUrlObject->full
+						);
+						
+						$theResultInstance->fetchFromCurl([
+							'curlHandle' => $curlHandle,
+						]);
+						
+						// Log errors or debug info
+						if (!is_null($this->theLoggerInstance)){
+							$this->theLoggerInstance->log([
+								'theResultInstance' => $theResultInstance,
+								'context' => 'during manual redirect',
+							]);
+						}
+						
+						if (!$theResultInstance->meta->isCurlSuccess){
+							$theResultInstance->data = false;
+							
+							break;
+						}
+					}else{
+						$theResultInstance->data = $resultData;
+						
+						break;
+					}
+				}
 			}
+			
+			// Закрываем сеанс CURL
+			curl_close($curlHandle);
 		}
 		
-		return (object) [
-			'theResultInstance' => $theResultInstance,
-			'curlHandle' => $curlHandle,
-			'isManualRedirect' => $isManualRedirect,
-		];
+		return $theResultInstance;
 	}
 	
 	/**

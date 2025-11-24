@@ -126,7 +126,7 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * run
-	 * @version 1.4.11 (2025-11-24)
+	 * @version 1.4.12 (2025-11-24)
 	 * 
 	 * @return {mixed} — Response data, metadata, or both depending on outputter.
 	 */
@@ -138,107 +138,8 @@ class Snippet extends \DDTools\Snippet {
 			'theLoggerInstance' => $theLoggerInstance,
 		]);
 		
-		$requestResult = $theRequester->execute($this->params->requester);
-		
-		$theResultInstance = $requestResult->theResultInstance;
-		$curlHandle = $requestResult->curlHandle;
-		$isManualRedirect = $requestResult->isManualRedirect;
-		
-		if ($curlHandle){
-			// Handle manual redirects if needed
-			if ($isManualRedirect){
-				$redirectCount = 10;
-				
-				while (0 < $redirectCount--){
-					// Получаем заголовки, контент и код ответа
-					$resultHeader = substr(
-						$theResultInstance->data,
-						0,
-						curl_getinfo(
-							$curlHandle,
-							CURLINFO_HEADER_SIZE
-						)
-					);
-					$resultData = substr(
-						$theResultInstance->data,
-						curl_getinfo(
-							$curlHandle,
-							CURLINFO_HEADER_SIZE
-						)
-					);
-					$resultResponseCode = curl_getinfo(
-						$curlHandle,
-						CURLINFO_HTTP_CODE
-					);
-					
-					// Проверяем код на редирект
-					if (intval($resultResponseCode / 100) == 3){
-						// Ищем новый url в заголовках
-						$matches = [];
-						
-						preg_match(
-							'/location:(.*?)\n/i',
-							$resultHeader,
-							$matches
-						);
-						
-						$newUrlStr = '';
-						
-						if (count($matches)){
-							$newUrlStr = array_pop($matches);
-						}
-						
-						
-						// Парсим url
-						$lastUrlObject = \ddMakeHttpRequest\Requester::parseUrlStrToObject([
-							'url' => curl_getinfo(
-								$curlHandle,
-								CURLINFO_EFFECTIVE_URL
-							),
-						]);
-						
-						$redirectUrlObject = \ddMakeHttpRequest\Requester::parseUrlStrToObject([
-							'url' => trim($newUrlStr),
-							'defaults' => [
-								'scheme' => $lastUrlObject->scheme,
-								'host' => $lastUrlObject->host,
-								'path' => $lastUrlObject->path,
-							],
-						]);
-						
-						// Выполняем запрос с новым адресом
-						curl_setopt(
-							$curlHandle,
-							CURLOPT_URL,
-							$redirectUrlObject->full
-						);
-						
-						$theResultInstance->fetchFromCurl([
-							'curlHandle' => $curlHandle,
-						]);
-						
-						// Log errors or debug info
-						$theLoggerInstance->log([
-							'theResultInstance' => $theResultInstance,
-							'context' => 'during manual redirect',
-						]);
-						
-						if (!$theResultInstance->meta->isCurlSuccess){
-							$theResultInstance->data = false;
-							
-							break;
-						}
-					}else{
-						$theResultInstance->data = $resultData;
-						
-						break;
-					}
-				}
-			}
-			
-			// Закрываем сеанс CURL
-			curl_close($curlHandle);
-		}
+		// Execute request
+		$theResultInstance = $theRequester->execute($this->params->requester);
 		
 		// Process result based on outputter->type parameter
 		switch ($this->params->outputter->type){
