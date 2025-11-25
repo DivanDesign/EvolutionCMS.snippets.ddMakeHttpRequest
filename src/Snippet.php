@@ -18,6 +18,12 @@ class Snippet extends \DDTools\Snippet {
 			'isCookieUsed' => false,
 		],
 		'isDebug' => false,
+		'dataProcessor' => [
+			'checkValue' => '',
+			'isCheckForSuccess' => false,
+			'checkPropName' => null,
+			'messagePropName' => null,
+		],
 		'outputter' => [
 			'type' => 'data',
 			'convertTo' => '',
@@ -27,6 +33,7 @@ class Snippet extends \DDTools\Snippet {
 	protected $paramsTypes = [
 		'requester' => 'objectStdClass',
 		'isDebug' => 'boolean',
+		'dataProcessor' => 'objectStdClass',
 		'outputter' => 'objectStdClass',
 	];
 	
@@ -126,7 +133,7 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * run
-	 * @version 1.4.13 (2025-11-25)
+	 * @version 1.5 (2025-11-25)
 	 * 
 	 * @return {mixed} — Response data, metadata, or both depending on outputter.
 	 */
@@ -139,6 +146,8 @@ class Snippet extends \DDTools\Snippet {
 		$theRequester = new \ddMakeHttpRequest\Requester([
 			'theLoggerInstance' => $theLoggerInstance,
 		]);
+		// Initialize data processor
+		$theDataProcessorInstance = new \ddMakeHttpRequest\DataProcessor($this->params->dataProcessor);
 		
 		// Execute request
 		$theRequester->execute(
@@ -151,6 +160,9 @@ class Snippet extends \DDTools\Snippet {
 				],
 			])
 		);
+		
+		// Process and validate data
+		$theDataProcessorInstance->process($theResultInstance);
 		
 		// Process result based on outputter->type parameter
 		switch ($this->params->outputter->type){

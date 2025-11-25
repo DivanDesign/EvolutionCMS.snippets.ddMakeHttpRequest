@@ -139,6 +139,51 @@ require_once(
 		* `1`
 	* Default value: `0`
 	
+* `dataProcessor`
+	* Description: Response data processing and validation parameters for automatic success/failure checking.
+	* Valid values:
+		* `stringJsonObject` — as [JSON](https://en.wikipedia.org/wiki/JSON) object
+		* `stringHjsonObject` — as [HJSON](https://hjson.github.io/)
+		* `stringQueryFormatted` — as [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* It can also be set as a native PHP object or array (e. g. for calls through `\DDTools\Snippet::runSnippet`):
+			* `arrayAssociative`
+			* `object`
+	* Default value: — (see below)
+	
+* `dataProcessor->checkValue`
+	* Description: Value considered as success/failure (depends on `dataProcessor->isCheckForSuccess`).
+	* Valid values: `mixed` (string, number, boolean, etc.)
+	* Default value: `''` (empty string)
+	
+* `dataProcessor->isCheckForSuccess`
+	* Description: Whether to check for success or failure.
+	* Valid values:
+		* `true` — check for success (e. g. response: `{"success": true}`)
+		* `false` — check for failure (e. g. response: `{"error": true}`)
+	* Default value: `false`
+	
+* `dataProcessor->checkPropName`
+	* Description: Name of the response property to check for success/failure status.
+		* Use only if the response is an object.
+		* You can also use `.` to get nested properties. Examples:
+			* `error`, `ok`, `success`, `status` — get first-level property
+			* `sms.status` — get second-level property
+	* Valid values:
+		* `null` — check whole response data (usually if response is not an object)
+		* `string` — property name for checking (if response is object)
+	* Default value: `null`
+	
+* `dataProcessor->messagePropName`
+	* Description: Name of the response property that contains message text (success or error message).
+		* Use only if the response is an object.
+		* You can also use `.` to get nested properties. Examples:
+			* `description`, `title`, `message` — get first-level property
+			* `error.message` — get second-level property
+	* Valid values:
+		* `null` — do not extract message
+		* `string` — property name with message
+	* Default value: `null`
+	
 * `outputter`
 	* Description: Output parameters.
 	* Valid values:
@@ -168,7 +213,7 @@ require_once(
 			* `'isDataValid'` — Whether response data is valid
 			* `'effectiveUrl'` — Effective URL
 			* `'curlErrorCode'` — CURL error code
-			* `'message'` — CURL error message
+			* `'message'` — Message text. Contains CURL error message if CURL failed, or message from response data if `dataProcessor->messagePropName` is set
 			* `'code'` — HTTP code
 		* `'metaData'` — both response body and metadata as JSON object with `data` and `meta` properties
 	* Default value: `'data'`
@@ -343,6 +388,120 @@ $metaArray = \DDTools\Snippet::runSnippet([
 // Access as array
 if ($metaArray['isSuccess']){
 	echo 'HTTP code: ' . $metaArray['code'];
+}
+```
+
+### Response data validation with `dataProcessor`
+
+
+#### Validate response with simple value (e. g. string or number)
+
+API returns simple value and if it equals to `OK` — it's success, otherwise — failure.
+
+```php
+$result = \DDTools\Snippet::runSnippet([
+	'name' => 'ddMakeHttpRequest',
+	'params' => [
+		'requester' => [
+			'url' => 'https://api.example.com/check',
+		],
+		'dataProcessor' => [
+			// Response contains data about success status
+			'isCheckForSuccess' => true,
+			// If value equals to `OK` — it's success, otherwise — failure
+			'checkValue' => 'OK',
+		],
+		'outputter' => [
+			'type' => 'meta',
+		],
+	],
+]);
+
+// Now isSuccess will be true only if:
+// * CURL request succeeded
+// * HTTP code is 2xx
+// * Response equals `OK`
+if ($result->isSuccess){
+	// All good!
+}
+```
+
+
+#### Validate response as object and check for success status
+
+API response is an object and contains `success` property with value `true` (e. g. `{"success": true}`) — it's success, otherwise — failure.
+
+```php
+$result = \DDTools\Snippet::runSnippet([
+	'name' => 'ddMakeHttpRequest',
+	'params' => [
+		'requester' => [
+			'url' => 'https://api.example.com/send',
+			'method' => 'post',
+			'data' => [
+				'message' => 'Hello',
+			],
+		],
+		'dataProcessor' => [
+			// Response contains data about success status
+			'isCheckForSuccess' => true,
+			// Use `success` property to check for success status
+			'checkPropName' => 'success',
+			// Value to check for success status
+			'checkValue' => true,
+		],
+		'outputter' => [
+			'type' => 'metaData',
+		],
+	],
+]);
+
+// Now meta->isSuccess will be true only if:
+// * CURL request succeeded
+// * HTTP code is 2xx
+// * Response is an object and contains `success` property with value `true` (e. g. `{"success": true}`)
+if ($result->meta->isSuccess){
+	// All good!
+}else{
+	// Something went wrong
+}
+```
+
+
+#### Validate response as object, check for failure status and extract error message
+
+API response is an object and contains `status` property with value `fail` (e. g. `{"status": "fail"}`) — it's failure, otherwise — success.
+
+```php
+$result = \DDTools\Snippet::runSnippet([
+	'name' => 'ddMakeHttpRequest',
+	'params' => [
+		'requester' => [
+			'url' => 'https://api.example.com/send-sms',
+			'method' => 'post',
+			'data' => [
+				'phone' => '+1234567890',
+			],
+		],
+		'dataProcessor' => [
+			// Response contains data about failure status (e. g. `{"status": "fail"}`)
+			'isCheckForSuccess' => false,
+			// Use `status` property to check for failure status
+			'checkPropName' => 'status',
+			// Failure status value
+			'checkValue' => 'fail',
+			// Extract message from response
+			'messagePropName' => 'message',
+		],
+		'outputter' => [
+			'type' => 'metaData',
+		],
+	],
+]);
+
+if (!$result->meta->isSuccess){
+	// Log error with message from API
+	error_log('API error: ' . ($result->meta->message ?? 'Unknown error'));
 }
 ```
 

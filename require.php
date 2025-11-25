@@ -12,5 +12,6 @@ require_once(
 require_once('src/Logger.php');
 require_once('src/Result.php');
 require_once('src/Requester.php');
+require_once('src/DataProcessor.php');
 require_once('src/Snippet.php');
 ?>

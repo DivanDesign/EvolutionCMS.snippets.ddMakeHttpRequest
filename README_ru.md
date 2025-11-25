@@ -139,6 +139,51 @@ require_once(
 		* `1`
 	* Значение по умолчанию: `0`
 	
+* `dataProcessor`
+	* Описание: Параметры обработки и валидации данных ответа для автоматической проверки успеха/неудачи.
+	* Допустимые значения:
+		* `stringJsonObject` — в виде [JSON](https://ru.wikipedia.org/wiki/JSON)
+		* `stringHjsonObject` — в виде [HJSON](https://hjson.github.io/)
+		* `stringQueryFormatted` — в виде [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* Также может быть задан, как нативный PHP объект или массив (например, при вызове через `\DDTools\Snippet::runSnippet`):
+			* `arrayAssociative`
+			* `object`
+	* Значение по умолчанию: — (см. ниже)
+	
+* `dataProcessor->checkValue`
+	* Описание: Значение, которое считается успехом/неудачей (зависит от `dataProcessor->isCheckForSuccess`).
+	* Допустимые значения: `mixed` (строка, число, логическое значение и т. д.)
+	* Значение по умолчанию: `''` (пустая строка)
+	
+* `dataProcessor->isCheckForSuccess`
+	* Описание: Проверять на успех или неудачу.
+	* Допустимые значения:
+		* `true` — проверка на успех (например, ответ: `{"success": true}`)
+		* `false` — проверка на неудачу (например, ответ: `{"error": true}`)
+	* Значение по умолчанию: `false`
+	
+* `dataProcessor->checkPropName`
+	* Описание: Имя свойства в ответе для проверки статуса успеха/неудачи.
+		* Используйте только если ответ является объектом.
+		* Можно также использовать `.` для получения вложенных свойств. Примеры:
+			* `error`, `ok`, `success`, `status` — получить свойство первого уровня
+			* `sms.status` — получить свойство второго уровня
+	* Допустимые значения:
+		* `null` — проверять весь ответ целиком (обычно, если ответ не является объектом)
+		* `string` — имя свойства для проверки (если ответ является объектом)
+	* Значение по умолчанию: `null`
+	
+* `dataProcessor->messagePropName`
+	* Описание: Имя свойства в ответе, которое содержит текст сообщения (об успехе или об ошибке).
+		* Используйте только если ответ является объектом.
+		* Можно также использовать `.` для получения вложенных свойств. Примеры:
+			* `description`, `title`, `message` — получить свойство первого уровня
+			* `error.message` — получить свойство второго уровня
+	* Допустимые значения:
+		* `null` — не извлекать сообщение
+		* `string` — имя свойства с сообщением
+	* Значение по умолчанию: `null`
+	
 * `outputter`
 	* Описание: Параметры вывода.
 	* Допустимые значения:
@@ -168,7 +213,7 @@ require_once(
 			* `'isDataValid'` — Данные ответа валидны
 			* `'effectiveUrl'` — Финальный URL
 			* `'curlErrorCode'` — Код ошибки CURL
-			* `'message'` — Сообщение об ошибке CURL
+			* `'message'` — Текст сообщения. Содержит сообщение об ошибке CURL, если CURL failed, или сообщение из данных ответа, если указан `dataProcessor->messagePropName`
 			* `'code'` — HTTP код
 		* `'metaData'` — и тело ответа, и метаданные в виде JSON-объекта со свойствами `data` и `meta`
 	* Значение по умолчанию: `'data'`
@@ -343,6 +388,121 @@ $metaArray = \DDTools\Snippet::runSnippet([
 // Обращаемся как к массиву
 if ($metaArray['isSuccess']){
 	echo 'HTTP код: ' . $metaArray['code'];
+}
+```
+
+
+### Валидация данных ответа с помощью `dataProcessor`
+
+
+#### Валидация ответа с простым значением (например, строка или число)
+
+API возвращает простое значение и если оно равно `OK` — это успех, иначе — неудача.
+
+```php
+$result = \DDTools\Snippet::runSnippet([
+	'name' => 'ddMakeHttpRequest',
+	'params' => [
+		'requester' => [
+			'url' => 'https://api.example.com/check',
+		],
+		'dataProcessor' => [
+			// Ответ содержит статус успешности
+			'isCheckForSuccess' => true,
+			// Если значение равно `OK` — это успех, иначе — неудача
+			'checkValue' => 'OK',
+		],
+		'outputter' => [
+			'type' => 'meta',
+		],
+	],
+]);
+
+// Теперь isSuccess будет true только если:
+// * CURL-запрос успешен
+// * HTTP-код 2xx
+// * Ответ равен `OK`
+if ($result->isSuccess){
+	// Всё хорошо!
+}
+```
+
+
+#### Валидация ответа как объекта и проверка на успех
+
+Ответ API является объектом и содержит свойство `success` со значением `true` (например, `{"success": true}`) — это успех, иначе — неудача.
+
+```php
+$result = \DDTools\Snippet::runSnippet([
+	'name' => 'ddMakeHttpRequest',
+	'params' => [
+		'requester' => [
+			'url' => 'https://api.example.com/send',
+			'method' => 'post',
+			'data' => [
+				'message' => 'Привет',
+			],
+		],
+		'dataProcessor' => [
+			// Ответ содержит статус успешности
+			'isCheckForSuccess' => true,
+			// Используем свойство `success` для проверки статуса успешности
+			'checkPropName' => 'success',
+			// Значение для проверки статуса успешности
+			'checkValue' => true,
+		],
+		'outputter' => [
+			'type' => 'metaData',
+		],
+	],
+]);
+
+// Теперь meta->isSuccess будет true только если:
+// * CURL-запрос успешен
+// * HTTP-код 2xx
+// * Ответ является объектом и содержит свойство `success` со значением `true` (например, `{"success": true}`)
+if ($result->meta->isSuccess){
+	// Всё хорошо!
+}else{
+	// Что-то пошло не так
+}
+```
+
+
+#### Валидация ответа как объекта, проверка на неудачу и извлечение сообщения об ошибке
+
+Ответ API является объектом и содержит свойство `status` со значением `fail` (например, `{"status": "fail"}`) — это неудача, иначе — успех.
+
+```php
+$result = \DDTools\Snippet::runSnippet([
+	'name' => 'ddMakeHttpRequest',
+	'params' => [
+		'requester' => [
+			'url' => 'https://api.example.com/send-sms',
+			'method' => 'post',
+			'data' => [
+				'phone' => '+1234567890',
+			],
+		],
+		'dataProcessor' => [
+			// Ответ содержит данные о статусе неудачи (например, `{"status": "fail"}`)
+			'isCheckForSuccess' => false,
+			// Используем свойство `status` для проверки статуса неудачи
+			'checkPropName' => 'status',
+			// Значение статуса неудачи
+			'checkValue' => 'fail',
+			// Извлекаем сообщение из ответа
+			'messagePropName' => 'message',
+		],
+		'outputter' => [
+			'type' => 'metaData',
+		],
+	],
+]);
+
+if (!$result->meta->isSuccess){
+	// Логируем ошибку с сообщением от API
+	error_log('Ошибка API: ' . ($result->meta->message ?? 'Неизвестная ошибка'));
 }
 ```
 

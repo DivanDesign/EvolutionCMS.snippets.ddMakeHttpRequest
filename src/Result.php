@@ -44,7 +44,7 @@ class Result {
 	
 	/**
 	 * fetchFromCurl
-	 * @version 1.2 (2025-11-24)
+	 * @version 1.2.1 (2025-11-25)
 	 * 
 	 * @desc Fetches data from a CURL handle and sets the properties of the instance.
 	 * 
@@ -83,14 +83,13 @@ class Result {
 			|| $this->meta->code >= 600
 		;
 		
-		// Data validation (default: check if data is not empty for backward compatibility)
-		$this->meta->isDataValid = !empty($this->data);
-		
 		$this->meta->isSuccess =
 			$this->meta->isCurlSuccess
 			&& $this->meta->isHttpCodeSuccess
-			&& $this->meta->isDataValid
 		;
+		
+		// True data validation will be done in the DataProcessor::process() method
+		$this->meta->isDataValid = $this->meta->isSuccess;
 	}
 }
 ?>
