@@ -126,20 +126,31 @@ class Snippet extends \DDTools\Snippet {
 	
 	/**
 	 * run
-	 * @version 1.4.12 (2025-11-24)
+	 * @version 1.4.13 (2025-11-25)
 	 * 
 	 * @return {mixed} — Response data, metadata, or both depending on outputter.
 	 */
 	public function run(){
 		// Initialize logger
 		$theLoggerInstance = new \ddMakeHttpRequest\Logger($this->params);
+		// Initialize result object
+		$theResultInstance = new \ddMakeHttpRequest\Result();
 		// Initialize requester
 		$theRequester = new \ddMakeHttpRequest\Requester([
 			'theLoggerInstance' => $theLoggerInstance,
 		]);
 		
 		// Execute request
-		$theResultInstance = $theRequester->execute($this->params->requester);
+		$theRequester->execute(
+			\DDTools\Tools\Objects::extend([
+				'objects' => [
+					(object) [
+						'theResultInstance' => $theResultInstance,
+					],
+					$this->params->requester,
+				],
+			])
+		);
 		
 		// Process result based on outputter->type parameter
 		switch ($this->params->outputter->type){

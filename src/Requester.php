@@ -29,11 +29,12 @@ class Requester {
 	
 	/**
 	 * execute
-	 * @version 2.0 (2025-11-24)
+	 * @version 3.0 (2025-11-25)
 	 * 
-	 * @desc Executes HTTP request and returns result. Handles manual redirects if needed.
+	 * @desc Executes HTTP request and stores result in `$params->theResultInstance`. Handles manual redirects if needed.
 	 * 
 	 * @param $params {stdClass|arrayAssociative} — Request parameters
+	 * @param $params->theResultInstance {\ddMakeHttpRequest\Result} — Result instance to store the result
 	 * @param $params->url {string}
 	 * @param $params->method {string}
 	 * @param $params->data {string|array}
@@ -43,14 +44,10 @@ class Requester {
 	 * @param $params->proxy {string}
 	 * @param $params->isCookieUsed {boolean}
 	 * 
-	 * @return {\ddMakeHttpRequest\Result}
+	 * @return {void}
 	 */
-	public function execute($params = []){
+	public function execute($params = []): void {
 		$params = (object) $params;
-		
-		// Initialize result object
-		$theResultInstance = new \ddMakeHttpRequest\Result();
-		
 		
 		if (!empty($params->url)){
 			$isManualRedirect = false;
@@ -230,26 +227,26 @@ class Requester {
 			}
 			
 			// Выполняем запрос
-			$theResultInstance->fetchFromCurl([
+			$params->theResultInstance->fetchFromCurl([
 				'curlHandle' => $curlHandle,
 			]);
 			
 			// Log errors or debug info
 			if (!is_null($this->theLoggerInstance)){
 				$this->theLoggerInstance->log([
-					'theResultInstance' => $theResultInstance,
+					'theResultInstance' => $params->theResultInstance,
 				]);
 			}
 			
-			if (!$theResultInstance->meta->isCurlSuccess){
-				$theResultInstance->data = '';
+			if (!$params->theResultInstance->meta->isCurlSuccess){
+				$params->theResultInstance->data = '';
 			}elseif ($isManualRedirect){
 				$redirectCount = 10;
 				
 				while (0 < $redirectCount--){
 					// Получаем заголовки, контент и код ответа
 					$resultHeader = substr(
-						$theResultInstance->data,
+						$params->theResultInstance->data,
 						0,
 						curl_getinfo(
 							$curlHandle,
@@ -257,7 +254,7 @@ class Requester {
 						)
 					);
 					$resultData = substr(
-						$theResultInstance->data,
+						$params->theResultInstance->data,
 						curl_getinfo(
 							$curlHandle,
 							CURLINFO_HEADER_SIZE
@@ -310,25 +307,25 @@ class Requester {
 							$redirectUrlObject->full
 						);
 						
-						$theResultInstance->fetchFromCurl([
+						$params->theResultInstance->fetchFromCurl([
 							'curlHandle' => $curlHandle,
 						]);
 						
 						// Log errors or debug info
 						if (!is_null($this->theLoggerInstance)){
 							$this->theLoggerInstance->log([
-								'theResultInstance' => $theResultInstance,
+								'theResultInstance' => $params->theResultInstance,
 								'context' => 'during manual redirect',
 							]);
 						}
 						
-						if (!$theResultInstance->meta->isCurlSuccess){
-							$theResultInstance->data = false;
+						if (!$params->theResultInstance->meta->isCurlSuccess){
+							$params->theResultInstance->data = false;
 							
 							break;
 						}
 					}else{
-						$theResultInstance->data = $resultData;
+						$params->theResultInstance->data = $resultData;
 						
 						break;
 					}
@@ -338,8 +335,6 @@ class Requester {
 			// Закрываем сеанс CURL
 			curl_close($curlHandle);
 		}
-		
-		return $theResultInstance;
 	}
 	
 	/**
