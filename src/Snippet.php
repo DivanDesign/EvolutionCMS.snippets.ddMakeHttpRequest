@@ -23,6 +23,7 @@ class Snippet extends \DDTools\Snippet {
 			'isCheckForSuccess' => false,
 			'checkPropName' => null,
 			'messagePropName' => null,
+			'convertTo' => '',
 		],
 		'outputter' => [
 			'type' => 'data',

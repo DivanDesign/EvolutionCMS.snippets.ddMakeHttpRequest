@@ -13,17 +13,19 @@ class DataProcessor {
 	 * @property $params->isCheckForSuccess {boolean} — Check for success (true) or failure (false)
 	 * @property $params->checkPropName {string|null} — Property name to check (null = check whole data)
 	 * @property $params->messagePropName {string|null} — Property name with message
+	 * @property $params->convertTo {string} — Convert data to specified type
 	 */
 	private $params = [
 		'checkValue' => '',
 		'isCheckForSuccess' => false,
 		'checkPropName' => null,
 		'messagePropName' => null,
+		'convertTo' => '',
 	];
 	
 	/**
 	 * __construct
-	 * @version 1.0 (2025-11-24)
+	 * @version 1.1 (2025-11-25)
 	 * 
 	 * @param $params {stdClass|arrayAssociative} — Processing parameters, see $this->params property
 	 */
@@ -34,11 +36,14 @@ class DataProcessor {
 				$params,
 			],
 		]);
+		
+		// Make convertTo case insensitive
+		$this->params->convertTo = strtolower($this->params->convertTo);
 	}
 	
 	/**
 	 * process
-	 * @version 1.0 (2025-11-24)
+	 * @version 1.1 (2025-11-25)
 	 * 
 	 * @desc Processes and validates response data
 	 * 
@@ -100,6 +105,36 @@ class DataProcessor {
 			&& $theResultInstance->meta->isHttpCodeSuccess
 			&& $theResultInstance->meta->isDataValid
 		;
+		
+		// Convert data if needed (always, regardless of validation)
+		if (!empty($this->params->convertTo)){
+			switch ($this->params->convertTo){
+				case 'string':
+					$theResultInstance->data = (string) $theResultInstance->data;
+				break;
+				
+				case 'integer':
+				case 'int':
+					$theResultInstance->data = (int) $theResultInstance->data;
+				break;
+				
+				case 'float':
+					$theResultInstance->data = (float) $theResultInstance->data;
+				break;
+				
+				case 'boolean':
+				case 'bool':
+					$theResultInstance->data = (bool) $theResultInstance->data;
+				break;
+				
+				// Object-like types
+				default:
+					$theResultInstance->data = \DDTools\Tools\Objects::convertType([
+						'object' => $theResultInstance->data,
+						'type' => $this->params->convertTo,
+					]);
+			}
+		}
 	}
 }
 ?>

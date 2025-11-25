@@ -184,6 +184,29 @@ require_once(
 		* `string` — property name with message
 	* Default value: `null`
 	
+* `dataProcessor->convertTo`
+	* Description: Convert response data to specified type.
+		* **Important:** This converts only the `data` part of the response. If you need to convert the whole snippet result (which can be `data`, `meta`, or `metaData`), use `outputter->convertTo` instead.
+		* If parameter is set, data is always returned in specified format, regardless of success/failure status and even if data is invalid (you don't need to do extra checks yourself).
+		* Values are case insensitive (the following values are equal: `'stringjsonauto'`, `'stringJsonAuto'`, `'STRINGJSONAUTO'`, etc).
+	* Valid values:
+		* `''` (empty value) — do not convert (default value)
+		* The snippet can convert data to primitive types:
+			* `'string'`
+			* `'integer'`/`'int'`
+			* `'float'`
+			* `'boolean'`/`'bool'`
+		* The snippet can convert data to string:
+			* `'stringJsonAuto'` — `stringJsonObject` or `stringJsonArray` depends on data type
+			* `'stringJsonObject'`
+			* `'stringJsonArray'`
+			* `'stringQueryFormatted'` — [Query string](https://en.wikipedia.org/wiki/Query_string)
+		* The snippet can also convert data to native PHP object or array (it is convenient to call through `\DDTools\Snippet`):
+			* `'objectAuto'` — `stdClass` or `array` depends on data type
+			* `'objectStdClass'` — `stdClass`
+			* `'objectArray'` — `array`
+	* Default value: — (without conversion)
+	
 * `outputter`
 	* Description: Output parameters.
 	* Valid values:
@@ -219,7 +242,8 @@ require_once(
 	* Default value: `'data'`
 	
 * `outputter->convertTo`
-	* Description: Output format (when result is an object or array).
+	* Description: Convert the whole snippet result to specified format.
+		* **Important:** This converts the complete snippet result (which can be `data`, `meta`, or `metaData` depending on `outputter->type`). If you need to convert only the response `data`, use `dataProcessor->convertTo` instead.
 		* Values are case insensitive (the following values are equal: `'stringjsonauto'`, `'stringJsonAuto'`, `'STRINGJSONAUTO'`, etc).
 	* Valid values:
 		* `''` (empty value) — return as is, without conversion (default value)
@@ -503,6 +527,39 @@ if (!$result->meta->isSuccess){
 	// Log error with message from API
 	error_log('API error: ' . ($result->meta->message ?? 'Unknown error'));
 }
+```
+
+
+### Convert data and output simultaneously with `dataProcessor->convertTo` and `outputter->convertTo`
+
+API returns JSON string `'{"userId": "123", "userName": "John"}'`. We want to:
+1. Convert response data from JSON string to PHP object (using `dataProcessor->convertTo`)
+2. Return both data and meta (using `outputter->type = 'metaData'`)
+3. Convert the whole result to JSON for frontend (using `outputter->convertTo`)
+
+```php
+$jsonResult = \DDTools\Snippet::runSnippet([
+	'name' => 'ddMakeHttpRequest',
+	'params' => [
+		'requester' => [
+			'url' => 'https://api.example.com/user',
+		],
+		'dataProcessor' => [
+			// Convert JSON string to PHP object before validation
+			'convertTo' => 'objectStdClass',
+		],
+		'outputter' => [
+			// Return both data and meta
+			'type' => 'metaData',
+			// Convert whole result to JSON
+			'convertTo' => 'stringJsonObject',
+		],
+	],
+]);
+
+// Now $jsonResult is JSON string like:
+// {"data": {"userId": "123", "userName": "John"}, "meta": {"isSuccess": true, ...}}
+// Perfect for AJAX responses or saving to file
 ```
 
 
