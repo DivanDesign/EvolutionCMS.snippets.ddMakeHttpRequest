@@ -17,7 +17,6 @@ class Snippet extends \DDTools\Snippet {
 			'proxy' => null,
 			'isCookieUsed' => false,
 		],
-		'isDebug' => false,
 		'dataProcessor' => [
 			'checkValue' => '',
 			'isCheckForSuccess' => false,
@@ -29,13 +28,14 @@ class Snippet extends \DDTools\Snippet {
 			'type' => 'data',
 			'convertTo' => '',
 		],
+		'isDebug' => false,
 	];
 	
 	protected $paramsTypes = [
 		'requester' => 'objectStdClass',
-		'isDebug' => 'boolean',
 		'dataProcessor' => 'objectStdClass',
 		'outputter' => 'objectStdClass',
+		'isDebug' => 'boolean',
 	];
 	
 	/**
