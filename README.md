@@ -55,6 +55,19 @@ require_once(
 
 ## Parameters description
 
+
+### General parameters
+
+* `isDebug`
+	* Description: Log all requests to event log (including successful ones), not only errors. Useful for debugging.
+	* Valid values:
+		* `0`
+		* `1`
+	* Default value: `0`
+
+
+### Request parameters
+
 * `requester`
 	* Description: Request parameters.
 	* Valid values:
@@ -131,14 +144,10 @@ require_once(
 		* `0`
 		* `1`
 	* Default value: `0`
-	
-* `isDebug`
-	* Description: Log all requests to event log (including successful ones), not only errors. Useful for debugging.
-	* Valid values:
-		* `0`
-		* `1`
-	* Default value: `0`
-	
+
+
+### Data processing parameters
+
 * `dataProcessor`
 	* Description: Response data processing and validation parameters for automatic success/failure checking.
 	* Valid values:
@@ -206,7 +215,10 @@ require_once(
 			* `'objectStdClass'` — `stdClass`
 			* `'objectArray'` — `array`
 	* Default value: — (without conversion)
-	
+
+
+### Output parameters
+
 * `outputter`
 	* Description: Output parameters.
 	* Valid values:
