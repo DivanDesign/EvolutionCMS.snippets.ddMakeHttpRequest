@@ -2,7 +2,11 @@
 
 Makes HTTP request to a given URL.
 
-Supports redirects even if native CURL redirects is unavailable.
+* Supports redirects even if native CURL redirects is unavailable.
+* Automatic response validation with configurable success/failure checking.
+* Flexible data conversion and output formatting.
+* All HTTP methods (GET, POST, PUT, PATCH, DELETE).
+* Cookies, proxy, custom headers.
 
 
 ## Requires
