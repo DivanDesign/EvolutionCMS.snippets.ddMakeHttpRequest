@@ -1,13 +1,17 @@
 <?php
-//Include (MODX)EvolutionCMS.libraries.ddTools
+// Include (MODX)EvolutionCMS.libraries.ddTools
 require_once(
-	//path to `assets`
+	// Path to `assets`
 	dirname(
 		__DIR__,
 		2
-	).
-	'/libs/ddTools/modx.ddtools.class.php'
+	)
+	. '/libs/ddTools/modx.ddtools.class.php'
 );
 
+require_once('src/Logger.php');
+require_once('src/Result.php');
+require_once('src/Requester.php');
+require_once('src/DataProcessor.php');
 require_once('src/Snippet.php');
 ?>

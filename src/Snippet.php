@@ -2,366 +2,189 @@
 namespace ddMakeHttpRequest;
 
 class Snippet extends \DDTools\Snippet {
-	protected
-		$version = '2.3.2',
-		
-		$params = [
-			//Defaults
+	protected $version = '2.4.0';
+	
+	// Defaults
+	protected $params = [
+		'requester' => [
 			'url' => null,
 			'method' => 'get',
-			'postData' => null,
-			'sendRawPostData' => false,
+			'data' => null,
+			'isRawDataEnabled' => false,
 			'headers' => [],
 			'userAgent' => null,
 			'timeout' => 60,
 			'proxy' => null,
-			'useCookie' => false
+			'isCookieUsed' => false,
 		],
-		
-		$paramsTypes = [
-			'sendRawPostData' => 'boolean',
-			'headers' => 'objectArray',
-			'timeout' => 'integer',
-			'useCookie' => 'boolean'
+		'dataProcessor' => [
+			'checkValue' => '',
+			'isCheckForSuccess' => false,
+			'checkPropName' => null,
+			'messagePropName' => null,
+			'convertTo' => '',
 		],
-		
-		$renamedParamsCompliance = [
-			'method' => 'metod',
-			'userAgent' => 'uagent',
-			'postData' => 'post',
-			'useCookie' => 'cookie'
-		]
-	;
+		'outputter' => [
+			'type' => 'data',
+			'convertTo' => '',
+		],
+		'isDebug' => false,
+	];
+	
+	protected $paramsTypes = [
+		'requester' => 'objectStdClass',
+		'dataProcessor' => 'objectStdClass',
+		'outputter' => 'objectStdClass',
+		'isDebug' => 'boolean',
+	];
 	
 	/**
 	 * prepareParams
-	 * @version 1.1 (2021-04-01)
+	 * @version 1.2.2 (2025-11-23)
 	 * 
 	 * @param $this->params {stdClass|arrayAssociative|stringJsonObject|stringQueryFormatted}
 	 * 
 	 * @return {void}
 	 */
 	protected function prepareParams($params = []){
-		//Call base method
+		// Call base method
 		parent::prepareParams($params);
 		
-		$this->params->method = strtolower($this->params->method);
+		$this->prepareParams_backwardCompatibility();
 		
-		if (is_object($this->params->postData)){
-			$this->params->postData = (array) $this->params->postData;
+		$this->params->requester->method = strtolower($this->params->requester->method);
+		$this->params->outputter->type = strtolower($this->params->outputter->type);
+		
+		if (is_object($this->params->requester->data)){
+			$this->params->requester->data = (array) $this->params->requester->data;
 		}
 		
-		if (!empty($this->params->postData)){
-			$this->params->method = 'post';
+		if (!empty($this->params->requester->data)){
+			if (empty($this->params->requester->method)){
+				$this->params->requester->method = 'post';
+			}
 			
 			if (
-				//Если отправляемые данные переданы строкой
-				!is_array($this->params->postData) &&
-				//И обрабатывать её можно
-				!$this->params->sendRawPostData
+				// Если отправляемые данные переданы строкой
+				!is_array($this->params->requester->data)
+				// И обрабатывать её можно
+				&& !$this->params->requester->isRawDataEnabled
 			){
-				$this->params->postData = \DDTools\ObjectTools::convertType([
-					'object' => $this->params->postData,
-					'type' => 'objectArray'
+				$this->params->requester->data = \DDTools\Tools\Objects::convertType([
+					'object' => $this->params->requester->data,
+					'type' => 'objectArray',
 				]);
 			}
 		}
 	}
 	
 	/**
-	 * run
-	 * @version 1.1.2 (2022-05-25)
+	 * prepareParams_backwardCompatibility
+	 * @version 1.0 (2025-11-23)
 	 * 
-	 * @return {string}
+	 * @desc Backward compatibility with old parameter structure
+	 * 
+	 * @return {void}
+	 */
+	private function prepareParams_backwardCompatibility(){
+		$isLogMessageNeeded = false;
+		
+		$rootLevelParams = \ddTools::verifyRenamedParams([
+			'params' => $this->params,
+			// Compliance for renaming old parameter names
+			'compliance' => [
+				'method' => 'metod',
+				'userAgent' => 'uagent',
+				'data' => ['post', 'postData'],
+				'isRawDataEnabled' => 'sendRawPostData',
+				'isCookieUsed' => ['useCookie', 'cookie'],
+			],
+			'returnCorrectedOnly' => false,
+		]);
+		
+		// Check if any `requester` parameters are on root level and move to `requester`
+		foreach (
+			array_keys((array) $this->params->requester)
+			as $paramName
+		){
+			if (
+				\DDTools\Tools\Objects::isPropExists([
+					'object' => $rootLevelParams,
+					'propName' => $paramName,
+				])
+			){
+				$isLogMessageNeeded = true;
+				
+				// Move to requester
+				$this->params->requester->{$paramName} = $rootLevelParams->{$paramName};
+				// Remove from root level
+				unset($this->params->{$paramName});
+			}
+		}
+		
+		// If something was found on root level
+		if ($isLogMessageNeeded){
+			// Log deprecation warning
+			\ddTools::logEvent([
+				'message' => '<p>You are using deprecated snippet parameters.</p><p>Backward compatibility is maintained and everything is working fine right now. But we strongly recommend to stay up to date.</p><p>Please use <code>requester</code> parameter with nested properties instead of root-level parameters.</p><p>Checkout documentation and fix it ASAP.</p>',
+				'source' => 'ddMakeHttpRequest',
+			]);
+		}
+	}
+	
+	/**
+	 * run
+	 * @version 1.5 (2025-11-25)
+	 * 
+	 * @return {mixed} — Response data, metadata, or both depending on outputter.
 	 */
 	public function run(){
-		//The snippet must return an empty string even if result is absent
-		$result = '';
+		// Initialize logger
+		$theLoggerInstance = new \ddMakeHttpRequest\Logger($this->params);
+		// Initialize result object
+		$theResultInstance = new \ddMakeHttpRequest\Result();
+		// Initialize requester
+		$theRequester = new \ddMakeHttpRequest\Requester([
+			'theLoggerInstance' => $theLoggerInstance,
+		]);
+		// Initialize data processor
+		$theDataProcessorInstance = new \ddMakeHttpRequest\DataProcessor($this->params->dataProcessor);
 		
-		if (!empty($this->params->url)){
-			$manualRedirect = false;
+		// Execute request
+		$theRequester->execute(
+			\DDTools\Tools\Objects::extend([
+				'objects' => [
+					(object) [
+						'theResultInstance' => $theResultInstance,
+					],
+					$this->params->requester,
+				],
+			])
+		);
+		
+		// Process and validate data
+		$theDataProcessorInstance->process($theResultInstance);
+		
+		// Process result based on outputter->type parameter
+		switch ($this->params->outputter->type){
+			case 'meta':
+				$result = $theResultInstance->meta;
+			break;
 			
-			//Разбиваем адрес на компоненты
-			$urlArray = parse_url($this->params->url);
-			$urlArray['scheme'] =
-				isset($urlArray['scheme']) ?
-				$urlArray['scheme'] :
-				'http'
-			;
-			$urlArray['path'] =
-				isset($urlArray['path']) ?
-				$urlArray['path'] :
-				''
-			;
-			$urlArray['query'] =
-				isset($urlArray['query']) ?
-				'?' . $urlArray['query'] :
-				''
-			;
+			case 'metadata':
+				$result = $theResultInstance;
+			break;
 			
-			//Инициализируем сеанс CURL
-			$ch = curl_init(
-				$urlArray['scheme'] . '://' .
-				$urlArray['host'] .
-				$urlArray['path'] .
-				$urlArray['query']
-			);
-			
-			//Выставление таймаута
-			curl_setopt(
-				$ch,
-				CURLOPT_TIMEOUT,
-				$this->params->timeout
-			);
-			
-			//Если необходимо соединиться с https
-			if ($urlArray['scheme'] === 'https'){
-				curl_setopt(
-					$ch,
-					CURLOPT_SSL_VERIFYPEER,
-					0
-				);
-				curl_setopt(
-					$ch,
-					CURLOPT_SSL_VERIFYHOST,
-					0
-				);
-			}
-			
-			//Устанавливаем порт, если задан
-			if(isset($urlArray['port'])){
-				curl_setopt(
-					$ch,
-					CURLOPT_PORT,
-					$urlArray['port']
-				);
-			}
-			
-			//Результат должен быть возвращен, а не выведен
-			curl_setopt(
-				$ch,
-				CURLOPT_RETURNTRANSFER,
-				1
-			);
-			
-			//Не включаем полученные заголовки в результат
-			
-			if (
-				ini_get('open_basedir') != '' ||
-				ini_get('safe_mode')
-			){
-				curl_setopt(
-					$ch,
-					CURLOPT_HEADER,
-					1
-				);
-				
-				$manualRedirect = true;
-			}else{
-				curl_setopt(
-					$ch,
-					CURLOPT_HEADER,
-					0
-				);
-				//При установке этого параметра в ненулевое значение, при получении HTTP заголовка "Location: " будет происходить перенаправление на указанный этим заголовком URL (это действие выполняется рекурсивно, для каждого полученного заголовка "Location:").
-				curl_setopt(
-					$ch,
-					CURLOPT_FOLLOWLOCATION,
-					true
-				);
-			}
-			
-			curl_setopt(
-				$ch,
-				CURLOPT_MAXREDIRS,
-				10
-			);
-			
-			//Если есть переменные для отправки
-			if (
-				$this->params->method == 'post' &&
-				!empty($this->params->postData)
-			){
-				//Запрос будет методом POST типа application/x-www-form-urlencoded (используемый браузерами при отправке форм)
-				curl_setopt(
-					$ch,
-					CURLOPT_POST,
-					1
-				);
-				
-				//Если он массив — делаем query string
-				if (is_array($this->params->postData)){
-					$this->params->postData = http_build_query($this->params->postData);
-				}
-				
-				curl_setopt(
-					$ch,
-					CURLOPT_POSTFIELDS,
-					$this->params->postData
-				);
-			}
-			
-			//Если заданы какие-то HTTP заголовки
-			if (is_array($this->params->headers)){
-				curl_setopt(
-					$ch,
-					CURLOPT_HTTPHEADER,
-					$this->params->headers
-				);
-			}
-			
-			//Если задан UserAgent
-			if (!empty($this->params->userAgent)){
-				curl_setopt(
-					$ch,
-					CURLOPT_USERAGENT,
-					$this->params->userAgent
-				);
-			}
-			
-			//Если задано использование печенек
-			if ($this->params->useCookie){
-				curl_setopt(
-					$ch,
-					CURLOPT_COOKIEFILE,
-					(
-						\ddTools::$modx->getConfig('base_path') .
-						'assets/cache/ddMakeHttpRequest_cookie.txt'
-					)
-				);
-				curl_setopt(
-					$ch,
-					CURLOPT_COOKIEJAR,
-					(
-						\ddTools::$modx->getConfig('base_path') .
-						'assets/cache/ddMakeHttpRequest_cookie.txt'
-					)
-				);
-			}
-			
-			//Если задан прокси-сервер
-			if(!empty($this->params->proxy)){
-				curl_setopt(
-					$ch,
-					CURLOPT_PROXY,
-					$this->params->proxy
-				);
-			}
-			
-			//Выполняем запрос
-			$result = curl_exec($ch);
-			
-			//Если есть ошибки или ничего не получили
-			if (
-				curl_errno($ch) != 0 &&
-				empty($result)
-			){
-				$result = '';
-			}elseif ($manualRedirect){
-				$redirectCount = 10;
-				
-				while (0 < $redirectCount--){
-					//Получаем заголовки, контент и код ответа
-					$resultHeader = substr(
-						$result,
-						0,
-						curl_getinfo(
-							$ch,
-							CURLINFO_HEADER_SIZE
-						)
-					);
-					$resultData = substr(
-						$result,
-						curl_getinfo(
-							$ch,
-							CURLINFO_HEADER_SIZE
-						)
-					);
-					$resultResponseCode = curl_getinfo(
-						$ch,
-						CURLINFO_HTTP_CODE
-					);
-					
-					//Проверяем код на редирект
-					if (intval($resultResponseCode / 100) == 3){
-						//Ищем новый url в заголовках
-						$matches = [];
-						
-						preg_match(
-							'/location:(.*?)\n/i',
-							$resultHeader,
-							$matches
-						);
-						
-						$newUrlStr = '';
-						
-						if (count($matches)){
-							$newUrlStr = array_pop($matches);
-						}
-						
-						
-						//Парсим url
-						$redirectUrl = parse_url(trim($newUrlStr));
-						if (!is_array($redirectUrl)){
-							$redirectUrl = [];
-						}
-						
-						
-						//Собираем новый url
-						$lastUrl = parse_url(curl_getinfo(
-							$ch,
-							CURLINFO_EFFECTIVE_URL
-						));
-						
-						if (!$redirectUrl['scheme']){
-							$redirectUrl['scheme'] = $lastUrl['scheme'];
-						}
-						if (!$redirectUrl['host']){
-							$redirectUrl['host'] = $lastUrl['host'];
-						}
-						if (!$redirectUrl['path']){
-							$redirectUrl['path'] = $lastUrl['path'];
-						}
-						
-						$newUrl =
-							$redirectUrl['scheme'] . '://' .
-							$redirectUrl['host'] .
-							$redirectUrl['path'] .
-							(
-								!empty($redirectUrl['query']) ?
-								'?' . $redirectUrl['query'] :
-								''
-							)
-						;
-						
-						
-						//Выполняем запрос с новым адресом
-						curl_setopt(
-							$ch,
-							CURLOPT_URL,
-							$newUrl
-						);
-						
-						$result = curl_exec($ch);
-						
-						if (
-							curl_errno($ch) != 0 &&
-							empty($result)
-						){
-							$result = false;
-							
-							break;
-						}
-					}else{
-						$result = $resultData;
-						
-						break;
-					}
-				}
-			}
-			
-			//Закрываем сеанс CURL
-			curl_close($ch);
+			// case 'data' or default
+			default:
+				$result = $theResultInstance->data;
+		}
+		
+		if (!empty($this->params->outputter->convertTo)){
+			$result = \DDTools\Tools\Objects::convertType([
+				'object' => $result,
+				'type' => $this->params->outputter->convertTo,
+			]);
 		}
 		
 		return $result;
