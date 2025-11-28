@@ -2,7 +2,7 @@
 namespace ddMakeHttpRequest;
 
 class Snippet extends \DDTools\Snippet {
-	protected $version = '2.3.2';
+	protected $version = '2.4.0';
 	
 	// Defaults
 	protected $params = [
