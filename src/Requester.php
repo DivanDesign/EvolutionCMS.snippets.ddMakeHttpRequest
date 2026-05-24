@@ -339,7 +339,7 @@ class Requester {
 	
 	/**
 	 * parseUrlStrToObject
-	 * @version 1.0 (2025-11-21)
+	 * @version 1.0.1 (2026-05-24)
 	 * 
 	 * @param $params {stdClass|arrayAssociative}
 	 * @param $params->url {string}
@@ -347,6 +347,7 @@ class Requester {
 	 * @param [$params->defaults->scheme='http'] {string}
 	 * @param [$params->defaults->host=''] {string}
 	 * @param [$params->defaults->path=''] {string}
+	 * @param [$params->defaults->query=''] {string}
 	 * 
 	 * @return $result {stdClass} — Parsed URL object with all components and full URL string
 	 * @return $result->scheme {string}
@@ -364,6 +365,7 @@ class Requester {
 						'scheme' => 'http',
 						'host' => '',
 						'path' => '',
+						'query' => '',
 					],
 				],
 				$params,

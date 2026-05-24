@@ -1,6 +1,11 @@
 # (MODX)EvolutionCMS.snippets.ddMakeHttpRequest changelog
 
 
+## Version 2.4.1 (2026-05-24)
+
+* \+ `\ddMakeHttpRequest\Requester::parseUrlStrToObject` → Parameters → `$params->defaults->query`: Added missed default value for the optional parameter.
+
+
 ## Version 2.4 (2025-11-28)
 
 * \+ Created detailed error logging for CURL errors and HTTP error responses (4xx, 5xx), including URL, HTTP code, CURL error code and message.
